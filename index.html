@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reserva</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9fafb;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      color: #1e3a8a;
+    }
+    .info {
+      font-size: 14px;
+      color: #4b5563;
+    }
+    .card {
+      display: flex;
+      background-color: #f3f4f6;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 15px;
+    }
+    .card img {
+      width: 128px;
+      height: 80px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 2px solid #d1d5db;
+    }
+    .card-content {
+      flex: 1;
+      margin-right: 10px;
+    }
+    .title {
+      font-weight: bold;
+      color: #1e3a8a;
+    }
+    .bold {
+      font-weight: bold;
+    }
+    .timer {
+      background: #e5e7eb;
+      padding: 15px;
+      text-align: center;
+      border-radius: 10px;
+      margin-top: 15px;
+    }
+    .timer-title {
+      color: #1e3a8a;
+      font-weight: bold;
+    }
+    .time {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+    }
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .confirm {
+      background-color: #facc15;
+      color: #000;
+    }
+    .cancel {
+      background-color: #f97316;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Reserva</h2>
+    <p class="info">
+      Learn what to expect from DePue's planning process. Download this free PDF that walks you through our Front-End Loading process for all our projects.
+    </p>
+
+    <div class="card">
+      <div class="card-content">
+        <p class="title">LAMBORGHINI HUARACAN EVO</p>
+        <p>Fecha: 15/04/25 Hora: 10:00</p>
+        <p class="bold">Self Pickup</p>
+        <p class="bold title">Bs 100.00</p>
+        <p>Lugar Recogida: 1 día 0 hrs</p>
+      </div>
+      <img src="./Captura de pantalla 2025-04-01 161543.png" alt="Lamborghini" />
+    </div>
+
+    <div class="timer">
+      <p class="timer-title">TIEMPO RESTANTE</p>
+      <p id="countdown" class="time">03:00:00</p>
+    </div>
+
+    <div class="buttons">
+      <button class="confirm">Confirmar Pago</button>
+      <button class="cancel">Cancelar Reserva</button>
+    </div>
+  </div>
+
+  <script>
+    let secondsLeft = 3 * 60 * 60; // 3 horas
+
+    function formatTime(secs) {
+      const hours = String(Math.floor(secs / 3600)).padStart(2, "0");
+      const minutes = String(Math.floor((secs % 3600) / 60)).padStart(2, "0");
+      const seconds = String(secs % 60).padStart(2, "0");
+      return `${hours}:${minutes}:${seconds}`;
+    }
+
+    function updateCountdown() {
+      if (secondsLeft <= 0) return;
+      secondsLeft--;
+      document.getElementById("countdown").textContent = formatTime(secondsLeft);
+    }
+
+    setInterval(updateCountdown, 1000);
+  </script>
+</body>
+</html>
