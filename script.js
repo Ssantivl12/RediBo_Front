@@ -1,74 +1,61 @@
-// script.js
-document.addEventListener('DOMContentLoaded', function() {
-    const carousel = document.querySelector('.carousel');
-    const prevButton = document.querySelector('.carousel-control.prev');
-    const nextButton = document.querySelector('.carousel-control.next');
-    let slides = [];
-    let currentIndex = 0;
-    const autoRotateTime = 4000; // 4 segundos
-  
-    // Datos de ejemplo con imágenes en la carpeta "images"
-    slides = [
-      { imageUrl: "images/auto1.jpg", name: "Modelo A", brand: "Marca X", averagePrice: 50, availableUnits: 3 },
-      { imageUrl: "images/auto2.jpg", name: "Modelo B", brand: "Marca Y", averagePrice: 60, availableUnits: 2 },
-      { imageUrl: "images/auto3.jpg", name: "Modelo C", brand: "Marca Z", averagePrice: 70, availableUnits: 5 },
-      { imageUrl: "images/auto4.jpg", name: "Modelo D", brand: "Marca W", averagePrice: 80, availableUnits: 1 },
-      { imageUrl: "images/auto5.jpg", name: "Modelo E", brand: "Marca V", averagePrice: 90, availableUnits: 4 }
-    ];
-  
-    renderSlides();
-    startAutoRotate();
-  
-    function renderSlides() {
-      carousel.innerHTML = '';
-      slides.forEach(car => {
-        const slide = document.createElement('div');
-        slide.classList.add('carousel-slide');
-        slide.innerHTML = `
-          <img src="${car.imageUrl}" alt="${car.name}">
-          <div class="carousel-info">
-            <h3>${car.name} - ${car.brand}</h3>
-            <p>Precio Promedio: $${car.averagePrice}</p>
-            <p>Unidades Disponibles: ${car.availableUnits}</p>
-            <a href="/busqueda?modelo=${encodeURIComponent(car.name)}" class="btn">Ver detalles</a>
-          </div>
-        `;
-        carousel.appendChild(slide);
-      });
-    }
-  
-    function updateCarousel() {
-      const offset = -currentIndex * 100;
-      carousel.style.transform = `translateX(${offset}%)`;
-    }
-  
-    function nextSlide() {
-      currentIndex = (currentIndex + 1) % slides.length;
+// Seleccionamos elementos necesarios
+const carouselSlide = document.querySelector('.carousel-slide');
+const slides = document.querySelectorAll('.slide');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const carouselDots = document.getElementById('carouselDots');
+
+let currentSlide = 0;
+const totalSlides = slides.length;
+
+// Función para actualizar el carrusel con efecto deslizable
+function updateCarousel() {
+  carouselSlide.style.transform = `translateX(-${currentSlide * 100}%)`;
+  updateDots();
+}
+
+// Función para cambiar de slide siguiente
+function nextSlide() {
+  currentSlide = (currentSlide + 1) % totalSlides;
+  updateCarousel();
+}
+
+// Función para cambiar de slide anterior
+function prevSlide() {
+  currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+  updateCarousel();
+}
+
+// Crear indicadores dinámicamente según la cantidad de slides
+function createDots() {
+  for (let i = 0; i < totalSlides; i++) {
+    const dot = document.createElement('div');
+    dot.classList.add('dot');
+    dot.addEventListener('click', () => {
+      currentSlide = i;
       updateCarousel();
-    }
-  
-    function prevSlide() {
-      currentIndex = (currentIndex - 1 + slides.length) % slides.length;
-      updateCarousel();
-    }
-  
-    prevButton.addEventListener('click', () => {
-      prevSlide();
-      resetAutoRotate();
     });
-  
-    nextButton.addEventListener('click', () => {
-      nextSlide();
-      resetAutoRotate();
-    });
-  
-    let autoRotateInterval;
-    function startAutoRotate() {
-      autoRotateInterval = setInterval(nextSlide, autoRotateTime);
-    }
-  
-    function resetAutoRotate() {
-      clearInterval(autoRotateInterval);
-      startAutoRotate();
-    }
-  });  
+    carouselDots.appendChild(dot);
+  }
+}
+
+// Actualizar la clase activa en los indicadores
+function updateDots() {
+  const dots = document.querySelectorAll('.dot');
+  dots.forEach((dot, index) => {
+    dot.classList.toggle('active', index === currentSlide);
+  });
+}
+
+// Listeners para los botones
+nextBtn.addEventListener('click', nextSlide);
+prevBtn.addEventListener('click', prevSlide);
+
+// Inicializamos el carrusel e indicadores
+createDots();
+updateCarousel();
+
+// Rotación automática cada 5 segundos
+setInterval(() => {
+  nextSlide();
+}, 5000);

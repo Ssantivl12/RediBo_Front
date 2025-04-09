@@ -1,19 +1,94 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Carrusel de Autos</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Carrusel Interactivo</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="carousel-container">
-    <div class="carousel">
-      <!-- Las diapositivas se cargarán dinámicamente -->
+  <header>
+    <div class="title">
+      <h1 class="nombre">REDIBO</h1>
     </div>
-    <button class="carousel-control prev">&#10094;</button>
-    <button class="carousel-control next">&#10095;</button>
-  </div>
+  </header>
+  
+  <main>
+     <div class="title">
+      <h1 class="nombre">REDIBO</h1>
+    </div>
+    <div class="carousel-container">
+      <!-- Botón Anterior -->
+      <button class="carousel-btn prev" id="prevBtn">&#10094;</button>
+      <!-- Carrusel (contenedor de slides) -->
+      <div class="carousel-wrapper">
+        <div class="carousel-slide">
+          <!-- Cada slide incluye la imagen y la información requerida -->
+          <div class="slide">
+            <img src="images/auto1.jpg" alt="Auto 1">
+            <div class="info">
+              <h3 class="nombre">Nombre: Deportivo A</h3>
+              <p class="modelo">Modelo: XYZ 2025</p>
+              <p class="marca">Marca: Toyota</p>
+              <p class="precio">Precio promedio: $40,000</p>
+            </div>
+          </div>
+          <div class="slide">
+            <img src="images/auto2.jpg" alt="Auto 2">
+            <div class="info">
+              <h3 class="nombre">Nombre: Familiar B</h3>
+              <p class="modelo">Modelo: ABC 2023</p>
+              <p class="marca">Marca: Ford</p>
+              <p class="precio">Precio promedio: $30,000</p>
+            </div>
+          </div>
+          <div class="slide">
+            <img src="images/auto3.jpg" alt="Auto 3">
+            <div class="info">
+              <h3 class="nombre">Nombre: SUV C</h3>
+              <p class="modelo">Modelo: UVW 2024</p>
+              <p class="marca">Marca: Chevrolet</p>
+              <p class="precio">Precio promedio: $35,000</p>
+            </div>
+          </div>
+          <div class="slide">
+            <img src="images/auto4.jpg" alt="Auto 4">
+            <div class="info">
+              <h3 class="nombre">Nombre: Deportivo D</h3>
+              <p class="modelo">Modelo: XYZ 2025</p>
+              <p class="marca">Marca: Nissan</p>
+              <p class="precio">Precio promedio: $70,000</p>
+            </div>
+          </div>
+          <div class="slide">
+            <img src="images/auto5.jpg" alt="Auto 5">
+            <div class="info">
+              <h3 class="nombre">Nombre: Deportivo E</h3>
+              <p class="modelo">Modelo: ABC 2025</p>
+              <p class="marca">Marca: Toyota</p>
+              <p class="precio">Precio promedio: $170,000</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Indicadores (puntitos) -->
+      <div class="carousel-dots" id="carouselDots"></div>
+      
+      <!-- Botón Siguiente -->
+      <button class="carousel-btn next" id="nextBtn">&#10095;</button>
+    </div>
+    
+    <section class="content">
+      <h2>Sección de Contenido</h2>
+      <p>Este es un texto de ejemplo para diferenciar las partes de la página. Aquí puedes añadir cualquier información relevante, como una descripción de los servicios, detalles de contacto o cualquier otro contenido que desees destacar.</p>
+    </section>
+  </main>
+  
+  <footer>
+    <p>&copy; 2023 Mi Página Web. Todos los derechos reservados.</p>
+  </footer>
+
   <script src="script.js"></script>
 </body>
 </html>
