@@ -1,0 +1,35 @@
+.container {
+    color: black;
+    background-color: aliceblue;
+}
+
+.h1{
+    text-align: center;
+    color: #144ae8;
+    font-size: 40px;
+    text-shadow: 5px 2px 2px #a8dadc;
+}
+
+.ul{
+    list-style-type: none;
+    background-color: #ddc5bc96;
+    margin: 5px;
+    padding: 5px;
+}
+
+.li{
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid black;
+}
+
+.button{
+    color: white;
+    background-color: #ee9a0f;
+    margin: 2px;
+    padding: 5px;
+    border-radius: 10;
+    font-size: 15;
+    position: relative;
+    cursor: pointer;
+}
