@@ -1,37 +1,72 @@
-// Seleccionamos elementos necesarios
-const carouselSlide = document.querySelector('.carousel-slide');
-const slides = document.querySelectorAll('.slide');
-const prevBtn = document.getElementById('prevBtn');
-const nextBtn = document.getElementById('nextBtn');
-const carouselDots = document.getElementById('carouselDots');
+const carouselSlide = document.querySelector(".carousel-slide");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const carouselDots = document.getElementById("carouselDots");
 
 let currentSlide = 0;
-const totalSlides = slides.length;
+let slidesData = [];
 
-// Función para actualizar el carrusel con efecto deslizable
+// Cargar vehículos desde el backend
+async function cargarVehiculos() {
+  try {
+    const res = await fetch("http://localhost:3000/vehiculos");
+    const data = await res.json();
+    console.log("Datos recibidos:", data); // Inspecciona los datos aquí
+    slidesData = data;
+    renderSlides();
+    createDots();
+    updateCarousel();
+  } catch (error) {
+    console.error("Error al cargar vehículos:", error);
+  }
+}
+
+// Renderizar los slides dinámicamente
+function renderSlides() {
+  console.log('slidesData:', slidesData); // Depura qué estás recibiendo
+  slidesData.forEach((slide) => {
+    // Tu lógica para renderizar los slides
+    carouselSlide.innerHTML = ""; // Limpiar
+
+    slidesData.forEach((vehiculo) => {
+      const slide = document.createElement("div");
+      slide.classList.add("slide");
+      slide.innerHTML = `
+        <img src="${vehiculo.imageUrl}" alt="${vehiculo.model}">
+        <div class="info">
+          <h3 class="nombre">Nombre: ${vehiculo.model}</h3>
+          <p class="modelo">Marca: ${vehiculo.brand}</p>
+          <p class="precio">Precio por día: $${vehiculo.pricePerDay}</p>
+          <p class="rating">Rating promedio: ${vehiculo.promedioRating.toFixed(2)}</p>
+        </div>
+      `;
+      carouselSlide.appendChild(slide);
+    });
+  });
+}
+
 function updateCarousel() {
   carouselSlide.style.transform = `translateX(-${currentSlide * 100}%)`;
   updateDots();
 }
 
-// Función para cambiar de slide siguiente
 function nextSlide() {
-  currentSlide = (currentSlide + 1) % totalSlides;
+  currentSlide = (currentSlide + 1) % slidesData.length;
   updateCarousel();
 }
 
-// Función para cambiar de slide anterior
 function prevSlide() {
-  currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+  currentSlide = (currentSlide - 1 + slidesData.length) % slidesData.length;
   updateCarousel();
 }
 
-// Crear indicadores dinámicamente según la cantidad de slides
 function createDots() {
-  for (let i = 0; i < totalSlides; i++) {
-    const dot = document.createElement('div');
-    dot.classList.add('dot');
-    dot.addEventListener('click', () => {
+  carouselDots.innerHTML = ""; // Limpiar
+  for (let i = 0; i < slidesData.length; i++) {
+    const dot = document.createElement("div");
+    dot.classList.add("dot");
+    if (i === 0) dot.classList.add("active");
+    dot.addEventListener("click", () => {
       currentSlide = i;
       updateCarousel();
     });
@@ -39,23 +74,19 @@ function createDots() {
   }
 }
 
-// Actualizar la clase activa en los indicadores
 function updateDots() {
-  const dots = document.querySelectorAll('.dot');
+  const dots = document.querySelectorAll(".dot");
   dots.forEach((dot, index) => {
-    dot.classList.toggle('active', index === currentSlide);
+    dot.classList.toggle("active", index === currentSlide);
   });
 }
 
-// Listeners para los botones
-nextBtn.addEventListener('click', nextSlide);
-prevBtn.addEventListener('click', prevSlide);
+nextBtn.addEventListener("click", nextSlide);
+prevBtn.addEventListener("click", prevSlide);
 
-// Inicializamos el carrusel e indicadores
-createDots();
-updateCarousel();
-
-// Rotación automática cada 5 segundos
 setInterval(() => {
   nextSlide();
 }, 5000);
+
+// Iniciar todo
+cargarVehiculos();

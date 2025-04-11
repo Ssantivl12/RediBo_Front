@@ -92,6 +92,11 @@ footer {
   text-align: center;
 }
 
+.info .rating {
+  font-weight: bold;
+  color: #11295B;
+}
+
 h1 {
   background-color: #FCA311;
   padding: 1rem;
