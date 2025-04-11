@@ -8,10 +8,14 @@ function formatTime(secs) {
 }
 
 function updateCountdown() {
-  if (secondsLeft <= 0) return;
-  secondsLeft--;
-  document.getElementById("countdown").textContent = formatTime(secondsLeft);
+    if (secondsLeft <= 0) {
+      window.location.href = "cancelacion.html";
+      return;
+    }
+    secondsLeft--;
+    document.getElementById("countdown").textContent = formatTime(secondsLeft);
 }
+  
 
 function toggleVisibility() {
   const container = document.getElementById("reservaContainer");
@@ -21,7 +25,7 @@ function toggleVisibility() {
 }
 
 function irACancelacion() {
-    window.location.href = "cancelacion.html"; // o el nombre del archivo que quieras
+    window.location.href = "cancelacion.html"; //  el nombre del archivo que quieras
 }
 
 setInterval(updateCountdown, 1000);
