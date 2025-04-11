@@ -20,4 +20,8 @@ function toggleVisibility() {
   showBtn.classList.toggle("hidden");
 }
 
+function irACancelacion() {
+    window.location.href = "cancelacion.html"; // o el nombre del archivo que quieras
+}
+
 setInterval(updateCountdown, 1000);
