@@ -1,5 +1,4 @@
-
-'use client';
+//'use client';
 import { getAutos } from '@/libs/api';
 import { Auto } from '@/types/auto';
 
@@ -10,21 +9,24 @@ export default async function AutosPage() {
 
   return (
     <div className={styles.container}>
-    <h1 className={styles.h1}>Lista de Autos</h1>
-    <ul className={styles.ul}>
+      <h1 className={styles.title}>Lista de Autos</h1>
+      <div className={styles.grid}>
         {autos.map((auto: Auto) => (
-        <li key={auto.idAuto} className={styles.li}>
-            <p><strong>Marca:</strong> {auto.marca}</p>
-            <p><strong>Modelo:</strong> {auto.modelo}</p>
-            <p><strong>Kilometraje:</strong> {auto.kilometraje} </p>
-            <p><strong>Transmision:</strong> {auto.transmision} </p>
-            <p><strong>Combustible:</strong> {auto.combustible} </p>
-            <a className={styles.button} href={`/detalleCoche/${auto.idAuto}`} target="_blank">
-              Ver detalles
-            </a>
-        </li>
+          <div key={auto.idAuto} className={styles.card}>
+            <div className={styles.imagePlaceholder}>Imagen del auto</div>
+            <div className={styles.info}>
+              <p><span className={styles.label}>Marca:</span> {auto.marca}</p>
+              <p><span className={styles.label}>Modelo:</span> {auto.modelo}</p>
+              <p><span className={styles.label}>Kilometraje:</span> {auto.kilometraje}</p>
+              <p><span className={styles.label}>Transmisión:</span> {auto.transmision}</p>
+              <p><span className={styles.label}>Combustible:</span> {auto.combustible}</p>
+              <a className={styles.button} href={`/detalleCoche/${auto.idAuto}`} target="_blank">
+                Ver detalles
+              </a>
+            </div>
+          </div>
         ))}
-    </ul>
+      </div>
     </div>
   );
 }
