@@ -4,6 +4,12 @@
    - Detalles extra (texto): #11295B
    - Bloques de información: #E4D5C1
 */
+:root {
+  --bg-color: #FFFFFF;
+  --button-color: #FCA311;
+  --text-color: #11295B;
+  --info-bg: #E4D5C1;
+}
 
 * {
   margin: 0;
@@ -47,12 +53,11 @@ footer {
   width: 100%;
 }
 
-/* Contenedor principal del carrusel */
 .carousel-container {
   position: relative;
-  /*width: 90%; 
-  max-width: 900px; margenes*/
-  margin: 0 auto;
+  width: 90%;
+  max-width: 1200px;
+  margin: 2rem auto;
   overflow: hidden;
 }
 
@@ -61,35 +66,71 @@ footer {
   overflow: hidden;
 }
 
-/* Carrusel: contenedor de slides en línea */
 .carousel-slide {
   display: flex;
   transition: transform 0.5s ease-in-out;
 }
 
-/* Cada slide ocupa el 100% del ancho */
 .slide {
-  min-width: 100%;
+  flex: 0 0 25%;
+  min-width: 25%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: all 0.3s ease;
+  position: relative;
+  padding: 0 10px;
 }
 
-/* Imagen dentro de cada slide */
+.slide.active {
+  flex: 0 0 50%;
+  z-index: 2;
+}
+
 .slide img {
   width: 100%;
-  height: 400px; /* Altura fija */
+  height: 400px;
   object-fit: cover;
-  border-radius: 5px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
 }
 
-/* Información de cada slide */
+.slide.active img {
+  height: 500px;
+  transform: scale(1.05);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.slide:not(.active) img {
+  opacity: 0.7;
+  filter: brightness(0.9);
+}
+
 .info {
-  background-color: #E4D5C1;
-  padding: 1rem;
-  border-radius: 1px;
-  width: 100%;
-  text-align: center;
+  background-color: var(--info-bg);
+  padding: 1.5rem;
+  border-radius: 8px;
+  width: 90%;
+  margin-top: -50px;
+  display: none;
+  position: relative;
+  z-index: 3;
+}
+
+.slide.active .info {
+  display: block;
+  animation: fadeInUp 0.5s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .info .rating {
@@ -116,38 +157,34 @@ h1 {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background-color: #FCA311;
-  color: #FFFFFF;
+  background-color: var(--button-color);
+  color: white;
   border: none;
   cursor: pointer;
-  padding: 0.8rem;
+  padding: 1rem 1.5rem;
   font-size: 1.5rem;
   border-radius: 50%;
-  z-index: 10;
-  opacity: 0.8;
-  transition: opacity 0.3s;
+  z-index: 4;
+  opacity: 0.9;
+  transition: all 0.3s ease;
 }
 
 .carousel-btn:hover {
   opacity: 1;
+  transform: translateY(-50%) scale(1.1);
 }
 
-.prev {
-  left: 10px;
-}
+.prev { left: 20px; }
+.next { right: 20px; }
 
-.next {
-  right: 10px;
-}
-
-/* Indicadores (puntitos) */
 .carousel-dots {
   position: absolute;
-  bottom: 5px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 0.5rem;
+  gap: 0.8rem;
+  z-index: 4;
 }
 
 .carousel-dots .dot {
@@ -170,22 +207,23 @@ h1 {
   text-align: center;
 }
 
-/* Responsividad */
+/* Responsive */
 @media (max-width: 768px) {
-  .carousel-container {
-    width: 100%;
+  .slide img {
+    height: 300px;
   }
   
-  .slide img {
-    max-height: 250px;
+  .slide.active img {
+    height: 350px;
   }
   
   .carousel-btn {
-    padding: 0.5rem;
-    font-size: 1rem;
+    padding: 0.8rem;
+    font-size: 1.2rem;
   }
   
-  .content {
-    margin-top: 1rem;
+  .info {
+    padding: 1rem;
+    margin-top: -30px;
   }
 }

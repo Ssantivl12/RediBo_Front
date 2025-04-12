@@ -19,21 +19,16 @@
     </div>
 
     <div class="carousel-container">
-      <!-- Botón Anterior -->
-      <button class="carousel-btn prev" id="prevBtn">&#10094;</button>
-
-      <!-- Carrusel dinámico -->
+      <button class="carousel-btn prev" id="prevBtn">❮</button>
       <div class="carousel-wrapper">
-        <div class="carousel-slide" id="carouselSlide">
-          <!-- Las slides se generan desde JavaScript -->
+        <div class="carousel-slide">
+          <div class="slide left"></div>
+          <div class="slide center active"></div>
+          <div class="slide right"></div>
         </div>
       </div>
-
-      <!-- Indicadores (puntitos) -->
       <div class="carousel-dots" id="carouselDots"></div>
-
-      <!-- Botón Siguiente -->
-      <button class="carousel-btn next" id="nextBtn">&#10095;</button>
+      <button class="carousel-btn next" id="nextBtn">❯</button>
     </div>
     
     <section class="content">
