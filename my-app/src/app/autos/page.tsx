@@ -1,4 +1,5 @@
 
+'use client';
 import { getAutos } from '@/libs/api';
 import { Auto } from '@/types/auto';
 
@@ -18,7 +19,9 @@ export default async function AutosPage() {
             <p><strong>Kilometraje:</strong> {auto.kilometraje} </p>
             <p><strong>Transmision:</strong> {auto.transmision} </p>
             <p><strong>Combustible:</strong> {auto.combustible} </p>
-            <button className={styles.button}>Ver detalles</button>
+            <a className={styles.button} href={`/detalleCoche/${auto.idAuto}`} target="_blank">
+              Ver detalles
+            </a>
         </li>
         ))}
     </ul>
