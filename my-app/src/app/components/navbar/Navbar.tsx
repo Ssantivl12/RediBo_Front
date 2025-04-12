@@ -2,8 +2,14 @@
 
 import { useState } from 'react';
 
-export default function Navbar({ onLoginClick }: { onLoginClick: () => void }) {
+export default function Navbar() {  // Quitamos el prop onLoginClick
   const [activeBtn, setActiveBtn] = useState(0);
+
+  // Función interna para manejar el clic
+  const handleLoginClick = () => {
+    console.log('Login clicked');
+    // Aquí puedes implementar la lógica de inicio de sesión en el futuro
+  };
 
   return (
     <div className="px-6 md:px-20 lg:px-40 py-4 border-b border-[rgba(0,0,0,0.05)] font-[var(--fuente-principal)] bg-[var(--blanco)]">
@@ -12,7 +18,6 @@ export default function Navbar({ onLoginClick }: { onLoginClick: () => void }) {
         <h1 className="text-3xl md:text-4xl text-[var(--naranja)] font-[var(--tamaño-black)] drop-shadow-[var(--sombra)]">
           REDIBO
         </h1>
-
 
         <div className="flex overflow-x-auto md:overflow-visible relative w-full md:w-auto justify-start md:justify-center">
           {[1, 2, 3, 4, 5].map((n, i) => (
@@ -43,7 +48,7 @@ export default function Navbar({ onLoginClick }: { onLoginClick: () => void }) {
             Registrarse
           </button>
           <button
-            onClick={onLoginClick}
+            onClick={handleLoginClick}  // Usamos la función interna
             className="w-1/2 md:w-auto px-4 py-[0.4rem] rounded-r-[20px] bg-[var(--naranja)] text-[var(--blanco)] font-[var(--tamaña-bold)] shadow-[var(--sombra)] transition-transform duration-100 active:scale-[0.97] active:shadow-[0_1px_3px_rgba(0,0,0,0.2)] text-sm md:text-base"
           >
             Iniciar Sesión

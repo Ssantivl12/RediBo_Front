@@ -33,7 +33,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh',}}>
           <header>
-            <Navbar onLoginClick={() => {}} />
+            <Navbar />
           </header>
 
           <main style={{ flexGrow: 1, backgroundColor: '#ffffff'}}>

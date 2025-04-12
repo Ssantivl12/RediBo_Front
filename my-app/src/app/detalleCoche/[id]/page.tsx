@@ -3,13 +3,15 @@ import { notFound } from 'next/navigation';
 import styles from './detalleCoche.module.css';
 
 interface DetalleCocheProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function DetalleCoche({ params }: DetalleCocheProps) {
-  const { id } = params;
+  // Esperar a que se resuelvan los parámetros
+  const resolvedParams = await params;
+  const id = resolvedParams.id;
 
   const res = await fetch(`http://localhost:4000/api/autos/${id}`);
   if (!res.ok) notFound();
