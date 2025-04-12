@@ -1,50 +1,332 @@
-.container {
-    padding: 30px;
-    font-family: 'Arial', sans-serif;
-    background-color: #f7f9fc;
-  }
-  
-  .title {
-    font-size: 32px;
-    color: #11295B;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+
+
+.contenedor {
+    max-width: 1150px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background-color: white;
+    color: #333;
+    font-family: 'Inter', Arial, sans-serif;
+}
+
+.titulo {
+    color: #11295b;
+    font-size: 40px;
     margin-bottom: 20px;
-  }
-  
-  .content {
+}
+
+/* Contenido principal */
+.contenido {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
-    align-items: flex-start;
-  }
-  
-  .imagePlaceholder {
-    width: 100%;
-    height: 250px;
-    background-color: #d9d9d9;
-    border-radius: 12px;
+    grid-template-columns: 350px 1fr 220px;
+    gap: 15px;
+}
+
+/* Sección imagen del auto */
+.imagenAuto {
+    position: relative;
+    width: 350px;
+    height: 220px;
+    background-color: #f9f9f9;
+    border: 2px solid #000;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #666;
-    font-size: 16px;
-  }
-  
-  .carInfo {
-    grid-column: 1 / span 2;
-    margin-top: 20px;
-  }
-  
-  .pricing {
+}
+
+.siluetaAuto {
+    width: 85%;
+    height: 75%;
+    background-color: #333;
+    border-radius: 12px;
+}
+
+.flechaNavegacion {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 30px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: black;
+}
+
+.flechaIzquierda {
+    left: 10px;
+}
+
+.flechaDerecha {
+    right: 10px;
+}
+
+/* Sección izquierda */
+.seccionIzquierda {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Contenedor de calificación */
+.contenedorCalificacion {
     background-color: white;
     padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0px 3px 6px rgba(0,0,0,0.1);
-    margin-top: 20px;
-    grid-column: 1 / span 2;
-  }
-  
-  .label {
-    color: #11295B;
+    text-align: left;
+}
+
+.calificacion {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.estrellas {
+    color: #fca311;
+    font-size: 24px;
+}
+
+.puntuacion {
     font-weight: bold;
-  }
-  
+    color: #333;
+    font-size: 18px;
+}
+
+.insigniaVerificado {
+    display: inline-block;
+    background-color: #fca311;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 16px;
+    margin-top: 10px;
+    cursor: pointer;
+    width: fit-content;
+    text-decoration: none;
+    text-align: center;
+    transition: backgroud-color 0.2s ease;
+}
+
+.insigniaVerificado:hover {
+    background-color: #fca311; /* Ligeramente más oscuro en hover */
+}
+
+.insigniaVerificado:active {
+    background-color: #ec970d; /* Más oscuro al hacer clic */
+}
+
+/* Contenedor de detalles */
+.contenedorDetalles {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid white;
+    margin-top: 0;
+    position: relative;
+    top: -15px;
+    width: 120%;                          /* Hacer un poco más ancho que su contenedor */
+    max-width: 450px;                     /* Limitar el crecimiento para que no choque con otros elementos */
+    box-sizing: border-box;
+}
+
+.subtituloDetalles {
+    color: #11295b;
+    font-size: 18px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.detalles {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.filaDetalles {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* Sección características */
+.seccionInformacion {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.caracteristicas {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid white;
+    width: 420px;
+    height: 250px;
+    margin-left: 10px;
+}
+
+.tituloCaracteristicas {
+    color: #11295b;
+    font-size: 20px;                   /*h5 ??*/
+    margin-bottom: 15px;
+    font-weight: bold;
+    padding-bottom: 5px;
+}
+
+.gridCaracteristicas {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-left: 15px;
+}
+
+.caracteristica {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.iconoCaracteristica {
+    display: block;
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+}
+
+.textoCaracteristica {
+    display: flex;
+    flex-direction: column;
+    font-size: 10px;
+    color: #333;
+}
+
+.valorCaracteristica {
+    font-weight: bold;
+    color: #000000;
+    font-size: 16px;
+}
+
+/* Panel lateral */
+.panelLateral {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-left: -65px;
+}
+
+
+/* Tarjeta anfitrión */
+.tarjetaAnfitrion {
+    border: 3px solid #000;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: white;
+    width: 290px;               /*esto son las medidas del contenedor de anfitrion*/
+    height: 210px;
+    margin-bottom: 10px;
+}
+
+.tituloAnfitrion {
+    text-align: center;
+    margin-bottom: 15px;
+    color: #11295b;
+    font-size: 18px;
+    font-weight: bold;
+    padding-bottom: 8px;
+}
+
+.avatarAnfitrion {
+    width: 80px;
+    height: 80px;
+    background-color: #f0f0f0;
+    border-radius: 50%;
+    margin: 0 auto 15px;
+}
+
+.nombreAnfitrion {
+    text-align: center;
+    font-size: 16px;
+    color: #333;
+}
+
+/* Tarjeta precio */
+.tarjetaPrecio {
+    border: 3px solid #000;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: white;
+    width: 290px;
+    height: 210px;
+    margin-bottom: 10px;
+}
+
+.tituloPrecio {
+    text-align: center;
+    margin-bottom: 15px;
+    color: #11295b;
+    font-size: 18px;
+    font-weight: bold;
+    padding-bottom: 8px;
+}
+
+.filaPrecio {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #333;
+}
+
+.filaMoneda {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: #666;
+}
+
+.precioTotal {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 15px;
+    border-top: 1px solid #e0e0e0;
+    font-weight: bold;
+    color: #333;
+    font-size: 16px;
+}
+
+/*estilo de los iconos*/
+.iconoCaracteristica {
+    display: block;
+    width: 25px;
+    height: 25px;
+    flex-shrink: 0;
+}
+
+/* Estilos globales */
+:global(body),
+:global(html) {
+    background-color: white !important;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+:global([data-theme="dark"]) {
+    background-color: white !important;
+    color: #333 !important;
+}
+
+:global(#__next),
+:global(main),
+:global(div[class^="page_"]) {
+    background-color: white !important;
+}
