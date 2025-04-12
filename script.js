@@ -1,96 +1,112 @@
-const carouselSlide = document.querySelector(".carousel-slide");
-const prevBtn = document.getElementById("prevBtn");
-const nextBtn = document.getElementById("nextBtn");
-const carouselDots = document.getElementById("carouselDots");
+const carouselSlide = document.querySelector('.carousel-slide');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const dotsContainer = document.getElementById('carouselDots');
 
-let currentSlide = 0;
-let slidesData = [];
+let currentIndex = 0;
+let slides = [];
+let autoPlayInterval;
 
-// Cargar los datos de las imágenes (ejemplo con una API)
-async function cargarVehiculos() {
+async function loadVehicles() {
   try {
-    const res = await fetch("http://localhost:3000/vehiculos");
-    slidesData = await res.json();
-    updateSlides(); // Actualiza las slides al cargar
-    createDots(); // Crea los puntos de navegación
+    const response = await fetch('http://localhost:3000/vehiculos');
+    const data = await response.json();
+    initCarousel(data);
+    createDots(data.length);
+    startAutoPlay();
   } catch (error) {
-    console.error("Error al cargar vehículos:", error);
+    console.error('Error loading vehicles:', error);
   }
 }
 
-// Actualizar el contenido de las tres slides
-function updateSlides() {
-  const totalSlides = slidesData.length;
-  const leftIndex = (currentSlide - 1 + totalSlides) % totalSlides; // Índice de la slide izquierda
-  const centerIndex = currentSlide; // Índice de la slide central (activa)
-  const rightIndex = (currentSlide + 1) % totalSlides; // Índice de la slide derecha
-
-  const leftSlide = document.querySelector('.slide.left');
-  const centerSlide = document.querySelector('.slide.center');
-  const rightSlide = document.querySelector('.slide.right');
-
-  updateSlideContent(leftSlide, slidesData[leftIndex]);
-  updateSlideContent(centerSlide, slidesData[centerIndex]);
-  updateSlideContent(rightSlide, slidesData[rightIndex]);
-
-  updateDots(); // Actualiza los puntos de navegación
-}
-
-// Actualizar el contenido de una slide específica
-function updateSlideContent(slideElement, data) {
-  slideElement.innerHTML = `
-    <img src="${data.imageUrl}" alt="${data.model}">
-    <div class="info">
-      <h3 class="nombre">Nombre: ${data.model}</h3>
-      <p class="modelo">Marca: ${data.brand}</p>
-      <p class="precio">Precio por día: $${data.pricePerDay}</p>
-      <p class="rating">Rating promedio: ${data.promedioRating.toFixed(2)}</p>
+function initCarousel(vehicles) {
+  carouselSlide.innerHTML = vehicles.map((vehicle, index) => `
+    <div class="slide ${index === 0 ? 'center' : ''}" data-index="${index}">
+      <img src="${vehicle.imageUrl}" alt="${vehicle.model}">
+      <div class="info">
+        <h3 class="nombre">Modelo: ${vehicle.model}</h3>
+        <p class="modelo">Marca: ${vehicle.brand}</p>
+        <p class="precio">Precio por día: $${vehicle.pricePerDay}/día</p>
+        <p class="rating">Rating promedio: ${vehicle.promedioRating.toFixed(2)}</p>
+      </div>
     </div>
-  `;
+  `).join('');
+
+  slides = document.querySelectorAll('.slide');
+  updateSlidesPosition();
 }
 
-// Mover al siguiente slide
-function nextSlide() {
-  currentSlide = (currentSlide + 1) % slidesData.length;
-  updateSlides();
+function updateSlidesPosition() {
+  const totalSlides = slides.length;
+  
+  slides.forEach((slide, index) => {
+    const position = (index - currentIndex + totalSlides) % totalSlides;
+    
+    slide.classList.remove('left', 'center', 'right', 'active');
+    
+    if (position === 0) {
+      slide.classList.add('center', 'active');
+    } else if (position === 1) {
+      slide.classList.add('right');
+    } else if (position === totalSlides - 1) {
+      slide.classList.add('left');
+    } else {
+      slide.style.opacity = '0';
+      slide.style.zIndex = '0';
+      return;
+    }
+    
+    slide.style.opacity = '1';
+    slide.style.zIndex = position === 0 ? '3' : '1';
+  });
 }
 
-// Mover al slide anterior
-function prevSlide() {
-  currentSlide = (currentSlide - 1 + slidesData.length) % slidesData.length;
-  updateSlides();
-}
+function createDots(total) {
+  dotsContainer.innerHTML = Array.from({length: total}, (_, i) => `
+    <div class="dot ${i === 0 ? 'active' : ''}" data-index="${i}"></div>
+  `).join('');
 
-// Crear los puntos de navegación
-function createDots() {
-  const carouselDots = document.getElementById('carouselDots');
-  carouselDots.innerHTML = "";
-  slidesData.forEach((_, i) => {
-    const dot = document.createElement("div");
-    dot.classList.add("dot");
-    if (i === 0) dot.classList.add("active");
-    dot.addEventListener("click", () => {
-      currentSlide = i;
-      updateSlides();
+  document.querySelectorAll('.dot').forEach(dot => {
+    dot.addEventListener('click', () => {
+      currentIndex = parseInt(dot.dataset.index);
+      updateSlidesPosition();
+      updateDots();
     });
-    carouselDots.appendChild(dot);
   });
 }
 
-// Actualizar los puntos de navegación
 function updateDots() {
-  const dots = document.querySelectorAll(".dot");
-  dots.forEach((dot, index) => {
-    dot.classList.toggle("active", index === currentSlide);
+  document.querySelectorAll('.dot').forEach((dot, index) => {
+    dot.classList.toggle('active', index === currentIndex);
   });
 }
 
-// Configurar eventos para los botones
-document.getElementById("nextBtn").addEventListener("click", nextSlide);
-document.getElementById("prevBtn").addEventListener("click", prevSlide);
+function startAutoPlay() {
+  autoPlayInterval = setInterval(() => {
+    currentIndex = (currentIndex + 1) % slides.length;
+    updateSlidesPosition();
+    updateDots();
+  }, 10000);
+}
 
-// Auto-play cada 5 segundos
-setInterval(nextSlide, 5000);
+function resetAutoPlay() {
+  clearInterval(autoPlayInterval);
+  startAutoPlay();
+}
 
-// Iniciar el carrusel
-cargarVehiculos();
+prevBtn.addEventListener('click', () => {
+  currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+  updateSlidesPosition();
+  updateDots();
+  resetAutoPlay();
+});
+
+nextBtn.addEventListener('click', () => {
+  currentIndex = (currentIndex + 1) % slides.length;
+  updateSlidesPosition();
+  updateDots();
+  resetAutoPlay();
+});
+
+// Inicialización
+loadVehicles();
