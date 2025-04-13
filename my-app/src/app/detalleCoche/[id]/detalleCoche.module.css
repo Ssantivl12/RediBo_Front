@@ -1,19 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+body {
+    font-family: Inter;
+}
 
+/*Seccion Izquierda*/
 
 .contenedor {
     max-width: 1150px;
     margin: 0 auto;
     padding: 20px;
-    font-family: Arial, sans-serif;
-    background-color: white;
-    color: #333;
-    font-family: 'Inter', Arial, sans-serif;
+    background-color: rgb(255, 255, 255);
+    color: #292929;
 }
 
 .titulo {
-    color: #11295b;
+    color: #112552;
     font-size: 40px;
     margin-bottom: 20px;
 }
@@ -25,12 +27,11 @@
     gap: 15px;
 }
 
-/* Sección imagen del auto */
 .imagenAuto {
     position: relative;
     width: 350px;
     height: 220px;
-    background-color: #f9f9f9;
+    background-color: #ffffff;
     border: 2px solid #000;
     border-radius: 8px;
     display: flex;
@@ -57,7 +58,7 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: black;
+    color: rgb(0, 0, 0);
 }
 
 .flechaIzquierda {
@@ -68,8 +69,7 @@
     right: 10px;
 }
 
-/* Sección izquierda */
-.seccionIzquierda {
+.seccionImagen {
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -99,7 +99,7 @@
     font-size: 18px;
 }
 
-.insigniaVerificado {
+.boton {
     display: inline-block;
     background-color: #fca311;
     color: white;
@@ -214,8 +214,8 @@
     font-size: 16px;
 }
 
-/* Panel lateral */
-.panelLateral {
+/* Seccion Derecha */
+.seccionDerecha {
     display: flex;
     flex-direction: column;
     gap: 15px;
@@ -311,22 +311,43 @@
     flex-shrink: 0;
 }
 
-/* Estilos globales */
-:global(body),
-:global(html) {
-    background-color: white !important;
-    color: #333;
-    margin: 0;
-    padding: 0;
+/*Panel Reseñas*/
+
+.estiloOpaco{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 998;
 }
 
-:global([data-theme="dark"]) {
-    background-color: white !important;
-    color: #333 !important;
-}
-
-:global(#__next),
-:global(main),
-:global(div[class^="page_"]) {
-    background-color: white !important;
-}
+.panelReseñas {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 400px;
+    height: 100vh;
+    background-color: white;
+    box-shadow: -2px 0 8px rgba(0,0,0,0.2);
+    transition: right 0.3s ease;
+    z-index: 1000;
+    padding: 1rem;
+  }
+  
+  .visible {
+    right: 0;
+  }
+  
+  .cerrarPanel {
+    padding: 5px;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+  
