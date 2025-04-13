@@ -6,6 +6,7 @@
   --negro: #000000;
   --azul-oscuro: #11295B;
   --naranja: #FCA311;
+  --naranja-hover: #e69300;
   --naranja-46: rgba(252, 163, 17, 0.46);
   --hueso: #E4D5C1;
   --blanco: #FFFFFF;
@@ -36,4 +37,23 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.bg-naranja {
+  background-color: var(--naranja);
+  transition: background-color 0.3s ease;
+}
+
+.bg-naranja:hover {
+  background-color: var(--naranja-hover);
+}
+
+.bg-azul-oscuro {
+  background-color: var(--blanco);
+  color: var(--azul-oscuro);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.bg-azul-oscuro:hover {
+  background-color: var(--hueso);
 }
