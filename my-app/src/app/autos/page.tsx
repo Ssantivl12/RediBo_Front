@@ -12,7 +12,7 @@ export default async function AutosPage() {
       <h1 className={styles.title}>Lista de Autos</h1>
       <div className={styles.grid}>
         {autos.map((auto: Auto) => (
-          <div key={auto.idAuto} className={styles.card}>
+          <div key={auto.id} className={styles.card}>
             <div className={styles.imagePlaceholder}>Imagen del auto</div>
             <div className={styles.info}>
               <p><span className={styles.label}>Marca:</span> {auto.marca}</p>
@@ -20,7 +20,7 @@ export default async function AutosPage() {
               <p><span className={styles.label}>Kilometraje:</span> {auto.kilometraje}</p>
               <p><span className={styles.label}>Transmisión:</span> {auto.transmision}</p>
               <p><span className={styles.label}>Combustible:</span> {auto.combustible}</p>
-              <a className={styles.button} href={`/detalleCoche/${auto.idAuto}`} target="_blank">
+              <a className={styles.button} href={`/detalleCoche/${auto.id}`} target="_blank">
                 Ver detalles
               </a>
             </div>

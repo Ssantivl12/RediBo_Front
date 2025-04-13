@@ -17,11 +17,15 @@ interface DetalleCocheProps {
 }
 
 export default async function DetalleCoche({ params }: DetalleCocheProps) {
+  if (!params?.id) {
+    notFound();
+  } 
   const { id } = params;
   
   // Realiza la solicitud a tu API para obtener los datos del auto
-  const res = await fetch(`http://localhost:4000/api/autos/${id}`);
-  
+  const res = await fetch(`http://localhost:4000/api/autos/${id}`, {
+    cache: 'no-store',
+  });
   if (!res.ok) {
     notFound();
   }
@@ -135,19 +139,19 @@ export default async function DetalleCoche({ params }: DetalleCocheProps) {
           <div className={styles.tarjetaAnfitrion}>
             <h3 className={styles.tituloAnfitrion}>Datos del host</h3>
             <div className={styles.avatarAnfitrion}></div>
-            <div className={styles.nombreAnfitrion}>Nombre:</div>
+            <div className={styles.nombreAnfitrion}>Nombre:{auto.propietario?.nombre}{auto.propietario?.apellido}</div>
           </div>
           
           <div className={styles.tarjetaPrecio}>
             <h3 className={styles.tituloPrecio}>Desglose del precio</h3>
             <div className={styles.filaPrecio}>
               <div>Precio por día:</div>
-              <div>75$</div>
+              <div>{auto.precioRentaDiario}</div>
             </div>
-            <div className={styles.filaMoneda}>519.75 BOB</div>
+            <div className={styles.filaMoneda}>{auto.precioRentaDiario}</div>
             <div className={styles.precioTotal}>
               <div>precio total:</div>
-              <div>519.75 BOB</div>
+              <div>{auto.precioRentaDiario}</div>
             </div>
           </div>
         </div>
