@@ -7,6 +7,7 @@ interface DetalleCocheProps {
 }
 
 export default async function DetalleCoche({ params }: DetalleCocheProps) {
+  const { id } = await params;
   const res = await fetch(`http://localhost:4000/api/autos/${id}`);
   if (!res.ok) notFound();
 

@@ -135,7 +135,7 @@ export default function DetalleCocheCliente({ auto }: Props) {
           <div className={styles.tarjetaAnfitrion}>
             <h3 className={styles.tituloAnfitrion}>Datos del host</h3>
             <div className={styles.avatarAnfitrion}></div>
-            <div className={styles.nombreAnfitrion}>Nombre:</div>
+            <div className={styles.nombreAnfitrion}>Nombre: {auto.propietario?.nombre}</div>
           </div>
           
           <div className={styles.tarjetaPrecio}>
