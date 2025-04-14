@@ -7,46 +7,32 @@ body {
 /*Seccion Izquierda*/
 
 .contenedor {
-    max-width: 1150px;
-    margin: 0 auto;
-    padding: 20px;
+    max-width: 1200px;
+    margin: 10px 10px 10px 120px;
     background-color: rgb(255, 255, 255);
     color: #292929;
 }
 
 .titulo {
-    color: #112552;
-    font-size: 40px;
-    margin-bottom: 20px;
+    color:#11295B;
+    font-size: 50px;
 }
 
 /* Contenido principal */
 .contenido {
     display: grid;
-    grid-template-columns: 350px 1fr 220px;
-    gap: 15px;
+    grid-template-columns: 350px 1fr 200px;
+    gap: 40px;
 }
 
 .imagenAuto {
     position: relative;
-    width: 350px;
-    height: 220px;
+    width: 400px;
+    height: 250px;
     background-color: #ffffff;
-    border: 2px solid #000;
-    border-radius: 8px;
+    border: 1 solid #000;
+    border-radius: 50px;
     display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.imagen {
-    border-radius: 8px;
-  }
-
-.siluetaAuto {
-    width: 85%;
-    height: 75%;
-    background-color: #333;
-    border-radius: 12px;
 }
 
 .flechaNavegacion {
@@ -55,131 +41,130 @@ body {
     transform: translateY(-50%);
     width: 30px;
     height: 30px;
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: rgba(255, 255, 255, 0.0);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    font-size: 40px;
     color: rgb(0, 0, 0);
-    z-index: 10;
+    z-index: 50;
 }
 
 .flechaIzquierda {
-    left: 10px;
+    left: 0px;
 }
 
 .flechaDerecha {
-    right: 10px;
-}
-
-.seccionImagen {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    right: 0px;
 }
 
 /* Contenedor de calificación */
-.contenedorCalificacion {
-    background-color: white;
-    padding: 15px;
-    text-align: left;
+.calificacion {
+    justify-content: space-evenly;
+    align-items: left;
+    padding: 10px;
 }
 
-.calificacion {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.contenedorCalificacion {
+    background-color: white;
+    text-align: left;
 }
 
 .estrellas {
     color: #fca311;
-    font-size: 24px;
+    font-size: 25px;
+    padding: 10px;
 }
 
 .puntuacion {
     font-weight: bold;
-    color: #333;
+    color: #000000;
     font-size: 18px;
 }
 
 .boton {
+    margin: 0;
     display: inline-block;
     background-color: #fca311;
-    color: white;
-    padding: 8px 15px;
-    border-radius: 20px;
+    color: #ffffff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
     font-size: 16px;
-    margin-top: 10px;
-    cursor: pointer;
-    width: fit-content;
-    text-decoration: none;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
     text-align: center;
-    transition: backgroud-color 0.2s ease;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+.boton:hover{
+    background-color: #e69500;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
-
-.insigniaVerificado:hover {
-    background-color: #fca311; /* Ligeramente más oscuro en hover */
-}
-
-.insigniaVerificado:active {
-    background-color: #ec970d; /* Más oscuro al hacer clic */
+.boton:active {
+    background-color: #cc8400;
+    transform: translateY(0);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
 }
 
 /* Contenedor de detalles */
 .contenedorDetalles {
     background-color: white;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid white;
-    margin-top: 0;
     position: relative;
-    top: -15px;
-    width: 120%;                          /* Hacer un poco más ancho que su contenedor */
-    max-width: 450px;                     /* Limitar el crecimiento para que no choque con otros elementos */
-    box-sizing: border-box;
+    top: -10;
+    left: 5; 
 }
 
 .subtituloDetalles {
-    color: #11295b;
-    font-size: 18px;
-    margin-bottom: 10px;
+    font-size: 1.44rem; 
+    font-weight: 600;
+    color: #11295B; 
+    margin-top: 15px;
+}
+
+.gridDetalles {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 60px;
+  }
+
+.detalles p{
+    font-size: 20px;
+}
+
+.filaDetalle {
+    display: flex;
+    align-items: center;
+  }
+  
+.etiqueta {
+    font-size: 20px;
     font-weight: bold;
+    margin-right: 8px;
 }
 
-.detalles {
-    margin-top: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.filaDetalles {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+.valor{
+    font-size: 20px;
 }
 
 /* Sección características */
-.seccionInformacion {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
 
 .caracteristicas {
-    background-color: white;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid white;
-    width: 420px;
-    height: 250px;
-    margin-left: 10px;
+    background-color: rgb(255, 255, 255);
+    padding: 20px;
+    width: 500px;
+    height: 300;
+    margin-left: 30px;
 }
 
 .tituloCaracteristicas {
     color: #11295b;
-    font-size: 20px;                   /*h5 ??*/
+    font-size: 30px;                   
     margin-bottom: 15px;
     font-weight: bold;
     padding-bottom: 5px;
@@ -188,35 +173,36 @@ body {
 .gridCaracteristicas {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 20px;
     margin-left: 15px;
 }
 
 .caracteristica {
     display: flex;
     align-items: flex-start;
-    gap: 10px;
+    gap: 20px;
 }
 
 .iconoCaracteristica {
-    display: block;
-    width: 30px;
-    height: 30px;
+    width: 60px;
+    height: 60px;
     flex-shrink: 0;
+    object-fit: contain;
 }
 
 .textoCaracteristica {
     display: flex;
     flex-direction: column;
-    font-size: 10px;
+    font-size: 15px;
     color: #333;
 }
 
 .valorCaracteristica {
     font-weight: bold;
     color: #000000;
-    font-size: 16px;
+    font-size: 20px;
 }
+
 
 /* Seccion Derecha */
 .seccionDerecha {
@@ -233,7 +219,7 @@ body {
     border-radius: 8px;
     padding: 20px;
     background-color: white;
-    width: 290px;               /*esto son las medidas del contenedor de anfitrion*/
+    width: 290px;               
     height: 210px;
     margin-bottom: 10px;
 }
@@ -310,8 +296,8 @@ body {
 /*estilo de los iconos*/
 .iconoCaracteristica {
     display: block;
-    width: 25px;
-    height: 25px;
+    width: 40px;
+    height: 40px;
     flex-shrink: 0;
 }
 
@@ -330,8 +316,8 @@ body {
 .panelReseñas {
     position: fixed;
     top: 0;
-    right: -400px;
-    width: 400px;
+    right: -600px;
+    width: 600px;
     height: 100vh;
     background-color: white;
     box-shadow: -2px 0 8px rgba(0,0,0,0.2);
@@ -343,28 +329,61 @@ body {
   .visible {
     right: 0;
   }
+
+  .listaComentarios {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .comentario {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .comentario strong {
+    color: #000000;
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  .comentario p {
+    font-size: 0.9rem;
+    color: #020202;
+    margin-bottom: 10px;
+  }
+  
+  .comentario span {
+    color: #ff9800; 
+    font-size: 1.1rem;
+  }
   
   .cerrarPanel {
-    padding: 5px;
     position: absolute;
     top: 10px;
-    left: 10px;
-    background: transparent;
+    right: 10px;
+    font-size: 15px;
+    color: #000000;
+    background-color: transparent;
     border: none;
-    font-size: 1.5rem;
     cursor: pointer;
+    z-index: 11; 
+    padding: 5px;
   }
   
   .galeriaImagenes {
     display: flex;
-    overflow-x: auto;  /* Esto permite el desplazamiento horizontal */
+    overflow-x: auto; 
     gap: 1rem;
     scroll-snap-type: x mandatory;
   }
   
   .imagenAutoGaleria {
-    flex-shrink: 0;   /* Evita que las imágenes se reduzcan de tamaño */
+    flex-shrink: 0; 
     scroll-snap-align: center;
     border-radius: 10px;
-    object-fit: cover;  /* Asegura que las imágenes se recorten correctamente */
+    object-fit: cover; 
   }  

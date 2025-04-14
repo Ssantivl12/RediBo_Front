@@ -1,0 +1,17 @@
+// Versión extendida del NavbarWrapper.tsx
+'use client';
+
+import { usePathname } from 'next/navigation';
+import Navbar from './Navbar';
+
+export default function NavbarWrapper() {
+  const pathname = usePathname();
+  
+  const showNavbarRoutes = [
+    '/',
+    '/autos'
+    // Agrega otras rutas donde quieras mostrar el navbar
+  ];
+
+  return showNavbarRoutes.includes(pathname) ? <Navbar /> : null;
+}

@@ -2,11 +2,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-
-import Navbar from "./components/navbar/Navbar";
+import NavbarWrapper from "./components/navbar/NavbarWrapper";
 import Footer from "./components/footer/Footer";
-// Opcional: si quieres que LoginModal esté siempre disponible, lo importas acá también
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,12 +28,12 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh',}}>
+        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           <header>
-            <Navbar />
+            <NavbarWrapper />
           </header>
 
-          <main style={{ flexGrow: 1, backgroundColor: '#ffffff'}}>
+          <main style={{ flexGrow: 1, backgroundColor: '#ffffff' }}>
             {children}
           </main>
 

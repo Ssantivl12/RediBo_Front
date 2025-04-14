@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './detalleCoche.module.css';
 import Image from 'next/image';
 
@@ -8,24 +8,37 @@ import UsuarioIcon from './imagenesIconos/usuario.png';
 import KilometrajeIcon from './imagenesIconos/velocimetro.png';
 import TransmisionIcon from './imagenesIconos/caja-de-cambios.png';
 import CombustibleIcon from './imagenesIconos/gasolinera.png';
-import EquipajeIcon from './imagenesIconos/maleta.png';
 import { Auto } from '@/types/auto';
+import { Comentario } from '@/types/auto';
 
 interface Props {
   auto: Auto;
 }
 
 export default function DetalleCocheCliente({ auto }: Props) {
-  console.log("IMAGENES:", auto.imagenes);
+  const [comentarios, setComentarios] = useState<Comentario[]>([]);
   const [mostrarPanel, setMostrarPanel] = useState(false);
-  const [imagenActual, setImagenActual] = useState(0); // Estado para controlar la imagen actual
+  const [imagenActual, setImagenActual] = useState(0); 
 
-  // Función para mostrar la imagen siguiente
+  useEffect(() => {
+    if (mostrarPanel) {
+      fetch(`http://localhost:4000/api/autos/${auto.id}/comentarios`)
+        .then(res => res.json())
+        .then(data => {
+          setComentarios(data.data);
+        })
+        .catch(err => {
+          console.error('Error al obtener comentarios:', err);
+          setComentarios([]);
+        });
+    }
+  }, [mostrarPanel, auto.id]);
+
   const siguienteImagen = () => {
     if (imagenActual < auto.imagenes?.length - 1) {
       setImagenActual(imagenActual + 1);
     } else {
-      setImagenActual(0); // Si es la última, vuelve a la primera
+      setImagenActual(0);
     }
   };
 
@@ -34,7 +47,7 @@ export default function DetalleCocheCliente({ auto }: Props) {
     if (imagenActual > 0) {
       setImagenActual(imagenActual - 1);
     } else {
-      setImagenActual(auto.imagenes?.length - 1); // Si es la primera, va a la última
+      setImagenActual(auto.imagenes?.length - 1); 
     }
   };
 
@@ -43,8 +56,19 @@ export default function DetalleCocheCliente({ auto }: Props) {
       {mostrarPanel && (<div className={styles.estiloOpaco} onClick={() => setMostrarPanel(false)} />)}
       <div className={`${styles.panelReseñas} ${mostrarPanel ? styles.visible : ''}`}>
         <button className={styles.cerrarPanel} onClick={() => setMostrarPanel(false)}>✕</button>
-        <h2>Contenido del Panel</h2>
-        <p>Aquí irían las reseñas o información adicional.</p>
+        <div className={styles.listaComentarios}>
+          {comentarios.length === 0 ? (
+            <p>No hay comentarios todavía.</p>
+          ) : (
+            comentarios.map((comentario) => (
+              <div key={comentario.id} className={styles.comentario}>
+                <strong>{comentario.usuario.nombre}:</strong>
+                <p>{comentario.contenido}</p>
+                <span>⭐ {comentario.calificacion}</span>
+              </div>
+            ))
+          )}
+        </div>
       </div>
 
       <div className={styles.contenedor}>
@@ -92,22 +116,35 @@ export default function DetalleCocheCliente({ auto }: Props) {
             <div className={styles.contenedorDetalles}>
               <h3 className={styles.subtituloDetalles}>Detalles</h3>
               <div className={styles.detalles}>
-                {/* Detalles adicionales pueden ir aquí */}
+                <div className={styles.gridDetalles}>
+                <div className={styles.filaDetalle}>
+                  <span className={styles.etiqueta}>Año:</span>
+                  <span className={styles.valor}>{auto.año}</span>
+                </div>
+                <div className={styles.filaDetalle}>
+                  <span className={styles.etiqueta}>Placa:</span>
+                  <span className={styles.valor}>{auto.placa}</span>
+                </div>
+                <div className={styles.filaDetalle}>
+                  <span className={styles.etiqueta}>Color:</span>
+                  <span className={styles.valor}>{auto.color}</span>
+                </div>
+                </div>
+                <h4 className={styles.subtituloDetalles}>Descripcion</h4>
+                <span className={styles.valor}>{auto.descripcion}</span>
               </div>
             </div>
           </div>
           
-          <div className={styles.seccionInformacion}>
+          <div>
             <div className={styles.caracteristicas}>
               <h2 className={styles.tituloCaracteristicas}>Características Principales</h2>
               <div className={styles.gridCaracteristicas}>
                 <div className={styles.caracteristica}>
                   <Image 
                     src={UsuarioIcon} 
-                    alt="Icono de personas" 
+                    alt="Icono de personas"
                     className={styles.iconoCaracteristica}
-                    width={30}
-                    height={30}
                   />
                   <div className={styles.textoCaracteristica}>
                     <span className={styles.valorCaracteristica}>{auto.capacidad} personas</span>
@@ -119,8 +156,6 @@ export default function DetalleCocheCliente({ auto }: Props) {
                     src={KilometrajeIcon} 
                     alt="Icono de kilometraje" 
                     className={styles.iconoCaracteristica}
-                    width={30}
-                    height={30}
                   />
                   <div className={styles.textoCaracteristica}>
                     <span className={styles.valorCaracteristica}>{auto.kilometraje}</span>    
@@ -132,8 +167,6 @@ export default function DetalleCocheCliente({ auto }: Props) {
                     src={TransmisionIcon} 
                     alt="Icono de transmisión" 
                     className={styles.iconoCaracteristica}
-                    width={30}
-                    height={30}
                   />
                   <div className={styles.textoCaracteristica}>
                     <span className={styles.valorCaracteristica}>{auto.transmision}</span>   
@@ -145,26 +178,11 @@ export default function DetalleCocheCliente({ auto }: Props) {
                     src={CombustibleIcon} 
                     alt="Icono de combustible" 
                     className={styles.iconoCaracteristica}
-                    width={30}
-                    height={30}
                   />
                   <div className={styles.textoCaracteristica}>
                     <span className={styles.valorCaracteristica}>{auto.combustible}</span>        
                     <span>Combustible</span>                                                   
                   </div>
-                </div>
-                <div className={styles.caracteristica}>
-                  <Image 
-                    src={EquipajeIcon} 
-                    alt="Icono de equipaje" 
-                    className={styles.iconoCaracteristica}
-                    width={30}
-                    height={30}
-                  />
-                  <div className={styles.textoCaracteristica}>
-                    <span className={styles.valorCaracteristica}>{auto.capacidad}</span>       
-                    <span>Capacidad de equipaje </span>                                                  
-                  </div>  
                 </div>
               </div>
             </div>

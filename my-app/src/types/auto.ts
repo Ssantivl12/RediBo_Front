@@ -43,9 +43,9 @@ export interface Comentario {
   contenido: string;
   calificacion: number;
   fechaCreacion: string;
-  usuario: Usuario;
-  auto: Auto;
+  usuario: Pick<Usuario, 'id' | 'nombre' | 'apellido'>;
 }
+
 
 export interface HistorialMantenimiento {
   id: number;
