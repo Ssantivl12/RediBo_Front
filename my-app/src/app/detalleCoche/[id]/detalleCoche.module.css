@@ -64,6 +64,8 @@ body {
 
 /* Contenedor de calificación */
 .calificacion {
+    display: flex;
+    align-items: center;
     justify-content: space-evenly;
     align-items: left;
     padding: 10px;
@@ -75,14 +77,15 @@ body {
 }
 
 .estrellas {
+    display: flex;
+    flex-direction: row;
     color: #fca311;
-    font-size: 25px;
-    padding: 10px;
+    font-size: 20px;
 }
 
 .puntuacion {
     font-weight: bold;
-    color: #000000;
+    color: #11295B;
     font-size: 18px;
 }
 
