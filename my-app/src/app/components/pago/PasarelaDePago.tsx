@@ -69,9 +69,9 @@ export default function PasarelaDePago({
     <>
       {/* Modal de Pago */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-start justify-center z-50 p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
         <div className="bg-white rounded-lg  max-w-md w-full mt-15">
-            <div className="bg-gray-100 px-6 py-4 flex justify-between items-center">
+            <div className="bg-gray-100 rounded-lg px-6 py-4 flex justify-between items-center">
               <h2 className="text-xl font-bold text-gray-800">
                 Completar pago
               </h2>
