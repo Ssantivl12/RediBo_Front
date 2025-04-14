@@ -38,6 +38,9 @@ body {
     align-items: center;
     justify-content: center;
 }
+.imagen {
+    border-radius: 8px;
+  }
 
 .siluetaAuto {
     width: 85%;
@@ -59,6 +62,7 @@ body {
     justify-content: center;
     cursor: pointer;
     color: rgb(0, 0, 0);
+    z-index: 10;
 }
 
 .flechaIzquierda {
@@ -351,3 +355,16 @@ body {
     cursor: pointer;
   }
   
+  .galeriaImagenes {
+    display: flex;
+    overflow-x: auto;  /* Esto permite el desplazamiento horizontal */
+    gap: 1rem;
+    scroll-snap-type: x mandatory;
+  }
+  
+  .imagenAutoGaleria {
+    flex-shrink: 0;   /* Evita que las imágenes se reduzcan de tamaño */
+    scroll-snap-align: center;
+    border-radius: 10px;
+    object-fit: cover;  /* Asegura que las imágenes se recorten correctamente */
+  }  

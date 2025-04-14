@@ -29,11 +29,11 @@ export interface Auto {
   combustible: string;
   capacidad: number;
   propietarioId: number;
-  propietario?: Usuario;
+  propietario: Usuario;
   historialMantenimiento?: HistorialMantenimiento[];
   comentarios?: Comentario[];
-  imagenes: string;
-  disponibilidad?: Disponibilidad[];
+  imagenes: Imagen[];
+  disponibilidad: Disponibilidad[];
 }
 
 export interface Comentario {
@@ -43,8 +43,8 @@ export interface Comentario {
   contenido: string;
   calificacion: number;
   fechaCreacion: string;
-  usuario?: Usuario;
-  auto?: Auto;
+  usuario: Usuario;
+  auto: Auto;
 }
 
 export interface HistorialMantenimiento {
@@ -56,7 +56,7 @@ export interface HistorialMantenimiento {
   costo?: string;
   tipoMantenimiento: TipoMantenimiento;
   kilometraje: number;
-  auto?: Auto;
+  auto: Auto;
 }
 
 export interface Disponibilidad {
@@ -66,7 +66,13 @@ export interface Disponibilidad {
   fechaFin: string;
   motivo: MotivoNoDisponibilidad;
   descripcion?: string;
-  auto?: Auto;
+  auto: Auto;
+}
+
+export interface Imagen {
+    id: number;
+    autoId: number;
+    direccionImagen: string;
 }
 
 export type MotivoNoDisponibilidad = 'MANTENIMIENTO' | 'REPARACION' | 'USO_PERSONAL' | 'OTRO';
