@@ -30,9 +30,10 @@ body {
     width: 400px;
     height: 250px;
     background-color: #ffffff;
-    border: 1 solid #000;
+    border: 1px solid #000;
     border-radius: 50px;
     display: flex;
+    overflow: hidden;
 }
 
 .flechaNavegacion {

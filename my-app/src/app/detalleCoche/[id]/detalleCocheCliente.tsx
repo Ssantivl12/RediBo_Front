@@ -90,7 +90,7 @@ export default function DetalleCocheCliente({ auto }: Props) {
                     key={auto.imagenes[imagenActual].id}
                     src={auto.imagenes[imagenActual].direccionImagen}
                     alt={`Imagen del auto ${auto.marca} ${auto.modelo}`}
-                    className={styles.imagen}
+                    className={styles.imagenAuto}
                     fill
                     style={{ objectFit: 'cover' }}
                   />
