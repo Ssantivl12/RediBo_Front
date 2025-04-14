@@ -1,7 +1,12 @@
 import { HiOutlineCalendar } from "react-icons/hi";
+import { useState } from "react";
+
+import PasarelaDePago from "../pago/PasarelaDePago";
 
 interface PrecioAutoProps {
   precio: number;
+  vehiculo: string;
+  propietario: string;
   reserva: {
     fechaInicio: string;
     fechaFin: string;
@@ -18,9 +23,25 @@ interface PrecioAutoProps {
 
 export default function PrecioAuto({
   precio,
+  vehiculo,
+  propietario,
   reserva,
   costes,
 }: PrecioAutoProps) {
+  const [isPagoModalOpen, setIsPagoModalOpen] = useState(false);
+  const handlePaymentComplete = () => {
+    console.log("Pago completado con éxito");
+    // modificar con la redirección a la página de inicio u otro
+  };
+  const rentaDetails = {
+    vehiculo: vehiculo,
+    fechaInicio: reserva.fechaInicio,
+    fechaFin: reserva.fechaFin,
+    dias: reserva.dias,
+    total: costes.total,
+    moneda: "Bs",
+    propietario: propietario,
+  };
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-6 sticky top-4">
       <div className="flex items-center mb-4 text-left">
@@ -62,10 +83,16 @@ export default function PrecioAuto({
       </div>
 
       <div className="space-y-3">
-        <button className="w-full bg-naranja hover:bg-black text-white py-3 rounded-md font-medium transition">
+        <button
+          onClick={() => setIsPagoModalOpen(true)}
+          className="w-full bg-naranja hover:bg-black text-white py-3 rounded-md font-medium transition"
+        >
           Pagar el 100% ahora
         </button>
-        <button className="w-full border border-gray-300 bg-azul-oscuro py-3 rounded-md font-medium flex items-center justify-center transition">
+        <button
+          onClick={() => setIsPagoModalOpen(true)}
+          className="w-full border border-gray-300 bg-azul-oscuro py-3 rounded-md font-medium flex items-center justify-center transition"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -83,6 +110,12 @@ export default function PrecioAuto({
           Pagar 50% ahora
         </button>
       </div>
+      <PasarelaDePago
+        isOpen={isPagoModalOpen}
+        onClose={() => setIsPagoModalOpen(false)}
+        rentaDetails={rentaDetails}
+        onPaymentComplete={handlePaymentComplete}
+      />
     </div>
   );
 }
