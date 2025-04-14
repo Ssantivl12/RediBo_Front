@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import styles from './detalleCoche.module.css';
 import Image from 'next/image';
 
@@ -21,18 +21,16 @@ export default function DetalleCocheCliente({ auto }: Props) {
   const [imagenActual, setImagenActual] = useState(0); 
 
   useEffect(() => {
-    if (mostrarPanel) {
-      fetch(`http://localhost:4000/api/autos/${auto.id}/comentarios`)
-        .then(res => res.json())
-        .then(data => {
-          setComentarios(data.data);
-        })
-        .catch(err => {
-          console.error('Error al obtener comentarios:', err);
-          setComentarios([]);
-        });
-    }
-  }, [mostrarPanel, auto.id]);
+    fetch(`http://localhost:4000/api/autos/${auto.id}/comentarios`)
+      .then(res => res.json())
+      .then(data => {
+        setComentarios(data.data);
+      })
+      .catch(err => {
+        console.error('Error al obtener comentarios:', err);
+        setComentarios([]);
+    });
+  }, [auto.id]);
 
   const siguienteImagen = () => {
     if (imagenActual < auto.imagenes?.length - 1) {
@@ -42,7 +40,6 @@ export default function DetalleCocheCliente({ auto }: Props) {
     }
   };
 
-  // Función para mostrar la imagen anterior
   const imagenAnterior = () => {
     if (imagenActual > 0) {
       setImagenActual(imagenActual - 1);
@@ -50,6 +47,12 @@ export default function DetalleCocheCliente({ auto }: Props) {
       setImagenActual(auto.imagenes?.length - 1); 
     }
   };
+
+  const promedioCalificacion = useMemo(() => {
+    if (comentarios.length == 0) return 0;
+    const suma = comentarios.reduce((acc, comentario) => acc + comentario.calificacion, 0);
+    return parseFloat((suma / comentarios.length).toFixed(1));
+  }, [comentarios]);
 
   return (
     <>
@@ -104,8 +107,10 @@ export default function DetalleCocheCliente({ auto }: Props) {
             </div>
             <div className={styles.contenedorCalificacion}>
               <div className={styles.calificacion}>
-                <span className={styles.puntuacion}>Puntuación 4.2</span>
-                <span className={styles.estrellas}>★★★★☆</span>
+                <span className={styles.puntuacion}>Puntuación {promedioCalificacion}</span>
+                <span className={styles.estrellas}>
+                  {'★'.repeat(Math.round(promedioCalificacion)) + '☆'.repeat(5 - Math.round(promedioCalificacion))}
+                </span>
               </div>
               <button className={styles.boton}
                     onClick={() => setMostrarPanel(true)}>
