@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect,useRef } from 'react';
+import { useState, useEffect, useMemo, useRef} from 'react';
 import styles from './detalleCoche.module.css';
 import Image from 'next/image';
-
+import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 import UsuarioIcon from './imagenesIconos/usuario.png';
 import KilometrajeIcon from './imagenesIconos/velocimetro.png';
 import TransmisionIcon from './imagenesIconos/caja-de-cambios.png';
@@ -23,24 +23,16 @@ export default function DetalleCocheCliente({ auto }: Props) {
   const listaComentariosRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (mostrarPanel) {
-      fetch(`http://localhost:4000/api/autos/${auto.id}/comentarios`)
-        .then(res => res.json())
-        .then(data => {
-          setComentarios(data.data);
-        })
-        .catch(err => {
-          console.error('Error al obtener comentarios:', err);
-          setComentarios([]);
-        });
-    }
-  }, [mostrarPanel, auto.id]);
-
-  useEffect(() => {
-    if (mostrarPanel && listaComentariosRef.current) {
-      listaComentariosRef.current.scrollTop = 0;
-    }
-  }, [mostrarPanel]);
+    fetch(`http://localhost:4000/api/autos/${auto.id}/comentarios`)
+      .then(res => res.json())
+      .then(data => {
+        setComentarios(data.data);
+      })
+      .catch(err => {
+        console.error('Error al obtener comentarios:', err);
+        setComentarios([]);
+    });
+  }, [auto.id]);
 
   const siguienteImagen = () => {
     if (imagenActual < auto.imagenes?.length - 1) {
@@ -50,7 +42,6 @@ export default function DetalleCocheCliente({ auto }: Props) {
     }
   };
 
-  // Función para mostrar la imagen anterior
   const imagenAnterior = () => {
     if (imagenActual > 0) {
       setImagenActual(imagenActual - 1);
@@ -59,6 +50,25 @@ export default function DetalleCocheCliente({ auto }: Props) {
     }
   };
 
+  const promedioCalificacion = useMemo(() => {
+    if (comentarios.length == 0) return 0;
+    const suma = comentarios.reduce((acc, comentario) => acc + comentario.calificacion, 0);
+    return parseFloat((suma / comentarios.length).toFixed(1));
+  }, [comentarios]);
+
+  const obtenerEstrellas = (promedio: number) => {
+    const estrellas = [];
+    for (let i = 1; i <= 5; i++) {
+      if (promedio >= i) {
+        estrellas.push(<FaStar key={i} color="#FFD700" />);
+      } else if (promedio >= i - 0.5) {
+        estrellas.push(<FaStarHalfAlt key={i} color="#FFD700" />);
+      } else {
+        estrellas.push(<FaRegStar key={i} color="#FFD700" />);
+      }
+    }
+    return estrellas;
+  };  
 
   return (
     <>
@@ -148,8 +158,10 @@ export default function DetalleCocheCliente({ auto }: Props) {
             </div>
             <div className={styles.contenedorCalificacion}>
               <div className={styles.calificacion}>
-                <span className={styles.puntuacion}>Puntuación 4.2</span>
-                <span className={styles.estrellas}>★★★★☆</span>
+                <span className={styles.puntuacion}>Puntuación {promedioCalificacion}</span>
+                <span className={styles.estrellas}>
+                  {obtenerEstrellas(promedioCalificacion)}
+                </span>
               </div>
               <button className={styles.boton}
                     onClick={() => setMostrarPanel(true)}>
