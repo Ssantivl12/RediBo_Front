@@ -325,6 +325,8 @@ body {
     transition: right 0.3s ease;
     z-index: 1000;
     padding: 1rem;
+    display: flex;
+    flex-direction: column;
   }
   
   .visible {
@@ -333,15 +335,32 @@ body {
 
   .listaComentarios {
     display: flex;
+    margin-top: 20px;
     flex-direction: column;
     gap: 20px;
+      /* Scroll */
+    max-height: 120vh;
+    overflow-y: auto;
+    padding-right: 8px;
+  }
+
+  .listaComentarios::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .listaComentarios::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
   }
 
   .comentario {
-    background-color: #f9f9f9;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    border-bottom: 3px solid #000;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
   }
 
   .comentario strong {
@@ -365,10 +384,10 @@ body {
   .cerrarPanel {
     position: absolute;
     top: 10px;
-    right: 10px;
+    right: 30px;
     font-size: 15px;
-    color: #000000;
-    background-color: transparent;
+    background:#ff9800;
+    color: #ffffff;
     border: none;
     cursor: pointer;
     z-index: 11; 
@@ -388,3 +407,66 @@ body {
     border-radius: 10px;
     object-fit: cover; 
   }  
+  
+  .superior {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .usuarioInfo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .iconoUsuario {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
+  
+  .nombreYFecha {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .fecha {
+    color: #6c757d;
+    font-size: 0.85rem;
+  }
+  
+  .estrellasYNota {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .estrellas {
+    display: flex;
+    color: #f4b400;
+    font-size: 1rem;
+  }
+  
+  .nota {
+    background-color: #003366;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-weight: bold;
+    font-size: 0.85rem;
+  }
+  
+  .contenidoComentarios {
+    margin-top: 8px;
+    text-align: justify;
+    white-space: pre-wrap; /* Mantiene saltos de línea */
+    word-wrap: break-word; /* Evita que las palabras largas desborden */
+    overflow-wrap: break-word;
+    font-style: italic;
+    width: 100%;
+  }
+
+  
