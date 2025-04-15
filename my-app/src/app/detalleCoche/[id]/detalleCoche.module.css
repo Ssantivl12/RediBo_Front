@@ -1,39 +1,43 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 body {
-    font-family: Inter;
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-/*Seccion Izquierda*/
-
 .contenedor {
-    max-width: 1200px;
-    margin: 10px 10px 10px 120px;
-    background-color: rgb(255, 255, 255);
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
     color: #292929;
 }
 
 .titulo {
-    color:#11295B;
-    font-size: 50px;
+    color: #11295B;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
 }
 
-/* Contenido principal */
+/* Grid principal */
 .contenido {
     display: grid;
-    grid-template-columns: 350px 1fr 200px;
-    gap: 40px;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: 30px;
 }
 
 .imagenAuto {
     position: relative;
-    width: 400px;
+    width: 100%;
+    max-width: 100%;
     height: 250px;
-    background-color: #ffffff;
     border: 1px solid #000;
-    border-radius: 50px;
-    display: flex;
+    border-radius: 20px;
     overflow: hidden;
+    background-color: #fff;
 }
 
 .flechaNavegacion {
@@ -54,26 +58,25 @@ body {
     transition: background-color 0.2s ease;
 }
 
+
 .flechaIzquierda {
-    left: 0px;
+    left: 10px;
 }
-
 .flechaDerecha {
-    right: 0px;
-}
-
-/* Contenedor de calificación */
-.calificacion {
-    display: flex;
-    align-items: center;
-    justify-content: space-evenly;
-    align-items: left;
-    padding: 10px;
+    right: 10px;
 }
 
 .contenedorCalificacion {
-    background-color: white;
-    text-align: left;
+    margin-top: 15px;
+    
+}
+
+.calificacion {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; 
+    gap: 10px;                  
+    padding: 10px;
 }
 
 .estrellas {
@@ -85,8 +88,8 @@ body {
 
 .puntuacion {
     font-weight: bold;
-    color: #11295B;
     font-size: 18px;
+    color: #11295B;
 }
 
 .boton {
@@ -106,7 +109,8 @@ body {
     transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
-.boton:hover{
+
+  .boton:hover{
     background-color: #e69500;
     transform: translateY(-2px);
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
@@ -116,160 +120,30 @@ body {
     transform: translateY(0);
     box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
 }
-
-/* Contenedor de detalles */
 .contenedorDetalles {
-    background-color: white;
-    position: relative;
-    top: -10;
-    left: 5; 
+    margin-top: 20px;
 }
 
 .subtituloDetalles {
-    font-size: 1.44rem; 
+    color: #11295B;
+    font-size: 1.5rem;
     font-weight: 600;
-    color: #11295B; 
-    margin-top: 15px;
+    margin-top: 20px;
 }
 
 .gridDetalles {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 60px;
-  }
-
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 20px;
+    margin-top: 10px;
+}
 .detalles p{
     font-size: 20px;
 }
-
 .filaDetalle {
     display: flex;
-    align-items: center;
-  }
-  
-.etiqueta {
-    font-size: 20px;
-    font-weight: bold;
-    margin-right: 8px;
-}
-
-.valor{
-    font-size: 20px;
-}
-
-/* Sección características */
-
-.caracteristicas {
-    background-color: rgb(255, 255, 255);
-    padding: 20px;
-    width: 500px;
-    height: 300;
-    margin-left: 30px;
-}
-
-.tituloCaracteristicas {
-    color: #11295b;
-    font-size: 30px;                   
-    margin-bottom: 15px;
-    font-weight: bold;
-    padding-bottom: 5px;
-}
-
-.gridCaracteristicas {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    margin-left: 15px;
-}
-
-.caracteristica {
-    display: flex;
-    align-items: flex-start;
-    gap: 20px;
-}
-
-.iconoCaracteristica {
-    width: 60px;
-    height: 60px;
-    flex-shrink: 0;
-    object-fit: contain;
-}
-
-.textoCaracteristica {
-    display: flex;
-    flex-direction: column;
-    font-size: 15px;
-    color: #333;
-}
-
-.valorCaracteristica {
-    font-weight: bold;
-    color: #000000;
-    font-size: 20px;
-}
-
-
-/* Seccion Derecha */
-.seccionDerecha {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-left: -65px;
-}
-
-
-/* Tarjeta anfitrión */
-.tarjetaAnfitrion {
-    border: 3px solid #000;
-    border-radius: 8px;
-    padding: 20px;
-    background-color: white;
-    width: 290px;               
-    height: 210px;
-    margin-bottom: 10px;
-}
-
-.tituloAnfitrion {
-    text-align: center;
-    margin-bottom: 15px;
-    color: #11295b;
-    font-size: 18px;
-    font-weight: bold;
-    padding-bottom: 8px;
-}
-
-.avatarAnfitrion {
-    width: 80px;
-    height: 80px;
-    background-color: #f0f0f0;
-    border-radius: 50%;
-    margin: 0 auto 15px;
-}
-
-.nombreAnfitrion {
-    text-align: center;
+    gap: 10px;
     font-size: 16px;
-    color: #333;
-}
-
-/* Tarjeta precio */
-.tarjetaPrecio {
-    border: 3px solid #000;
-    border-radius: 8px;
-    padding: 20px;
-    background-color: white;
-    width: 290px;
-    height: 210px;
-    margin-bottom: 10px;
-}
-
-.tituloPrecio {
-    text-align: center;
-    margin-bottom: 15px;
-    color: #11295b;
-    font-size: 18px;
-    font-weight: bold;
-    padding-bottom: 8px;
 }
 
 .filaPrecio {
@@ -297,25 +171,139 @@ body {
     color: #333;
     font-size: 16px;
 }
-
-/*estilo de los iconos*/
 .iconoCaracteristica {
     display: block;
     width: 40px;
     height: 40px;
     flex-shrink: 0;
 }
+.valor {
+    font-weight: normal;
+}
 
-/*Panel Reseñas*/
+.caracteristicas {
+    background-color: #fff;
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
 
-.estiloOpaco{
+.tituloCaracteristicas {
+    color: #11295b;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.gridCaracteristicas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+}
+
+.caracteristica {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.iconoCaracteristica {
+    width: 50px;
+    height: 50px;
+}
+
+.textoCaracteristica {
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+}
+
+.valorCaracteristica {
+    font-weight: bold;
+    color: #000;
+    font-size: 16px;
+}
+
+/* Panel lateral */
+.panelLateralResponsive {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-between;
+    width: 100%;
+    align-items: flex-start; /* Asegura que no se estiren verticalmente */
+}
+
+.panelLateralResponsive > div {
+    flex: 1 1 48%; /* Se ajusta al 48% del ancho, con espacio para el gap */
+    min-width: 300px; /* Previene que sean demasiado estrechas */
+}
+
+.tarjetaAnfitrion,
+.tarjetaPrecio {
+    background-color: #f5f5f5;
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tituloAnfitrion {
+    text-align: center;
+    margin-bottom: 15px;
+    color: #11295b;
+    font-size: 18px;
+    font-weight: bold;
+    padding-bottom: 8px;
+}
+
+.avatarAnfitrion {
+    width: 80px;
+    height: 80px;
+    background-color: #f0f0f0;
+    border-radius: 50%;
+    margin: 0 auto 15px;
+}
+
+.nombreAnfitrion {
+    text-align: center;
+    font-size: 16px;
+    color: #333;
+}
+
+.tituloAnfitrion,
+.tituloPrecio {
+    color: #11295b;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.avatarAnfitrion {
+    width: 80px;
+    height: 80px;
+    background-color: #ccc;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+.filaPrecio,
+.precioTotal {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+}
+
+.visible {
+    transform: translateX(0);
+}
+
+.estiloOpaco {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.4);
-    z-index: 998;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000;
 }
 
 .panelReseñas {
@@ -324,7 +312,7 @@ body {
     right: -600px;
     width: 600px;
     height: 100vh;
-    background-color: white;
+    background-color: rgb(255, 255, 255);
     box-shadow: -2px 0 8px rgba(0,0,0,0.2);
     transition: right 0.3s ease;
     z-index: 1000;
@@ -332,14 +320,24 @@ body {
     display: flex;
     flex-direction: column;
   }
-  
-  .visible {
-    right: 0;
-  }
 
-  .listaComentarios {
+.panelReseñas.visible {
+    right: 0;
+}
+
+.cerrarPanel {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    background: #fca311;
+    font-size: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+.listaComentarios {
     display: flex;
-    margin-top: 20px;
+    margin-top: 30px;
     flex-direction: column;
     gap: 20px;
       /* Scroll */
@@ -356,63 +354,7 @@ body {
     background-color: rgba(0, 0, 0, 0.3);
     border-radius: 3px;
   }
-
-  .comentario {
-    background-color: #ffffff;
-    padding-bottom: 12px;
-    margin-bottom: 16px;
-    border-bottom: 3px solid #000;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .comentario strong {
-    color: #000000;
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-  }
-
-  .comentario p {
-    font-size: 0.9rem;
-    color: #020202;
-    margin-bottom: 10px;
-  }
-  
-  .comentario span {
-    color: #ff9800; 
-    font-size: 1.1rem;
-  }
-  
-  .cerrarPanel {
-    position: absolute;
-    top: 10px;
-    right: 30px;
-    font-size: 15px;
-    background:#ff9800;
-    color: #ffffff;
-    border: none;
-    cursor: pointer;
-    z-index: 11; 
-    padding: 5px;
-  }
-  
-  .galeriaImagenes {
-    display: flex;
-    overflow-x: auto; 
-    gap: 1rem;
-    scroll-snap-type: x mandatory;
-  }
-  
-  .imagenAutoGaleria {
-    flex-shrink: 0; 
-    scroll-snap-align: center;
-    border-radius: 10px;
-    object-fit: cover; 
-  }  
-  
-  .superior {
+.superior {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -434,6 +376,7 @@ body {
   .nombreYFecha {
     display: flex;
     flex-direction: column;
+    color:#000;
   }
   
   .fecha {
@@ -463,14 +406,85 @@ body {
     font-size: 0.85rem;
   }
   
-  .contenidoComentarios {
-    margin-top: 8px;
+  .contenidoComentario {
+    color: #0a0707;
     text-align: justify;
-    white-space: pre-wrap; /* Mantiene saltos de línea */
-    word-wrap: break-word; /* Evita que las palabras largas desborden */
+    white-space: pre-wrap;
+    word-wrap: break-word;
     overflow-wrap: break-word;
-    font-style: italic;
     width: 100%;
   }
-
   
+  .comentario {
+    background-color: #ffffff;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    border-bottom: 3px solid #000;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  .comentario strong {
+    color: #000000;
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  .comentario p {
+    font-size: 0.9rem;
+    color: #020202;
+    margin-bottom: 10px;
+  }
+  
+  .comentario span {
+    color: #ff9800; 
+    font-size: 1.1rem;
+  }
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .contenido {
+        grid-template-columns: 1fr;
+    }
+
+    .imagenAuto {
+        height: 250px;
+        
+    }
+
+    .panelLateral {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+}
+
+
+@media (max-width: 600px) {
+    .titulo {
+        font-size: 2rem;
+    }
+
+    .gridCaracteristicas {
+        grid-template-columns: 1fr;
+    }
+
+    .valorCaracteristica {
+        font-size: 14px;
+    }
+    .panelReseñas {
+        width: 100%; /* ocupa todo el ancho del móvil */
+        height: 100vh; /* sigue ocupando toda la altura */
+      }
+}
+
+@media (max-width: 200px) {
+    .panelLateralResponsive {
+        flex-direction: column;
+    }
+
+    .panelLateralResponsive > div {
+        flex: 1 1 100%;
+    }
+}

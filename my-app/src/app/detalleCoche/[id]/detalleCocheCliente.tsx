@@ -10,8 +10,6 @@ import TransmisionIcon from './imagenesIconos/caja-de-cambios.png';
 import CombustibleIcon from './imagenesIconos/gasolinera.png';
 import { Auto } from '@/types/auto';
 import { Comentario } from '@/types/auto';
-import { FaStar, FaRegStar } from 'react-icons/fa';
-
 interface Props {
   auto: Auto;
 }
@@ -244,10 +242,16 @@ export default function DetalleCocheCliente({ auto }: Props) {
             </div>
           </div>
           
-          <div className={styles.panelLateral}>
+          <div className={styles.panelLateralResponsive}>
             <div className={styles.tarjetaAnfitrion}>
               <h3 className={styles.tituloAnfitrion}>Datos del host</h3>
-              <div className={styles.avatarAnfitrion}></div>
+              
+              <div className={styles.UsuarioIcon}></div>
+                    <Image 
+                      src={UsuarioIcon} 
+                      alt="Icono de persona"
+                      className={styles.avatarAnfitrion}
+                    />
               <div className={styles.nombreAnfitrion}>Nombre: {auto.propietario?.nombre}</div>
             </div>
             
@@ -259,7 +263,7 @@ export default function DetalleCocheCliente({ auto }: Props) {
               </div>
               <div className={styles.filaMoneda}>{auto.precioRentaDiario}</div>
               <div className={styles.precioTotal}>
-                <div>precio total:</div>
+                <div>Precio total:</div>
                 <div>519.75 BOB</div>
               </div>
             </div>
