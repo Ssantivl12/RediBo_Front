@@ -5,11 +5,100 @@ import { useNavigate } from 'react-router-dom';
 const VistaPago = () => {
   const navigate = useNavigate();
   const [modoPago, setModoPago] = useState(null);
+  const [error, setError] = useState(null); // Estado para manejar errores
+  const [formData, setFormData] = useState({
+    nombreTitular: '',
+    numeroTarjeta: '',
+    fechaExpiracion: '',
+    cvv: '',
+    direccion: '',
+    correoElectronico: ''
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value
+    }));
+  };
 
   const handleConfirmacion = () => {
     alert('¡Pago confirmado con éxito!');
     navigate('/confirmacion');
   };
+
+  const isValidCard = (numeroTarjeta) => {
+    return numeroTarjeta.length === 16 && /^[0-9]+$/.test(numeroTarjeta);
+  };
+  
+  const isValidExpDate = (fechaExpiracion) => {
+    const regex = /^(0[1-9]|1[0-2])\/\d{2}$/;
+    return regex.test(fechaExpiracion);
+  };
+  
+  const isValidCVV = (cvv) => {
+    return cvv.length === 3 && /^[0-9]+$/.test(cvv);
+  };
+  
+  const realizarPago = async () => {
+    const { nombreTitular, numeroTarjeta, fechaExpiracion, cvv, direccion, correoElectronico } = formData;
+    const rentalId = 123;
+    const monto = 1000;
+    const referencia = 'ABCD12349';
+  
+    // Validación simple antes de realizar la solicitud
+    if (!nombreTitular || !numeroTarjeta || !fechaExpiracion || !cvv || !direccion || !correoElectronico) {
+      setError('Por favor complete todos los campos.');
+      return;
+    }
+
+    // Validación de tarjeta
+    if (!isValidCard(numeroTarjeta)) {
+      setError('Número de tarjeta inválido.');
+      return;
+    }
+  
+    // Validación de fecha de expiración
+    if (!isValidExpDate(fechaExpiracion)) {
+      setError('Fecha de expiración inválida.');
+      return;
+    }
+
+    // Validación de CVV
+    if (!isValidCVV(cvv)) {
+      setError('CVV inválido.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3000/pagos/pagarConTarjeta/${rentalId}/${monto}/${referencia}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nombreTitular,
+          numeroTarjeta,
+          fechaExpiracion,
+          cvv,
+          direccion,
+          correoElectronico,
+        }),
+      });
+  
+      if (response.ok) {
+        alert('¡Pago realizado con éxito!');
+        navigate('/confirmacion');
+      } else {
+        setError('Hubo un error al procesar el pago. Intenta nuevamente.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setError('Hubo un error al realizar la solicitud.');
+    }
+  };
+  
 
   const renderContenidoPago = () => {
     return (
@@ -79,43 +168,54 @@ const VistaPago = () => {
           </div>
         </div>
 
-        {/* Contenedor de transferencia bancaria */}
+        {/* Contenedor de pago con tarjeta */}
         {modoPago === 'tarjeta' && (
           <div className="flex-1 bg-[#E4D5C1] p-6 rounded-xl shadow-lg space-y-6 text-[clamp(16px,1.5vw,60px)] overflow-y-auto">
-            <h2 className="text-center  font-bold text-[clamp(24px,2.5vw,56px)]">TRANSFERENCIA BANCARIA</h2>
+            <h2 className="text-center font-bold text-[clamp(24px,2.5vw,56px)]">PAGO CON TARJETA</h2>
 
             <div>
               <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">Nombre del titular</label>
               <input
                 type="text"
+                name="nombreTitular"
+                value={formData.nombreTitular}
+                onChange={handleInputChange}
                 className="w-full border bg-[#FFFFFF ] rounded p-[clamp(8px,1vw,25px)] text-[clamp(15px,1.4vw,60px)]"
                 placeholder="Ej. Juan Pérez"
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">Numero de targeta</label>
+              <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">Numero de tarjeta</label>
               <input
                 type="text"
+                name="numeroTarjeta"
+                value={formData.numeroTarjeta}
+                onChange={handleInputChange}
                 className="w-full border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF ] text-[clamp(15px,1.4vw,60px)]"
                 placeholder="1234 5678 9012 3456"
               />
             </div>
 
-            {/* Fecha y CVV */}
             <div className="flex gap-4">
               <div className="flex-1">
-                <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">Fecha de expiracion</label>
+                <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">Fecha de expiración</label>
                 <input
-                  type="number"
+                  type="text"
+                  name="fechaExpiracion"
+                  value={formData.fechaExpiracion}
+                  onChange={handleInputChange}
                   className="w-full border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF ] text-[clamp(15px,1.4vw,60px)]"
-                  placeholder="MM / AA"
+                  placeholder="MM/AA"
                 />
               </div>
               <div className="w-1/3">
                 <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">CVV</label>
                 <input
-                  type="number"
+                  type="text"
+                  name="cvv"
+                  value={formData.cvv}
+                  onChange={handleInputChange}
                   className="w-full border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF ] text-[clamp(15px,1.4vw,60px)]"
                   placeholder="123"
                 />
@@ -123,9 +223,12 @@ const VistaPago = () => {
             </div>
 
             <div>
-              <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">Direccion</label>
+              <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">Dirección</label>
               <input
                 type="text"
+                name="direccion"
+                value={formData.direccion}
+                onChange={handleInputChange}
                 className="w-full border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF ] text-[clamp(15px,1.4vw,60px)]"
                 placeholder="Ej. Calle oquendo"
               />
@@ -135,53 +238,21 @@ const VistaPago = () => {
               <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">Correo electrónico</label>
               <input
                 type="email"
+                name="correoElectronico"
+                value={formData.correoElectronico}
+                onChange={handleInputChange}
                 className="w-full border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF ] text-[clamp(15px,1.4vw,60px)]"
                 placeholder="Ej. juan.perez@gmail.com"
               />
             </div>
-            <p className="text-center font-medium"></p>
-             
+            {error && <div className="text-red-500">{error}</div>}
+
             <div className="flex flex-col justify-center gap-[50px] px-6">
               <button
-                onClick={() => setModoPago('tarjeta')}
+                onClick={realizarPago}
                 className="bg-[#FCA311] mx-auto w-[70%] py-[clamp(12px,1.2vw,24px)] rounded bg-gray-200 font-bold text-black hover:bg-gray-300 text-[clamp(16px,1.4vw,60px)]"
               >
-                CONFIRMAR TRANSFERENCIA
-              </button>
-
-              <button
-                onClick={() => setModoPago('qr')}
-                className="bg-[#14213D] text-[#FFFFFF] mx-auto w-[70%] py-[clamp(12px,1.2vw,24px)] rounded bg-gray-200 font-bold text-black hover:bg-gray-300 text-[clamp(16px,1.4vw,60px)]"
-              >
-                CANCELAR
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Contenedor de pago por QR */}
-        {modoPago === 'qr' && (
-          <div className="flex-1 bg-[#E4D5C1] p-6 rounded-xl shadow-lg space-y-6 text-[clamp(16px,1.5vw,60px)] overflow-y-auto">
-            <h2 className="text-center text-[#000000] font-bold text-[clamp(24px,2.5vw,56px)]">PAGO CON CÓDIGO QR</h2>
-
-            <div className="flex justify-center">
-              <img
-                src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://tupago.com/confirmacion/12345"
-                alt="QR Code"
-                className="w-[clamp(200px,30vw,750px)] h-[clamp(200px,30vw,750px)] object-contain rounded-lg shadow-md"
-              />
-            </div>
-
-            <p className="text-center font-medium">
-              Escanea este código QR con tu app bancaria o billetera móvil para realizar el pago del alquiler.
-            </p>
-
-            <div className="flex flex-col justify-center gap-[50px] px-6">
-              <button
-                onClick={() => setModoPago('tarjeta')}
-                className="bg-[#14213D] mx-auto w-[70%] py-[clamp(12px,1.2vw,24px)] rounded bg-[#FCA311] font-bold text-[#000000] hover:bg-gray-300 text-[clamp(16px,1.4vw,60px)]"
-              >
-                VERIFICAR PAGO
+                CONFIRMAR PAGO CON TARJETA
               </button>
 
               <button
