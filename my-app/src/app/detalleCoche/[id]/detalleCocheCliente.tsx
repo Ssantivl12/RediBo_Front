@@ -174,15 +174,15 @@ export default function DetalleCocheCliente({ auto }: Props) {
               <div className={styles.detalles}>
                 <div className={styles.gridDetalles}>
                 <div className={styles.filaDetalle}>
-                  <span className={styles.etiqueta}>Año:</span>
+                  <strong>Año:</strong>
                   <span className={styles.valor}>{auto.año}</span>
                 </div>
                 <div className={styles.filaDetalle}>
-                  <span className={styles.etiqueta}>Placa:</span>
-                  <span className={styles.valor}>{auto.placa}</span>
+                  <strong>Placa:</strong>
+                  <span className={styles.valor}>{auto.placa }</span>
                 </div>
                 <div className={styles.filaDetalle}>
-                  <span className={styles.etiqueta}>Color:</span>
+                  <strong>Color:</strong>
                   <span className={styles.valor}>{auto.color}</span>
                 </div>
                 </div>

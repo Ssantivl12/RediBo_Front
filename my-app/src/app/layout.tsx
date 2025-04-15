@@ -36,10 +36,6 @@ export default function RootLayout({
           <main style={{ flexGrow: 1, backgroundColor: '#ffffff' }}>
             {children}
           </main>
-
-          <footer>
-            <Footer />
-          </footer>
         </div>
       </body>
     </html>
