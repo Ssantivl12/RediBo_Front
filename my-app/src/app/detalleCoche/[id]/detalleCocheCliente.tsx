@@ -254,7 +254,7 @@ export default function DetalleCocheCliente({ auto }: Props) {
                       alt="Icono de persona"
                       className={styles.avatarAnfitrion}
                     />
-              <div className={styles.nombreAnfitrion}>Nombre: {auto.propietario?.nombre}</div>
+              <div className={styles.nombreAnfitrion}>Nombre: {auto.propietario?.nombre} {auto.propietario?.apellido}</div>
             </div>
             <div className={styles.tarjetaPrecio}>
               <h3 className={styles.tituloPrecio}>Desglose del precio</h3>
