@@ -10,6 +10,7 @@ import TransmisionIcon from './imagenesIconos/caja-de-cambios.png';
 import CombustibleIcon from './imagenesIconos/gasolinera.png';
 import { Auto } from '@/types/auto';
 import { Comentario } from '@/types/auto';
+//import { FaStar, FaRegStar } from 'react-icons/fa';
 
 interface Props {
   auto: Auto;
@@ -67,8 +68,7 @@ export default function DetalleCocheCliente({ auto }: Props) {
       }
     }
     return estrellas;
-  };
-
+  };  
   const distribucionEstrellas = useMemo(() => {
     const total = comentarios.length;
     const conteo: { [key: number]: number } = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
@@ -93,16 +93,12 @@ export default function DetalleCocheCliente({ auto }: Props) {
     if (promedioCalificacion >= 2.5) return 'Regular';
     if (promedioCalificacion >= 1.5) return 'Malo';
     return 'Muy malo';
-  }, [promedioCalificacion]);  
-
+  }, [promedioCalificacion]);
   return (
     <>
-      {mostrarPanel && (
-  <div className={styles.estiloOpaco} onClick={() => setMostrarPanel(false)} />
-)}
-<div className={`${styles.panelReseñas} ${mostrarPanel ? styles.visible : ''}`}>
-  <button className={`${styles.cerrarPanel} ${styles.boton}`} onClick={() => setMostrarPanel(false)}>✕</button>
-
+      {mostrarPanel && (<div className={styles.estiloOpaco} onClick={() => setMostrarPanel(false)} />)}
+      <div className={`${styles.panelReseñas} ${mostrarPanel ? styles.visible : ''}`}>
+  <button className={`${styles.cerrarPanel } ${styles.boton}`} onClick={() => setMostrarPanel(false)}>✕</button>
   <div className={styles.resumenCalificaciones}>
     <h3 className={styles.tituloCalificacionPanel}><i>Puntuaciones del auto</i></h3>
     <div className={styles.resumenSuperior}>
@@ -131,50 +127,56 @@ export default function DetalleCocheCliente({ auto }: Props) {
       ))}
     </div>
   </div>
+  <div className={styles.listaComentarios} ref={listaComentariosRef}> {/* ← añadido ref */}
+          {comentarios.length === 0 ? (
+            <p>No hay comentarios todavía.</p>
+          ) : (
+            comentarios.map((comentario) => {
+              // Convertimos el string de fecha a un objeto Date
+              const fechaObj = new Date(comentario.fechaCreacion); // Asegúrate de que `comentario.fecha` sea '2025/04/14'
+              
+              // Formateamos la fecha al estilo "14 de abril de 2025"
+              const fechaFormateada = fechaObj.toLocaleDateString('es-ES', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              });
+              const calificacion = comentario.calificacion;
+              const estrellasLlenas = Math.floor(calificacion);
+              const estrellasVacias = 5 - estrellasLlenas;
+              return (
+                <div key={comentario.id} className={styles.comentario}>
+                <div className={styles.superior}>
+                  <div className={styles.usuarioInfo}>
+                    <Image 
+                      src={UsuarioIcon} 
+                      alt="Icono de persona"
+                      className={styles.iconoUsuario}
+                    />
+                    <div className={styles.nombreYFecha}>
+                      <strong>{comentario.usuario.nombre} {comentario.usuario.apellido}</strong>
+                      <div className={styles.fecha}>{fechaFormateada}</div>
+                    </div>
+                  </div>
+                  <div className={styles.estrellasYNota}>
+                    <div className={styles.estrellas}>
+                      {[...Array(estrellasLlenas)].map((_, i) => <FaStar key={`llena-${i}`} />)}
+                      {[...Array(estrellasVacias)].map((_, i) => <FaRegStar key={`vacia-${i}`} />)}
+                    </div>
+                    <div className={styles.nota}>
+                      {calificacion}
+                    </div>
+                  </div>
+                </div>
+              
+                <p className={styles.contenidoComentario}>{comentario.contenido}</p>
+              </div>              
+              )
+            })
+          )}
+        </div>
+      </div>
 
-  <div className={styles.listaComentarios} ref={listaComentariosRef}>
-    {comentarios.length === 0 ? (
-      <p>No hay comentarios todavía.</p>
-    ) : (
-      comentarios.map((comentario) => {
-        const fechaObj = new Date(comentario.fechaCreacion);
-        const fechaFormateada = fechaObj.toLocaleDateString('es-ES', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        });
-        const calificacion = comentario.calificacion;
-        const estrellasLlenas = Math.floor(calificacion);
-        const estrellasVacias = 5 - estrellasLlenas;
-        return (
-          <div key={comentario.id} className={styles.comentario}>
-            <div className={styles.superior}>
-              <div className={styles.usuarioInfo}>
-                <Image
-                  src={UsuarioIcon}
-                  alt="Icono de persona"
-                  className={styles.iconoUsuario}
-                />
-                <div className={styles.nombreYFecha}>
-                  <strong>{comentario.usuario.nombre} {comentario.usuario.apellido}</strong>
-                  <div className={styles.fecha}>{fechaFormateada}</div>
-                </div>
-              </div>
-              <div className={styles.estrellasYNota}>
-                <div className={styles.estrellas}>
-                  {[...Array(estrellasLlenas)].map((_, i) => <FaStar key={`llena-${i}`} />)}
-                  {[...Array(estrellasVacias)].map((_, i) => <FaRegStar key={`vacia-${i}`} />)}
-                </div>
-                <div className={styles.nota}>{calificacion}</div>
-              </div>
-            </div>
-            <p className={styles.contenidoComentario}>{comentario.contenido}</p>
-          </div>
-        );
-      })
-    )}
-  </div>
-</div>
       <div className={styles.contenedor}>
         <h1 className={styles.titulo}>{auto.marca} - {auto.modelo}</h1>
 
@@ -294,11 +296,17 @@ export default function DetalleCocheCliente({ auto }: Props) {
             </div>
           </div>
           
-          <div className={styles.panelLateral}>
+          <div className={styles.panelLateralResponsive}>
             <div className={styles.tarjetaAnfitrion}>
               <h3 className={styles.tituloAnfitrion}>Datos del host</h3>
-              <div className={styles.avatarAnfitrion}></div>
-              <div className={styles.nombreAnfitrion}>Nombre: {auto.propietario?.nombre}</div>
+              
+              <div className={styles.UsuarioIcon}></div>
+                    <Image 
+                      src={UsuarioIcon} 
+                      alt="Icono de persona"
+                      className={styles.avatarAnfitrion}
+                    />
+              <div className={styles.nombreAnfitrion}>Nombre: {auto.propietario?.nombre} {auto.propietario?.apellido}</div>
             </div>
             <div className={styles.tarjetaPrecio}>
               <h3 className={styles.tituloPrecio}>Desglose del precio</h3>
@@ -323,3 +331,4 @@ export default function DetalleCocheCliente({ auto }: Props) {
     </>
   );
 }
+
