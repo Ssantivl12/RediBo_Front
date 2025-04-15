@@ -11,6 +11,7 @@
   --blanco: #FFFFFF;
   --rojo: #F85959;
   --verde: #219653;
+  --azul-opaco: rgba(17, 41, 91, 0.5);
   --fuente-principal: 'Inter', sans-serif;
   --tamaña-bold: bold;
   --tamaño-regular: 500;
