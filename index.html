@@ -4,14 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Reserva</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container" id="reservaContainer">
-    <button class="minimize-btn" onclick="toggleVisibility()">_</button>
+    <button class="minimize-btn" id="minimize">_</button>
     <h2>Reserva</h2>
     <p class="info">
-      Learn what to expect from DePue's planning process. Download this free PDF that walks you through our Front-End Loading process for all our projects.
+      Información de la reserva. Detalles aquí.
     </p>
 
     <div class="card">
@@ -32,12 +32,10 @@
 
     <div class="buttons">
       <button class="confirm">Confirmar Pago</button>
-      <button class="cancel" onclick="irACancelacion()">Cancelar Reserva</button>
+      <button class="cancel" id="cancelar">Cancelar Reserva</button>
     </div>
   </div>
 
-  <button id="showButton" class="show-button hidden" onclick="toggleVisibility()">Ver Reserva</button>
-
-  <script src="script.js"></script>
+  <script src="./dist/script.js"></script>
 </body>
 </html>
