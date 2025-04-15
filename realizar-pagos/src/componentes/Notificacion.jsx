@@ -1,4 +1,5 @@
 // src/componentes/Notificacion.jsx
+import { useNavigate } from 'react-router-dom'; //
 import React from 'react';
 
 const eventos = [
@@ -67,6 +68,11 @@ const eventos = [
 ];
 
 const Notificacion = () => {
+  const navigate = useNavigate(); // Instancia de useNavigate para la navegación
+
+  const handlePagarAhora = () => {
+    navigate("/pago"); // Redirige a la ruta /pago, que es donde está el componente VistaPago
+  };
   return (
     <div className="flex justify-center items-center min-h-screen bg-white">
       <div className="bg-[#061c3d] w-full max-w-[750px] h-auto max-h-[670px] overflow-y-auto rounded-xl p-8">
