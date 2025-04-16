@@ -1,14 +1,72 @@
-// src/componentes/VistaPago.jsx
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const VistaPago = () => {
   const navigate = useNavigate();
   const [modoPago, setModoPago] = useState(null);
 
-  const handleConfirmacion = () => {
-    alert('¡Pago confirmado con éxito!');
-    navigate('/confirmacion');
+  const [nombreTitular, setNombreTitular] = useState("");
+  const [numeroTarjeta, setNumeroTarjeta] = useState("");
+  const [cvv, setCvv] = useState("");
+  const [direccion, setDireccion] = useState("");
+  const [correoElectronico, setCorreoElectronico] = useState("");
+  const [mes, setMes] = useState("");
+  const [anio, setAnio] = useState("");
+
+  const fechaExpiracion = `${mes.padStart(2, "0")}/${anio.padStart(2, "0")}`;
+
+  const handleConfirmacion = async () => {
+    const clienteId = 1; // Reemplaza con el ID real del cliente
+    const monto = 1000;
+    const codigo = "UUAACCaa"; // Reemplaza con un código válido
+
+    if (
+      !nombreTitular ||
+      !numeroTarjeta ||
+      !cvv ||
+      !direccion ||
+      !correoElectronico ||
+      !mes ||
+      !anio
+    ) {
+      alert("Por favor completa todos los campos.");
+      return;
+    }
+
+    const datosPago = {
+      nombreTitular,
+      numeroTarjeta,
+      fechaExpiracion,
+      cvv,
+      direccion,
+      correoElectronico,
+    };
+
+    console.log("Datos enviados:", JSON.stringify(datosPago));
+
+    try {
+      const response = await axios.post(
+        `http://localhost:3000/pagos/pagarConTarjeta/${clienteId}/${monto}/${codigo}`,
+        datosPago
+      );
+
+      console.log("Respuesta del backend:", response.data);
+
+      if (response.status === 200) {
+        alert("¡Pago confirmado con éxito!");
+        navigate("/confirmacion");
+      } else {
+        alert(
+          "Error en el pago: " + (response.data?.mensaje || "Error desconocido")
+        );
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      const msg =
+        error.response?.data?.error || "Hubo un error al realizar el pago.";
+      alert("Error: " + msg);
+    }
   };
 
   const renderContenidoPago = () => {
@@ -29,7 +87,9 @@ const VistaPago = () => {
           </h1>
 
           <div>
-            <label className="block font-semibold text-[#000000] text-[clamp(15px,1.4vw,60px)]">Placa</label>
+            <label className="block font-semibold text-[#000000] text-[clamp(15px,1.4vw,60px)]">
+              Placa
+            </label>
             <input
               type="text"
               value="1852PHD"
@@ -39,7 +99,9 @@ const VistaPago = () => {
           </div>
 
           <div>
-            <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">Inicio del viaje</label>
+            <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">
+              Inicio del viaje
+            </label>
             <div className="flex gap-2">
               <input
                 type="date"
@@ -54,7 +116,9 @@ const VistaPago = () => {
           </div>
 
           <div>
-            <label className="block font-semibold  text-[clamp(15px,1.4vw,60px)]">Fin del viaje</label>
+            <label className="block font-semibold  text-[clamp(15px,1.4vw,60px)]">
+              Fin del viaje
+            </label>
             <div className="flex gap-2">
               <input
                 type="date"
@@ -69,7 +133,9 @@ const VistaPago = () => {
           </div>
 
           <div>
-            <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">Monto total a pagar (bs)</label>
+            <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">
+              Monto total a pagar (bs)
+            </label>
             <input
               type="number"
               value="500"
@@ -80,78 +146,121 @@ const VistaPago = () => {
         </div>
 
         {/* Contenedor de transferencia bancaria */}
-        {modoPago === 'tarjeta' && (
+        {modoPago === "tarjeta" && (
           <div className="flex-1 bg-[#E4D5C1] p-6 rounded-xl shadow-lg space-y-6 text-[clamp(16px,1.5vw,60px)] overflow-y-auto">
-            <h2 className="text-center  font-bold text-[clamp(24px,2.5vw,56px)]">TRANSFERENCIA BANCARIA</h2>
+            <h2 className="text-center font-bold text-[clamp(24px,2.5vw,56px)]">
+              TRANSFERENCIA BANCARIA
+            </h2>
 
             <div>
-              <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">Nombre del titular</label>
+              <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">
+                Nombre del titular
+              </label>
               <input
                 type="text"
-                className="w-full border bg-[#FFFFFF ] rounded p-[clamp(8px,1vw,25px)] text-[clamp(15px,1.4vw,60px)]"
+                className="w-full border bg-[#FFFFFF] rounded p-[clamp(8px,1vw,25px)] text-[clamp(15px,1.4vw,60px)]"
                 placeholder="Ej. Juan Pérez"
+                value={nombreTitular}
+                onChange={(e) => setNombreTitular(e.target.value)}
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">Numero de targeta</label>
+              <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">
+                Número de tarjeta
+              </label>
               <input
                 type="text"
-                className="w-full border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF ] text-[clamp(15px,1.4vw,60px)]"
+                className="w-full border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF] text-[clamp(15px,1.4vw,60px)]"
                 placeholder="1234 5678 9012 3456"
+                value={numeroTarjeta}
+                onChange={(e) => setNumeroTarjeta(e.target.value)}
               />
             </div>
 
             {/* Fecha y CVV */}
             <div className="flex gap-4">
               <div className="flex-1">
-                <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">Fecha de expiracion</label>
-                <input
-                  type="number"
-                  className="w-full border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF ] text-[clamp(15px,1.4vw,60px)]"
-                  placeholder="MM / AA"
-                />
+                <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">
+                  Fecha de expiración
+                </label>
+                <div className="flex gap-2 w-full">
+                  <input
+                    type="number"
+                    className="w-1/2 border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF] text-[clamp(15px,1.4vw,60px)] text-center"
+                    placeholder="MM"
+                    max={12}
+                    min={1}
+                    value={mes}
+                    onChange={(e) => {
+                      let val = e.target.value.slice(0, 2);
+                      setMes(val);
+                    }}
+                  />
+                  <input
+                    type="number"
+                    className="w-1/2 border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF] text-[clamp(15px,1.4vw,60px)] text-center"
+                    placeholder="AA"
+                    value={anio}
+                    onChange={(e) => {
+                      let val = e.target.value.slice(0, 2);
+                      setAnio(val);
+                    }}
+                  />
+                </div>
               </div>
+
               <div className="w-1/3">
-                <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">CVV</label>
+                <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">
+                  CVV
+                </label>
                 <input
                   type="number"
-                  className="w-full border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF ] text-[clamp(15px,1.4vw,60px)]"
+                  className="w-full border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF] text-[clamp(15px,1.4vw,60px)]"
                   placeholder="123"
+                  value={cvv}
+                  onChange={(e) => setCvv(e.target.value)}
                 />
               </div>
             </div>
 
             <div>
-              <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">Direccion</label>
+              <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">
+                Dirección
+              </label>
               <input
                 type="text"
-                className="w-full border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF ] text-[clamp(15px,1.4vw,60px)]"
-                placeholder="Ej. Calle oquendo"
+                className="w-full border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF] text-[clamp(15px,1.4vw,60px)]"
+                placeholder="Ej. Calle Oquendo"
+                value={direccion}
+                onChange={(e) => setDireccion(e.target.value)}
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">Correo electrónico</label>
+              <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">
+                Correo electrónico
+              </label>
               <input
                 type="email"
-                className="w-full border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF ] text-[clamp(15px,1.4vw,60px)]"
+                className="w-full border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF] text-[clamp(15px,1.4vw,60px)]"
                 placeholder="Ej. juan.perez@gmail.com"
+                value={correoElectronico}
+                onChange={(e) => setCorreoElectronico(e.target.value)}
               />
             </div>
-            <p className="text-center font-medium"></p>
-             
+
             <div className="flex flex-col justify-center gap-[50px] px-6">
               <button
-                onClick={() => setModoPago('tarjeta')}
-                className="bg-[#FCA311] mx-auto w-[70%] py-[clamp(12px,1.2vw,24px)] rounded bg-gray-200 font-bold text-black hover:bg-gray-300 text-[clamp(16px,1.4vw,60px)]"
+                onClick={handleConfirmacion}
+                className="bg-[#FCA311] mx-auto w-[70%] py-[clamp(12px,1.2vw,24px)] rounded font-bold text-black hover:bg-gray-300 text-[clamp(16px,1.4vw,60px)]"
               >
                 CONFIRMAR TRANSFERENCIA
               </button>
 
               <button
-                onClick={() => setModoPago('qr')}
-                className="bg-[#14213D] text-[#FFFFFF] mx-auto w-[70%] py-[clamp(12px,1.2vw,24px)] rounded bg-gray-200 font-bold text-black hover:bg-gray-300 text-[clamp(16px,1.4vw,60px)]"
+                onClick={() => setModoPago("qr")}
+                className="bg-[#14213D] text-[#FFFFFF] mx-auto w-[70%] py-[clamp(12px,1.2vw,24px)] rounded font-bold hover:bg-gray-300 text-[clamp(16px,1.4vw,60px)]"
               >
                 CANCELAR
               </button>
@@ -160,9 +269,11 @@ const VistaPago = () => {
         )}
 
         {/* Contenedor de pago por QR */}
-        {modoPago === 'qr' && (
+        {modoPago === "qr" && (
           <div className="flex-1 bg-[#E4D5C1] p-6 rounded-xl shadow-lg space-y-6 text-[clamp(16px,1.5vw,60px)] overflow-y-auto">
-            <h2 className="text-center text-[#000000] font-bold text-[clamp(24px,2.5vw,56px)]">PAGO CON CÓDIGO QR</h2>
+            <h2 className="text-center text-[#000000] font-bold text-[clamp(24px,2.5vw,56px)]">
+              PAGO CON CÓDIGO QR
+            </h2>
 
             <div className="flex justify-center">
               <img
@@ -173,19 +284,20 @@ const VistaPago = () => {
             </div>
 
             <p className="text-center font-medium">
-              Escanea este código QR con tu app bancaria o billetera móvil para realizar el pago del alquiler.
+              Escanea este código QR con tu app bancaria o billetera móvil para
+              realizar el pago del alquiler.
             </p>
 
             <div className="flex flex-col justify-center gap-[50px] px-6">
               <button
-                onClick={() => setModoPago('tarjeta')}
+                onClick={() => setModoPago("tarjeta")}
                 className="bg-[#14213D] mx-auto w-[70%] py-[clamp(12px,1.2vw,24px)] rounded bg-[#FCA311] font-bold text-[#000000] hover:bg-gray-300 text-[clamp(16px,1.4vw,60px)]"
               >
                 VERIFICAR PAGO
               </button>
 
               <button
-                onClick={() => setModoPago('qr')}
+                onClick={() => setModoPago("qr")}
                 className="bg-[#14213D] text-[#FFFFFF] mx-auto w-[70%] py-[clamp(12px,1.2vw,24px)] rounded bg-gray-200 font-bold text-black hover:bg-gray-300 text-[clamp(16px,1.4vw,60px)]"
               >
                 CANCELAR
@@ -209,21 +321,21 @@ const VistaPago = () => {
 
             <div className="flex flex-col justify-center gap-[70px] px-6">
               <button
-                onClick={() => setModoPago('tarjeta')}
+                onClick={() => setModoPago("tarjeta")}
                 className="mx-auto w-[70%] py-[clamp(12px,2vw,45px)] rounded bg-[#FCA311] font-bold hover:bg-yellow-400 text-[clamp(16px,2vw,45px)] text-[#000000]"
               >
                 PAGAR CON TARJETA
               </button>
 
               <button
-                onClick={() => setModoPago('qr')}
+                onClick={() => setModoPago("qr")}
                 className="mx-auto w-[70%] py-[clamp(12px,2vw,45px)] rounded bg-[#14213D] font-bold text-[#FFFFFF] hover:bg-blue-700 text-[clamp(16px,2vw,45px)]"
               >
                 PAGAR CON QR
               </button>
 
               <button
-                onClick={() => navigate('/')}
+                onClick={() => navigate("/")}
                 className="mx-auto w-[70%] py-[clamp(12px,2vw,45px)] bg-[#14213D] rounded bg-[#f2e8d8] font-bold text-black hover:bg-red-600 text-[clamp(16px,2vw,45px)]"
               >
                 CANCELAR
