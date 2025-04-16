@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef} from 'react';
-import styles from './detalleCoche.module.css';
 import Image from 'next/image';
 import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 import UsuarioIcon from './imagenesIconos/usuario.png';
@@ -10,7 +9,6 @@ import TransmisionIcon from './imagenesIconos/caja-de-cambios.png';
 import CombustibleIcon from './imagenesIconos/gasolinera.png';
 import { Auto } from '@/types/auto';
 import { Comentario } from '@/types/auto';
-//import { FaStar, FaRegStar } from 'react-icons/fa';
 
 interface Props {
   auto: Auto;
@@ -96,29 +94,50 @@ export default function DetalleCocheCliente({ auto }: Props) {
   }, [promedioCalificacion]);
   return (
     <>
-      {mostrarPanel && (<div className={styles.estiloOpaco} onClick={() => setMostrarPanel(false)} />)}
-      <div className={`${styles.panelReseñas} ${mostrarPanel ? styles.visible : ''}`}>
-  <button className={`${styles.cerrarPanel } ${styles.boton}`} onClick={() => setMostrarPanel(false)}>✕</button>
-  <div className={styles.resumenCalificaciones}>
-    <h3 className={styles.tituloCalificacionPanel}><i>Puntuaciones del auto</i></h3>
-    <div className={styles.resumenSuperior}>
-      <div className={styles.promedioNumero}>{promedioCalificacion.toFixed(1)}</div>
+      {mostrarPanel && (
+  <div
+    className="fixed inset-0 bg-[rgba(0,0,0,0.5)] z-[999]"
+    onClick={() => setMostrarPanel(false)}
+  />
+)}
+
+<div
+  className={`fixed top-0 w-[600px] h-screen bg-white shadow-[-2px_0_8px_rgba(0,0,0,0.2)] transition-all duration-300 ease-in-out z-[1000] p-4 flex flex-col overflow-y-auto ${
+    mostrarPanel ? 'right-0' : '-right-[600px]'
+  }`}
+>
+  <button
+    className="absolute top-[10px] right-[20px] bg-[#fca311] text-[20px] text-white w-6 h-6 flex items-center justify-center rounded-full border-none cursor-pointer"
+    onClick={() => setMostrarPanel(false)}
+  >
+    ✕
+  </button>
+  
+  <div className="p-4 border-b border-[#ccc]">
+    <h2 className="text-black text-[30px]"><i>{auto.marca}{' '}{auto.modelo}</i></h2>
+    <hr className="border-t-4 border-black"/>
+    <h3 className="text-black text-[20px]"><i>Puntuaciones del auto</i></h3>
+    <div className="flex gap-4 items-center">
+      <div className="bg-[#002a5c] text-white text-[1.5rem] p-2 rounded w-12 text-center"
+      >{promedioCalificacion.toFixed(1)}</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-      <div className={styles.estrellas}>{obtenerEstrellas(promedioCalificacion)}</div>
+      <div className="flex flex-row text-[#257ba5] text-[20px]">
+        {obtenerEstrellas(promedioCalificacion)}</div>
         <div>
-          <div className={styles.criterio}>{criterioTexto}</div>
-          <div className={styles.total}>{comentarios.length} en total</div>
+          <div className="text-black font-bold">{criterioTexto}</div>
+          <div className="text-[rgb(8,8,8)] text-sm">{comentarios.length} en total</div>
         </div>
       </div>
     </div>
 
-    <div className={styles.barrasCalificaciones}>
+    <div className="mt-4">
       {[5, 4, 3, 2, 1].map((estrella) => (
-        <div key={estrella} className={styles.lineaBarra}>
-          <span className={styles.nota}>{estrella}</span>
-          <div className={styles.barraContenedor}>
+        <div key={estrella} className="flex items-center my-1.5">
+          <span className="bg-[#003366] text-white py-[2px] px-2 rounded-[3px] font-bold text-[0.85rem]">
+            {estrella}</span>
+          <div className="w-[500px] h-[10px] bg-[#ddd] rounded-[4px] overflow-hidden mx-[10px]">
             <div
-              className={styles.barraAzul}
+              className="h-full bg-[#002a5c]"
               style={{ width: `${distribucionEstrellas.porcentajes[estrella]}%` }}
             ></div>
           </div>
@@ -127,76 +146,79 @@ export default function DetalleCocheCliente({ auto }: Props) {
       ))}
     </div>
   </div>
-  <div className={styles.listaComentarios} ref={listaComentariosRef}> {/* ← añadido ref */}
-          {comentarios.length === 0 ? (
-            <p>No hay comentarios todavía.</p>
-          ) : (
-            comentarios.map((comentario) => {
-              // Convertimos el string de fecha a un objeto Date
-              const fechaObj = new Date(comentario.fechaCreacion); // Asegúrate de que `comentario.fecha` sea '2025/04/14'
-              
-              // Formateamos la fecha al estilo "14 de abril de 2025"
-              const fechaFormateada = fechaObj.toLocaleDateString('es-ES', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              });
-              const calificacion = comentario.calificacion;
-              const estrellasLlenas = Math.floor(calificacion);
-              const estrellasVacias = 5 - estrellasLlenas;
-              return (
-                <div key={comentario.id} className={styles.comentario}>
-                <div className={styles.superior}>
-                  <div className={styles.usuarioInfo}>
-                    <Image 
-                      src={UsuarioIcon} 
-                      alt="Icono de persona"
-                      className={styles.iconoUsuario}
-                    />
-                    <div className={styles.nombreYFecha}>
-                      <strong>{comentario.usuario.nombre} {comentario.usuario.apellido}</strong>
-                      <div className={styles.fecha}>{fechaFormateada}</div>
-                    </div>
-                  </div>
-                  <div className={styles.estrellasYNota}>
-                    <div className={styles.estrellas}>
-                      {[...Array(estrellasLlenas)].map((_, i) => <FaStar key={`llena-${i}`} />)}
-                      {[...Array(estrellasVacias)].map((_, i) => <FaRegStar key={`vacia-${i}`} />)}
-                    </div>
-                    <div className={styles.nota}>
-                      {calificacion}
-                    </div>
-                  </div>
+  
+  <h2 className="text-black text-[20px]"><i>Comentarios</i></h2>
+  <div className="flex flex-col mt-8 gap-5 pr-2.5" 
+      ref={listaComentariosRef}>
+      {comentarios.length === 0 ? (
+        <p>No hay comentarios todavía.</p>
+      ) : (
+        comentarios.map((comentario) => {
+          const fechaObj = new Date(comentario.fechaCreacion);
+          
+          const fechaFormateada = fechaObj.toLocaleDateString('es-ES', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          });
+          const calificacion = comentario.calificacion;
+          const estrellasLlenas = Math.floor(calificacion);
+          const estrellasVacias = 5 - estrellasLlenas;
+          return (
+            <div key={comentario.id} className="bg-white pb-3 mb-4 border-b-2 border-black flex flex-col w-full">
+            <div className="flex justify-between items-center w-full">
+              <div className="flex items-center gap-3">
+                <Image 
+                  src={UsuarioIcon} 
+                  alt="Icono de persona"
+                  className="w-10 h-10 rounded-full"
+                />
+                <div className="flex flex-col text-black">
+                  <strong>{comentario.usuario.nombre} {comentario.usuario.apellido}</strong>
+                  <div className="text-gray-600 text-sm">{fechaFormateada}</div>
                 </div>
-              
-                <p className={styles.contenidoComentario}>{comentario.contenido}</p>
-              </div>              
-              )
-            })
-          )}
-        </div>
-      </div>
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <div className="flex flex-row text-[#fca311] text-xl">
+                  {[...Array(estrellasLlenas)].map((_, i) => <FaStar key={`llena-${i}`} />)}
+                  {[...Array(estrellasVacias)].map((_, i) => <FaRegStar key={`vacia-${i}`} />)}
+                </div>
+                <div className="bg-[#003366] text-white px-2 py-1 rounded-[3px] font-bold text-[0.85rem]">
+                  {calificacion}
+                </div>
+              </div>
+            </div>
+          
+            <p className="text-[#0a0707] text-justify whitespace-pre-wrap break-words w-full">
+              {comentario.contenido}</p>
+          </div>              
+          )
+        })
+      )}
+    </div>
+</div>
 
-      <div className={styles.contenedor}>
-        <h1 className={styles.titulo}>{auto.marca} - {auto.modelo}</h1>
+      <div className="w-full max-w-[1500px] mx-auto p-5 bg-white text-[#292929]">
+        <h1 className="text-[#11295B] text-[2.5rem] mb-5">{auto.marca} - {auto.modelo}</h1>
 
-        <div className={styles.contenido}>
-          <div className={styles.seccionIzquierda}>
-            <div className={styles.imagenAuto}>
+        <div className="grid grid-cols-[1fr_2fr_1fr] gap-7.5">
+          <div>
+            <div className="relative w-full max-w-full h-[250px] border border-black rounded-[20px] overflow-hidden bg-white">
               
               {/* Flecha izquierda */}
-              <div className={`${styles.flechaNavegacion} ${styles.flechaIzquierda}`} onClick={imagenAnterior}>
+              <div className="absolute top-1/2 transform -translate-y-1/2 w-10 h-10 bg-white/30 rounded-full flex items-center justify-center cursor-pointer text-[40px] text-black z-50 transition-colors duration-200 ease-in-out"
+                onClick={imagenAnterior}>
                 {'<'}
               </div>
 
               {/* Contenedor de imágenes */}
-              <div className={styles.imagenAuto}>
+              <div className="relative w-full max-w-full h-[250px] border border-black rounded-[20px] overflow-hidden bg-white">
                 {auto.imagenes && (
                   <Image
                     key={auto.imagenes[imagenActual].id}
                     src={auto.imagenes[imagenActual].direccionImagen}
                     alt={`Imagen del auto ${auto.marca} ${auto.modelo}`}
-                    className={styles.imagenAuto}
+                    className="relative w-full max-w-full h-[250px] border border-black rounded-[20px] overflow-hidden bg-white"
                     fill
                     style={{ objectFit: 'cover' }}
                   />
@@ -204,131 +226,150 @@ export default function DetalleCocheCliente({ auto }: Props) {
               </div>
 
               {/* Flecha derecha */}
-              <div className={`${styles.flechaNavegacion} ${styles.flechaDerecha}`} onClick={siguienteImagen}>
+              <div className="absolute top-1/2 right-2 transform -translate-y-1/2 w-10 h-10 bg-white/30 rounded-full flex items-center justify-center cursor-pointer text-[40px] text-black z-50 transition-colors duration-200 ease-in-out"
+                onClick={siguienteImagen}>
                 {'>'}
               </div>
             </div>
-            <div className={styles.contenedorCalificacion}>
-              <div className={styles.calificacion}>
-                <span className={styles.puntuacion}>Puntuación {promedioCalificacion}</span>
-                <span className={styles.estrellas}>
+            <div className="mt-[15px]">
+              <div className="flex items-center justify-start gap-[10px] p-[10px]">
+                <span className="font-bold text-[18px] text-[#11295B]">Puntuación {promedioCalificacion}</span>
+                <span className="flex flex-row text-[#fca311] text-[20px]">
                   {obtenerEstrellas(promedioCalificacion)}
                 </span>
               </div>
-              <button className={styles.boton}
+              <button className="m-0 inline-block bg-[#fca311] text-white 
+                        px-5 py-2.5 border-none rounded-full 
+                        text-base font-semibold font-inter text-center 
+                        no-underline cursor-pointer 
+                        transition duration-300 ease-in-out 
+                        shadow-md hover:bg-[#e69500] hover:-translate-y-0.5 hover:shadow-lg 
+                        active:bg-[#cc8400] active:translate-y-0 active:shadow-sm"
                     onClick={() => setMostrarPanel(true)}>
                 Ver Reseñas
               </button>
             </div>
+
+            {/*HASTA AQUI YO*/}
             
-            <div className={styles.contenedorDetalles}>
-              <h3 className={styles.subtituloDetalles}>Detalles</h3>
-              <div className={styles.detalles}>
-                <div className={styles.gridDetalles}>
-                <div className={styles.filaDetalle}>
-                  <strong>Año:</strong>
-                  <span className={styles.valor}>{auto.año}</span>
+            <div className="bg-white relative top-[-10px] left-[5px] w-[530px] h-[250px]">
+              <h3 className="text-[#11295B] text-[1.5rem] font-semibold mt-5">Detalles</h3>
+              <div className="mt-2">
+                <div className="grid grid-cols-[repeat(auto-fit,_minmax(100px,_1fr))] gap-5 mt-2">
+                  <div className="flex gap-2 text-[16px]">
+                    <strong>Año:</strong>
+                    <span>{auto.año}</span>
+                  </div>
+                  <div className="flex gap-2 text-[16px]">
+                    <strong>Placa:</strong>
+                    <span>{auto.placa}</span>
+                  </div>
+                  <div className="flex gap-2 text-[16px]">
+                    <strong>Color:</strong>
+                    <span>{auto.color}</span>
+                  </div>
                 </div>
-                <div className={styles.filaDetalle}>
-                  <strong>Placa:</strong>
-                  <span className={styles.valor}>{auto.placa }</span>
-                </div>
-                <div className={styles.filaDetalle}>
-                  <strong>Color:</strong>
-                  <span className={styles.valor}>{auto.color}</span>
-                </div>
-                </div>
-                <h4 className={styles.subtituloDetalles}>Descripcion</h4>
-                <span className={styles.valor}>{auto.descripcion}</span>
+                <h4 className="text-[#11295B] text-[1.5rem] font-semibold mt-5">Descripción</h4>
+                <div className="text-[16px]">{auto.descripcion}</div>
               </div>
             </div>
           </div>
-          
           <div>
-            <div className={styles.caracteristicas}>
-              <h2 className={styles.tituloCaracteristicas}>Características Principales</h2>
-              <div className={styles.gridCaracteristicas}>
-                <div className={styles.caracteristica}>
+
+            <div className="bg-white p-5 w-full box-border">
+              <h2 className="text-[#11295B] text-[1.5rem] font-bold mb-4">Características Principales</h2>
+              <div className="grid grid-cols-2 gap-5 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2">
+                <div className="flex items-center gap-4 flex-wrap">
                   <Image 
                     src={UsuarioIcon} 
                     alt="Icono de personas"
-                    className={styles.iconoCaracteristica}
+                    className="w-[50px] h-[50px] flex-shrink-0"
                   />
-                  <div className={styles.textoCaracteristica}>
-                    <span className={styles.valorCaracteristica}>{auto.capacidad} personas</span>
+                  <div className="flex flex-col text-[14px] flex-grow">
+                    <span className="font-bold text-black text-[16px] whitespace-nowrap">{auto.capacidad} personas</span>
                     <span>Capacidad</span>
                   </div>
                 </div>
-                <div className={styles.caracteristica}>
+                <div className="flex items-center gap-4 flex-wrap">
                   <Image 
                     src={KilometrajeIcon} 
                     alt="Icono de kilometraje" 
-                    className={styles.iconoCaracteristica}
+                    className="w-[50px] h-[50px] flex-shrink-0"
                   />
-                  <div className={styles.textoCaracteristica}>
-                    <span className={styles.valorCaracteristica}>{auto.kilometraje}</span>    
-                    <span>Kilometraje</span>                                                      
+                  <div className="flex flex-col text-[14px] flex-grow">
+                    <span className="font-bold text-black text-[16px] whitespace-nowrap">{auto.kilometraje}</span>    
+                    <span>Kilometraje</span>
                   </div>
                 </div>
-                <div className={styles.caracteristica}>
+                <div className="flex items-center gap-4 flex-wrap">
                   <Image 
                     src={TransmisionIcon} 
                     alt="Icono de transmisión" 
-                    className={styles.iconoCaracteristica}
+                    className="w-[50px] h-[50px] flex-shrink-0"
                   />
-                  <div className={styles.textoCaracteristica}>
-                    <span className={styles.valorCaracteristica}>{auto.transmision}</span>   
-                    <span>Transmisión</span>                                    
+                  <div className="flex flex-col text-[14px] flex-grow">
+                    <span className="font-bold text-black text-[16px] whitespace-nowrap">{auto.transmision}</span>   
+                    <span>Transmisión</span>
                   </div>
                 </div>
-                <div className={styles.caracteristica}>
+                <div className="flex items-center gap-4 flex-wrap">
                   <Image 
                     src={CombustibleIcon} 
                     alt="Icono de combustible" 
-                    className={styles.iconoCaracteristica}
+                    className="w-[50px] h-[50px] flex-shrink-0"
                   />
-                  <div className={styles.textoCaracteristica}>
-                    <span className={styles.valorCaracteristica}>{auto.combustible}</span>        
-                    <span>Combustible</span>                                                   
+                  <div className="flex flex-col text-[14px] flex-grow">
+                    <span className="font-bold text-black text-[16px] whitespace-nowrap">{auto.combustible}</span>        
+                    <span>Combustible</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
           
-          <div className={styles.panelLateralResponsive}>
-            <div className={styles.tarjetaAnfitrion}>
-              <h3 className={styles.tituloAnfitrion}>Datos del host</h3>
-              
-              <div className={styles.UsuarioIcon}></div>
+          <div className="flex flex-wrap gap-5 justify-between w-full items-start">
+            <div className="flex-1 min-w-[300px]">
+              <div className="bg-[#f5f5f5] p-4 rounded-lg shadow-md">
+                <h3 className="text-[#11295b] font-semibold text-lg text-center mb-4 pb-2">
+                  Datos del host
+                </h3>
+                <div className="flex justify-center">
                     <Image 
                       src={UsuarioIcon} 
                       alt="Icono de persona"
-                      className={styles.avatarAnfitrion}
+                      className="w-[80px] h-[80px] bg-[#ccc] rounded-full mb-4"
                     />
-              <div className={styles.nombreAnfitrion}>Nombre: {auto.propietario?.nombre} {auto.propietario?.apellido}</div>
-            </div>
-            <div className={styles.tarjetaPrecio}>
-              <h3 className={styles.tituloPrecio}>Desglose del precio</h3>
-
-              <div className={styles.filaPrecio}>
-                <div>Precio por día:</div>
-                <div>{auto?.precioRentaDiario}{' USD'}</div>
-              </div>
-
-              <div className={styles.filaMoneda}>
-                {(parseFloat(auto?.precioRentaDiario) * 6.89).toFixed(2)}{' BOB'}
-              </div>
-
-              <div className={styles.precioTotal}>
-                <div>Precio total:</div>
-                <div>{(parseFloat(auto?.precioRentaDiario) * 6.89 * 5).toFixed(2)}{' BOB'}</div>
+                  </div>
+                <div className="text-center text-[#333] text-lg">
+                  Nombre: {auto.propietario?.nombre} {auto.propietario?.apellido}
+                </div>
               </div>
             </div>
+
+                <div className="flex-1 min-w-[300px]">
+                  <div className="bg-[#f5f5f5] p-4 rounded-lg shadow-md">
+                    <h3 className="text-[#11295b] font-semibold text-lg mb-4">
+                      Desglose del precio
+                    </h3>
+
+                    <div className="flex justify-between mt-2">
+                      <div>Precio por día:</div>
+                      <div>{auto?.precioRentaDiario}{' USD'}</div>
+                    </div>
+
+                    <div className="text-[#333] mt-2 text-right">
+                        {(parseFloat(auto?.precioRentaDiario) * 6.89).toFixed(2)}{' BOB'}
+                      </div>
+
+                    <div className="flex justify-between mt-4">
+                      <div>Precio total:</div>
+                      <div>{(parseFloat(auto?.precioRentaDiario) * 6.89 * 5).toFixed(2)}{' BOB'}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
           </div>
-        </div>
       </div>
     </>
   );
 }
-
