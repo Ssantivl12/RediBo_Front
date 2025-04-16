@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const VistaPago = () => {
   const navigate = useNavigate();
   const [modoPago, setModoPago] = useState(null);
+  const [loading, setLoading] = useState(false); // asegúrate de declarar esto
+  const [qrImage, setQrImage] = useState(""); // y esto también
 
   const [nombreTitular, setNombreTitular] = useState("");
   const [numeroTarjeta, setNumeroTarjeta] = useState("");
@@ -16,10 +18,86 @@ const VistaPago = () => {
 
   const fechaExpiracion = `${mes.padStart(2, "0")}/${anio.padStart(2, "0")}`;
 
+  // 👇 Este useEffect debe estar aquí, no dentro de handleConfirmacion
+  useEffect(() => {
+    const generarQR = async () => {
+      setLoading(true);
+      try {
+        const monto = 100;
+        const referencia = "gggggg";
+
+        const response = await axios.get(
+          `http://localhost:3000/generarQR/${monto}/${referencia}`
+        );
+        console.log("Respuesta completa del QR:", response.data);
+        if (response.data.mensaje === "QR generado correctamente") {
+          setQrImage(`http://localhost:3000/temp/${response.data.archivoQR}`);
+          //ese datarachivoQR almacenar en un const o variable para luego usar en otra variable en handleConfirmacionQR
+        }
+      } catch (error) {
+        console.error("Error generando el QR:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (modoPago === "qr") {
+      generarQR();
+    }
+  }, [modoPago]);
+  const handleConfirmacionQR = async () => {
+    const rentalId = 123; // Asignar el rentalId correctamente
+    const monto = 1000; 
+    const referencia = "REF123410"; 
+    const correoElectronico = "samuelmoya786@gmail.com"; 
+    
+    // Usar el nombre real del archivo QR generado
+    const nombreArchivoQR = qrImage.split('/').pop(); // Extraer el nombre del archivo QR de la URL
+
+    if (!correoElectronico) {
+      alert("Por favor ingresa un correo electrónico.");
+      return;
+    }
+
+    const datosPagoQR = {
+      nombreArchivoQR,  // Usamos el nombre del archivo QR generado
+      monto,
+      rentalId, 
+      referencia,
+      correo: correoElectronico
+    };
+
+    console.log("Datos a enviar:", datosPagoQR);  // Verificar los datos antes de enviarlos
+
+    try {
+      // Realizamos la solicitud POST al backend, enviando los datos en el cuerpo (body)
+      const response = await axios.post(
+        "http://localhost:3000/pagos/pagarConQR", // API que recibe la solicitud
+        datosPagoQR // El body de la solicitud
+      );
+
+      // Verificamos si la respuesta es exitosa
+      if (response.status === 200) {
+        alert("¡Pago QR confirmado con éxito!");
+        navigate("/confirmacion"); // Redirigir a la vista de confirmación
+      } else {
+        alert(
+          "Error en el pago QR: " + (response.data?.mensaje || "Error desconocido")
+        );
+      }
+    } catch (error) {
+      // Si hay un error, mostramos el mensaje de error
+      console.error("Error:", error);
+      const msg =
+        error.response?.data?.error || "Hubo un error al realizar el pago QR.";
+      alert("Error: " + msg);
+    }
+  };
+
   const handleConfirmacion = async () => {
-    const clienteId = 1; // Reemplaza con el ID real del cliente
+    const clienteId = 1;
     const monto = 1000;
-    const codigo = "UUAACCaa"; // Reemplaza con un código válido
+    const codigo = "UUAACCaa";
 
     if (
       !nombreTitular ||
@@ -43,15 +121,11 @@ const VistaPago = () => {
       correoElectronico,
     };
 
-    console.log("Datos enviados:", JSON.stringify(datosPago));
-
     try {
       const response = await axios.post(
         `http://localhost:3000/pagos/pagarConTarjeta/${clienteId}/${monto}/${codigo}`,
         datosPago
       );
-
-      console.log("Respuesta del backend:", response.data);
 
       if (response.status === 200) {
         alert("¡Pago confirmado con éxito!");
@@ -267,7 +341,6 @@ const VistaPago = () => {
             </div>
           </div>
         )}
-
         {/* Contenedor de pago por QR */}
         {modoPago === "qr" && (
           <div className="flex-1 bg-[#E4D5C1] p-6 rounded-xl shadow-lg space-y-6 text-[clamp(16px,1.5vw,60px)] overflow-y-auto">
@@ -275,12 +348,24 @@ const VistaPago = () => {
               PAGO CON CÓDIGO QR
             </h2>
 
-            <div className="flex justify-center">
-              <img
-                src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://tupago.com/confirmacion/12345"
-                alt="QR Code"
-                className="w-[clamp(200px,30vw,750px)] h-[clamp(200px,30vw,750px)] object-contain rounded-lg shadow-md"
-              />
+            <div className="flex justify-center items-center gap-6 flex-wrap">
+              <div>
+                {loading ? (
+                  <p className="text-lg text-gray-700">
+                    Generando código QR...
+                  </p>
+                ) : qrImage ? (
+                  <img
+                    src={qrImage}
+                    alt="Código QR"
+                    className="w-64 h-64 object-contain border-4 border-black rounded-lg"
+                  />
+                ) : (
+                  <p className="text-red-500 text-lg">
+                    No se pudo generar el QR.
+                  </p>
+                )}
+              </div>
             </div>
 
             <p className="text-center font-medium">
@@ -288,17 +373,17 @@ const VistaPago = () => {
               realizar el pago del alquiler.
             </p>
 
-            <div className="flex flex-col justify-center gap-[50px] px-6">
+            <div className="flex flex-col justify-center gap-12 px-6">
               <button
-                onClick={() => setModoPago("tarjeta")}
-                className="bg-[#14213D] mx-auto w-[70%] py-[clamp(12px,1.2vw,24px)] rounded bg-[#FCA311] font-bold text-[#000000] hover:bg-gray-300 text-[clamp(16px,1.4vw,60px)]"
+                onClick={handleConfirmacionQR}
+                className="mx-auto w-[70%] py-[clamp(12px,1.2vw,24px)] rounded font-bold text-[#000000] bg-[#FCA311] hover:bg-gray-300 text-[clamp(16px,1.4vw,60px)]"
               >
                 VERIFICAR PAGO
               </button>
 
               <button
-                onClick={() => setModoPago("qr")}
-                className="bg-[#14213D] text-[#FFFFFF] mx-auto w-[70%] py-[clamp(12px,1.2vw,24px)] rounded bg-gray-200 font-bold text-black hover:bg-gray-300 text-[clamp(16px,1.4vw,60px)]"
+                onClick={() => setModoPago("")}
+                className="mx-auto w-[70%] py-[clamp(12px,1.2vw,24px)] rounded font-bold text-black bg-gray-200 hover:bg-gray-300 text-[clamp(16px,1.4vw,60px)]"
               >
                 CANCELAR
               </button>
