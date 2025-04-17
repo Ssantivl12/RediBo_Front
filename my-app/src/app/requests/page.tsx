@@ -1,8 +1,8 @@
-// /app/solicitudes/page.tsx
 'use client';
 
 import React from "react";
 import FiltersBar from "@/app/components/filters/FiltersBar";
+import CarListings from "../components/carListings/CarListings";
 import Navbar from "../components/navbar/Navbar";
 import styles from "./requests.module.css";
 
@@ -28,7 +28,9 @@ export default function SolicitudesPage() {
       </header>
 
       <main className={styles.body}>
-      
+      <div className={styles.scrollContent}>
+          <CarListings activeFilter={activeFilter} />
+        </div>
       </main>
 
     </div>
