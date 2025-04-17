@@ -1,98 +1,73 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { BellIcon } from "@heroicons/react/24/outline";
+import React from 'react';
+import { AlertTriangle, CheckCircle, Info, XCircle } from 'lucide-react';
 
-// Tipo de notificación
-type Notification = {
-  id: number;
-  title: string;
-  message: string;
-  date: string;
-};
+const notifications = [
+  {
+    id: 1,
+    title: 'Revisión pendiente del vehículo',
+    message: 'Tu vehículo Toyota Corolla necesita revisión antes del próximo alquiler.',
+    icon: <AlertTriangle className="text-yellow-500" size={24} />,
+    action: 'Revisar ahora',
+  },
+  {
+    id: 2,
+    title: 'Error en el pago',
+    message: 'No se pudo procesar el pago de la reserva N° 3421.',
+    icon: <XCircle className="text-red-500" size={24} />,
+    action: 'Reintentar',
+  },
+  {
+    id: 3,
+    title: 'Reserva confirmada',
+    message: 'Tu reserva para el Nissan Versa ha sido confirmada con éxito.',
+    icon: <CheckCircle className="text-green-500" size={24} />,
+    action: 'Ver detalles',
+  },
+  {
+    id: 4,
+    title: 'Recordatorio de documentos',
+    message: 'Por favor, asegúrate de tener tu licencia de conducir válida al momento del retiro.',
+    icon: <Info className="text-blue-500" size={24} />,
+    action: 'Subir documentos',
+  },
+];
 
-export default function Home() {
-  const [showNotifications, setShowNotifications] = useState(false);
-
-  const notifications: Notification[] = [
-    {
-      id: 1,
-      title: "Tiempo de renta concluido",
-      message: "Tu vehículo Nissan Sentra ya concluyó su tiempo de renta.",
-      date: "03/31/2025, 21:00",
-    },
-    {
-      id: 2,
-      title: "Inspección pendiente",
-      message: "Tu vehículo necesita pasar inspección técnica.",
-      date: "04/10/2025, 14:20",
-    },
-    {
-      id: 3,
-      title: "Nueva solicitud",
-      message: "Tienes una nueva solicitud de renta en curso.",
-      date: "04/11/2025, 08:45",
-    },
-  ];
-
+export default function HomePage() {
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      {/* Contenedor central como app móvil */}
-      <div className="w-full max-w-[375px] min-h-screen bg-white relative border border-gray-300 shadow-lg">
-        
-        {/* Header */}
-        <header className="w-full flex flex-col items-center">
-          {/* Línea naranja arriba */}
-          <div className="w-full h-2 bg-[#FCA311]" />
+    <main className="min-h-screen p-6 bg-white">
+      <h1 className="text-4xl font-bold text-blue-900 mb-6">
+        Notificaciones
+      </h1>
 
-          {/* Icono campana */}
-          <div className="w-full flex justify-end items-center p-4 relative">
-            <button
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="relative"
-            >
-              <BellIcon className="h-7 w-7 text-[#FCA311]" />
-              <span className="absolute -top-1 -right-1 bg-red-500 rounded-full h-3 w-3" />
-            </button>
-          </div>
-        </header>
-
-        {/* Notificaciones */}
-        {showNotifications && (
-          <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[90%] max-w-xs z-40 bg-white border border-gray-200 rounded-lg shadow-lg p-4 space-y-4">
-            {notifications.map((notification, index) => (
-              <div
-                key={notification.id}
-                className={`w-full flex items-center p-3 rounded-md border ${
-                  index === 0 ? "bg-[#EFE1CB]" : "bg-white"
-                } shadow-sm`}
-              >
-                {/* Círculo gris */}
-                <div className="w-12 h-12 bg-gray-400 rounded-full flex-shrink-0" />
-
-                {/* Texto */}
-                <div className="ml-4 flex-1">
-                  <h3 className="font-semibold text-sm">{notification.title}</h3>
-                  <p className="text-[11px] text-gray-600">{notification.date}</p>
-                  <p className="text-[11px] text-gray-600">{notification.message}</p>
-                </div>
+      <div className="space-y-4">
+        {notifications.map((n) => (
+          <div
+            key={n.id}
+            className="border rounded-lg p-4 shadow-sm flex justify-between items-start"
+          >
+            <div className="flex gap-4">
+              <div className="pt-1">{n.icon}</div>
+              <div>
+                <h2 className="font-bold text-lg">{n.title}</h2>
+                <p className="text-gray-700 mt-1">{n.message}</p>
               </div>
-            ))}
-
-            {/* Botón Ver más */}
-            <button className="w-full border rounded-md py-2 text-sm font-medium text-gray-700 mt-2 hover:bg-gray-100">
-              Ver más...
-            </button>
+            </div>
+            <div className="flex flex-col items-end justify-between ml-4">
+              <button className="bg-amber-500 text-white px-4 py-1 rounded hover:bg-amber-600 mt-2">
+                {n.action}
+              </button>
+            </div>
           </div>
-        )}
-
-        {/* Contenido principal */}
-        <main className="pt-24 p-6">
-          <p className="text-center text-gray-600 text-base">
-            Bienvenido a tu panel de control.
-          </p>
-        </main>
+        ))}
       </div>
-    </div>
+    </main>
   );
 }
+
+
+
+
+
+
