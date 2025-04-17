@@ -41,7 +41,6 @@ export default function HomePage() {
       <h1 className="text-4xl font-bold text-blue-900 mb-6">
         Notificaciones
       </h1>
-      test
       <div className="space-y-4">
         {notifications.map((n) => (
           <div
