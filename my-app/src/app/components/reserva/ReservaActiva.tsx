@@ -37,27 +37,13 @@ export default function ReservaActiva() {
       .padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   }
 
-  const cancelarReserva = async (porTiempo = false) => {
-    try {
-      await axios.post(`http://localhost:3000/api/reservas/cancelar/${ID_RESERVA}`)
-      alert(porTiempo ? 'La reserva ha expirado automáticamente.' : 'Reserva cancelada exitosamente.')
-    } catch (error) {
-      alert('Error al cancelar la reserva.')
-      console.error(error)
-    } finally {
+  const cancelarReserva = async (porTiempo = false) => {   
       router.push('/reserva-expirada')
-    }
+    
   }
 
   const confirmarPago = async () => {
-    try {
-      await axios.post(`http://localhost:3000/api/reservas/pago/${ID_RESERVA}`)
-      alert('Pago confirmado correctamente.')
-      // Redireccionar o actualizar estado si es necesario
-    } catch (error) {
-      alert('Error al confirmar el pago.')
-      console.error(error)
-    }
+      router.push('/pago')
   }
 
   return (
@@ -82,10 +68,10 @@ export default function ReservaActiva() {
       </div>
 
       <div className="flex justify-around space-x-2">
-        <button onClick={confirmarPago} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+        <button onClick={confirmarPago} className="bg-[#FCA311] hover:bg-[#e2910f] text-white px-4 py-2 rounded">
           Confirmar Pago
         </button>
-        <button onClick={() => cancelarReserva(false)} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+        <button onClick={() => cancelarReserva(false)} className="bg-[#FCA311] hover:bg-[#e2910f] text-white px-4 py-2 rounded">
           Cancelar Reserva
         </button>
       </div>

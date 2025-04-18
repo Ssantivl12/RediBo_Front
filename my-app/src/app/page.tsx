@@ -8,7 +8,7 @@ export default function RootRedirect() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/pago');
+    router.replace('/reserva');
   }, [router]);
 
   return null;
