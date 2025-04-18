@@ -1,22 +1,23 @@
 'use client';
-import React, { useState } from "react";
+import React from "react";
 
 interface FiltersBarProps {
   onFilterChange?: (filter: string) => void;
+  activeFilter?: string;
 }
 
-const FiltersBar: React.FC<FiltersBarProps> = ({ onFilterChange }) => {
-  const [activo, setActivo] = useState("todos");
-
+const FiltersBar: React.FC<FiltersBarProps> = ({ 
+  onFilterChange, 
+  activeFilter = 'todos' 
+}) => {
   const botones = [
     { id: "todos", label: "Todos" },
     { id: "disponibles", label: "Disponibles" },
     { id: "en_renta", label: "En renta" },
     { id: "con_solicitudes", label: "Con solicitudes" },
   ];
+
   const handleFilterChange = (filterId: string) => {
-    setActivo(filterId);
-    
     if (onFilterChange) {
       onFilterChange(filterId);
     }
@@ -40,7 +41,7 @@ const FiltersBar: React.FC<FiltersBarProps> = ({ onFilterChange }) => {
               onClick={() => handleFilterChange(btn.id)}  
               className={`px-4 py-1 rounded-full border text-sm font-medium transition
               ${
-                activo === btn.id
+                activeFilter === btn.id
                 ? "bg-blue-500 text-white shadow-sm"
                 : "bg-white text-blue-500 border-blue-500 hover:bg-blue-500 hover:text-white"
               }`}
