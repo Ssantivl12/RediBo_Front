@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/router'
 import axios from 'axios'
 import '../../globals.css'
 
@@ -27,10 +27,9 @@ const VistaPago = () => {
       setLoading(true);
       try {
         const monto = 100;
-        const referencia = "gggggg";
 
         const response = await axios.get(
-          `http://localhost:3000/generarQR/${monto}/${referencia}`
+          `http://localhost:3000/generarQR/${monto}`
         );
         console.log("Respuesta completa del QR:", response.data);
         if (response.data.mensaje === "QR generado correctamente") {
@@ -49,60 +48,50 @@ const VistaPago = () => {
     }
   }, [modoPago]);
   const handleConfirmacionQR = async () => {
-    const rentalId = 123; // Asignar el rentalId correctamente
-    const monto = 1000; 
-    const referencia = "REF123410"; 
-    const correoElectronico = "samuelmoya786@gmail.com"; 
-    
-    // Usar el nombre real del archivo QR generado
-    const nombreArchivoQR = qrImage.split('/').pop(); // Extraer el nombre del archivo QR de la URL
-
+    const idReserva = 29; 
+    const monto = 150.50;
+    const concepto = "Reserva de Toyota";
+    const correoElectronico = "samuelmoya786@gmail.com";
+  
+    const nombreArchivoQR = qrImage.split('/').pop();
+  
     if (!correoElectronico) {
       alert("Por favor ingresa un correo electrónico.");
       return;
     }
-
+  
     const datosPagoQR = {
-      nombreArchivoQR,  // Usamos el nombre del archivo QR generado
+      nombreArchivoQR,
       monto,
-      rentalId, 
-      referencia,
-      correo: correoElectronico
+      concepto,
+      correoElectronico
     };
-
-    console.log("Datos a enviar:", datosPagoQR);  // Verificar los datos antes de enviarlos
-
+  
+    console.log("Datos a enviar:", datosPagoQR);
+  
     try {
-      // Realizamos la solicitud POST al backend, enviando los datos en el cuerpo (body)
       const response = await axios.post(
-        "http://localhost:3000/pagos/pagarConQR", // API que recibe la solicitud
-        datosPagoQR // El body de la solicitud
+        `http://localhost:3000/pagos/pagarConQR/${idReserva}`,
+        datosPagoQR
       );
-
-      // Verificamos si la respuesta es exitosa
+  
       if (response.status === 200) {
         alert("¡Pago QR confirmado con éxito!");
-        router.push("/confirmacion");
-
+        router.push("/pago");
       } else {
-        alert(
-          "Error en el pago QR: " + (response.data?.mensaje || "Error desconocido")
-        );
+        alert("Error en el pago QR: " + (response.data?.mensaje || "Error desconocido"));
       }
-    } catch (error) {
-      // Si hay un error, mostramos el mensaje de error
+    } catch (error: any) {
       console.error("Error:", error);
-      const msg =
-        error.response?.data?.error || "Hubo un error al realizar el pago QR.";
+      const msg = error.response?.data?.error || "Hubo un error al realizar el pago QR.";
       alert("Error: " + msg);
     }
   };
 
   const handleConfirmacion = async () => {
-    const clienteId = 1;
-    const monto = 1000;
-    const codigo = "UUAACCaa";
-
+    const idReserva = 27; // o el valor que tengas dinámicamente
+    const concepto = "Pago por reserva de Nissan"; // puedes ajustarlo según necesidad
+  
     if (
       !nombreTitular ||
       !numeroTarjeta ||
@@ -115,8 +104,12 @@ const VistaPago = () => {
       alert("Por favor completa todos los campos.");
       return;
     }
-
+  
+    const fechaExpiracion = `${mes}/${anio}`; // si no lo tenías calculado
+  
     const datosPago = {
+      monto: 1000, // o el monto real
+      concepto: concepto,
       nombreTitular,
       numeroTarjeta,
       fechaExpiracion,
@@ -124,16 +117,16 @@ const VistaPago = () => {
       direccion,
       correoElectronico,
     };
-
+  
     try {
       const response = await axios.post(
-        `http://localhost:3000/pagos/pagarConTarjeta/${clienteId}/${monto}/${codigo}`,
+        `http://localhost:3000/pagos/pagarConTarjeta/${idReserva}`,
         datosPago
       );
-
+  
       if (response.status === 200) {
         alert("¡Pago confirmado con éxito!");
-        navigate("/confirmacion");
+        router.push("/pago");
       } else {
         alert(
           "Error en el pago: " + (response.data?.mensaje || "Error desconocido")
@@ -146,7 +139,7 @@ const VistaPago = () => {
       alert("Error: " + msg);
     }
   };
-
+  
   const renderContenidoPago = () => {
     return (
       <div className="w-full max-w-[3700px] mx-auto shadow-lg rounded-xl p-6 flex flex-row gap-[80px] lg:flex-row overflow-y-auto">
@@ -424,7 +417,7 @@ const VistaPago = () => {
               </button>
 
               <button
-                onClick={() => navigate("/")}
+                onClick={() => router.push("/pago")}
                 className="mx-auto w-[70%] py-[clamp(12px,2vw,45px)] bg-[#14213D] rounded bg-[#f2e8d8] font-bold text-black hover:bg-red-600 text-[clamp(16px,2vw,45px)]"
               >
                 CANCELAR
