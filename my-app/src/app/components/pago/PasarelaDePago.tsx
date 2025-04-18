@@ -106,7 +106,7 @@ export default function PasarelaDePago({
                   
                   <div className="flex justify-between py-2 border-b border-gray-200">
                     <span>Duración:</span>
-                    <span className="font-medium">{rentaDetails.dias}</span>
+                    <span className="font-medium">{rentaDetails.dias} días</span>
                   </div>
                   
                   <div className="flex justify-between py-2">
