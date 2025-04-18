@@ -10,11 +10,5 @@ export default function RootRedirect() {
   useEffect(() => {
     router.replace('/reserva');
   }, [router]);
-
-  //
-  useEffect(() => {
-    router.replace('/reserva');
-  }, [router]);
-
   return null;
 }

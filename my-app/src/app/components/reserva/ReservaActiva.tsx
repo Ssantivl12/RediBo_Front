@@ -9,8 +9,7 @@ export default function ReservaActiva() {
   const router = useRouter()
 
   const ID_RESERVA = '5' // Reemplaza con el ID real de la reserva
-
-  const TIEMPO_INICIAL = 3 * 60 * 60
+  const TIEMPO_INICIAL = 3 * 60 * 60 // 3 horas en segundos
   const [estadoTiempo, setEstadoTiempo] = useState<number>(TIEMPO_INICIAL)
 
   useEffect(() => {
@@ -37,22 +36,12 @@ export default function ReservaActiva() {
       .padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   }
 
-<<<<<<< Updated upstream
-  const cancelarReserva = async (porTiempo = false) => {   
-      router.push('/reserva-expirada')
-    
-  }
-
-  const confirmarPago = async () => {
-      router.push('/pago')
-=======
   const cancelarReserva = async (porTiempo = false) => {
-      router.push('/reserva-expirada')
+    router.push('/reserva-expirada')
   }
 
   const confirmarPago = async () => {
     router.push('/pago')
->>>>>>> Stashed changes
   }
 
   return (
@@ -63,7 +52,7 @@ export default function ReservaActiva() {
       <div className="bg-gray-100 rounded-lg p-4 flex items-center justify-between">
         <div>
           <p className="text-xl font-semibold">LAMBORGHINI HUARACAN EVO</p>
-          <p>fecha_inicio: 15/04/16 Hora: 10:00</p>
+          <p>Fecha Inicio: 15/04/16 Hora: 10:00</p>
           <p className="font-bold">Self Pickup</p>
           <p className="font-bold text-xl">Bs 100.00</p>
           <p>Lugar Recogida: 1 día 0 hrs</p>
@@ -73,14 +62,22 @@ export default function ReservaActiva() {
 
       <div className="text-center">
         <p className="font-semibold">TIEMPO RESTANTE</p>
-        <p id="countdown" className="text-3xl font-mono">{formatoTiempo(estadoTiempo)}</p>
+        <p id="countdown" className="text-3xl font-mono">
+          {formatoTiempo(estadoTiempo)}
+        </p>
       </div>
 
       <div className="flex justify-around space-x-2">
-        <button onClick={confirmarPago} className="bg-[#FCA311] hover:bg-[#e2910f] text-white px-4 py-2 rounded">
+        <button
+          onClick={confirmarPago}
+          className="bg-[#FCA311] hover:bg-[#e2910f] text-white px-4 py-2 rounded"
+        >
           Confirmar Pago
         </button>
-        <button onClick={() => cancelarReserva(false)} className="bg-[#FCA311] hover:bg-[#e2910f] text-white px-4 py-2 rounded">
+        <button
+          onClick={() => cancelarReserva(false)}
+          className="bg-[#FCA311] hover:bg-[#e2910f] text-white px-4 py-2 rounded"
+        >
           Cancelar Reserva
         </button>
       </div>
