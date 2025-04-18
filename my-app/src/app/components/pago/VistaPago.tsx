@@ -6,7 +6,7 @@ import axios from 'axios'
 import '../../globals.css'
 
 const VistaPago = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [modoPago, setModoPago] = useState(null);
   const [loading, setLoading] = useState(false); // asegúrate de declarar esto
   const [qrImage, setQrImage] = useState(""); // y esto también
@@ -82,7 +82,8 @@ const VistaPago = () => {
       // Verificamos si la respuesta es exitosa
       if (response.status === 200) {
         alert("¡Pago QR confirmado con éxito!");
-        navigate("/confirmacion"); // Redirigir a la vista de confirmación
+        router.push("/confirmacion");
+
       } else {
         alert(
           "Error en el pago QR: " + (response.data?.mensaje || "Error desconocido")
