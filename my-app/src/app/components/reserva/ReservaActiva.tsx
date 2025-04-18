@@ -37,13 +37,15 @@ export default function ReservaActiva() {
   }
 
   const cancelarReserva = async (porTiempo = false) => {
-    const idReserva = 30; 
+    const idReserva = 29; 
   
     try {
-      await axios.put(`http://localhost:3000/reservas/cancelar/${idReserva}`);
+      await axios.post(`http://localhost:3000/reservas/cancelar/${idReserva}`);
+      alert('Cancelado correctamente');
       router.push('/reserva-expirada');
     } catch (error) {
       console.error('Error al cancelar:', error);
+      alert('Hubo un error al cancelar la reserva. Intenta nuevamente.');
     }
   };
   
