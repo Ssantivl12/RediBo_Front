@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './Carousel.module.css';
+import { useRouter } from 'next/navigation';
 
 interface Vehicle {
   id: string;
@@ -14,6 +15,7 @@ interface Vehicle {
 }
 
 export default function Carousel() {
+  const router = useRouter();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -79,7 +81,24 @@ export default function Carousel() {
             <p>Marca: {vehicle.brand}</p>
             <p>Precio: {vehicle.pricePerDay} $/day</p>
             <p>Rating: {vehicle.averageRating?.toFixed(2) || 'N/A'}</p>
+            <button
+  onClick={() => router.push("/reserva")}
+  style={{
+    backgroundColor: '#3b82f6', 
+    color: 'white',
+    fontWeight: '600', 
+    padding: '0.5rem 1rem',
+    borderRadius: '0.375rem',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s ease', 
+  }}
+  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'} // Hover
+  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'} // Hover fuera
+>
+  RESERVAR
+</button>
           </div>
+          
         </div>
       ))}
     </div>
