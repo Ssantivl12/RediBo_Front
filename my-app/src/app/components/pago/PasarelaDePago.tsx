@@ -45,12 +45,12 @@ export default function PasarelaDePago({
   const handleConfirmarPago = async () => {
     setIsProcessing(true)
     // Simulación de procesamiento
-    await new Promise(resolve => setTimeout(resolve, 2000)) 
+    await new Promise(resolve => setTimeout(resolve, 1000)) 
     setShowConfirmModal(false)
     setShowSuccessModal(true)
     setIsProcessing(false)
     
-    // Aquí podrías agregar la función para enviar notificación
+    // todo: registrar el pago en la base de datos
     // enviarNotificacionAlRentador(rentaDetails)
   }
 
@@ -59,6 +59,8 @@ export default function PasarelaDePago({
     if (onPaymentComplete) {
       onPaymentComplete();
     }
+    // todo: falta redireccionar a otra pagina
+    // todo: componentizar el modal de confirmacion
   }
 
   if (!isOpen && !showConfirmModal && !showSuccessModal) {
@@ -218,7 +220,7 @@ export default function PasarelaDePago({
 
       {/* Modal de Confirmación */}
       {showConfirmModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full my-8">
             <div className="bg-[#EFE2D2] px-6 py-4">
               <h2 className="text-xl font-bold text-black text-center">
@@ -227,7 +229,7 @@ export default function PasarelaDePago({
             </div>
             <div className="p-6 space-y-4 text-center">
               <p className="text-black">
-                Esta acción no se puede cancelar. ¿Desea confirmar el pago de ${rentaDetails.total} por la renta del vehículo?
+                Una vez confirmada, esta acción no se puede deshacer. ¿Desea confirmar el pago de ${rentaDetails.total} por la renta del vehículo?
               </p>
               <div className="flex flex-col space-y-3">
                 <button
@@ -251,7 +253,7 @@ export default function PasarelaDePago({
 
       {/* Modal de Éxito */}
       {showSuccessModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full my-8 relative">
             <div className="bg-[#EFE2D2] px-6 py-4">
               <h2 className="text-xl font-bold text-black text-center">Pago realizado con éxito</h2>
