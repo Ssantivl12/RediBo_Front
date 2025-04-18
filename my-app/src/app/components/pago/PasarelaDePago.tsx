@@ -124,7 +124,7 @@ export default function PasarelaDePago({
                     : 'bg-gray-100 border-gray-200 hover:bg-gray-50'}`}
                   onClick={() => setPaymentMethod('tarjeta')}
                 >
-                  Tarjeta de crédito
+                  Pago con tarjeta
                 </button>
                 <button 
                   className={`flex-1 py-2 px-4 rounded-lg border ${paymentMethod === 'qr' 
