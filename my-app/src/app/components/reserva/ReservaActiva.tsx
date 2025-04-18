@@ -37,6 +37,7 @@ export default function ReservaActiva() {
       .padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   }
 
+<<<<<<< Updated upstream
   const cancelarReserva = async (porTiempo = false) => {   
       router.push('/reserva-expirada')
     
@@ -44,6 +45,14 @@ export default function ReservaActiva() {
 
   const confirmarPago = async () => {
       router.push('/pago')
+=======
+  const cancelarReserva = async (porTiempo = false) => {
+      router.push('/reserva-expirada')
+  }
+
+  const confirmarPago = async () => {
+    router.push('/pago')
+>>>>>>> Stashed changes
   }
 
   return (
