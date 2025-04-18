@@ -1,33 +1,28 @@
-import { FaStar } from 'react-icons/fa';
+import { FaStar } from "react-icons/fa";
 
 interface PropietarioAutoProps {
-    propietario: {
-      nombreCompleto: string;
-      calificacion: number;
-      comentarios: number;
-    };
-  }
+  propietario: {
+    nombreCompleto: string;
+    calificacion: number;
+    comentarios: number;
+  };
+}
 
 export default function PropietarioAuto({ propietario }: PropietarioAutoProps) {
-    return (
-      <div className="flex items-center mb-6 pb-6 border-b border-gray-200">
-        <div className="w-12 h-12 bg-gray-300 rounded-full mr-4"></div>
-        <div>
-          <p className="font-semibold text-black">Auto ofrecido por {propietario.nombreCompleto}</p>
-          <div className="flex items-center">
-            <div className="flex items-center">
-              <FaStar className="text-yellow-400" />
-              <span className="ml-1 text-sm font-semibold text-black">
-                {propietario.calificacion} ({propietario.comentarios} reseñas)
-              </span>
-            </div>
-            <span className="mx-3 text-gray-300">|</span>
-            <span className="text-sm text-black">Tiempo de respuesta: 1 hora</span>
-          </div>
+  return (
+    <div className="flex items-center mb-6 pb-6 border-b border-gray-200">
+      <div className="w-12 h-12 bg-gray-300 rounded-full mr-4"></div>
+      <div>
+        <p className="font-semibold text-black">
+          Auto ofrecido por {propietario.nombreCompleto}
+        </p>
+        <div className="flex items-center">
+          <FaStar className="text-yellow-400" />
+          <span className="ml-1 text-sm font-semibold text-black">
+            {propietario.calificacion} ({propietario.comentarios} reseñas)
+          </span>
         </div>
-        <button className="ml-auto border border-blue-900 text-blue-900 px-4 py-2 rounded-md text-sm hover:bg-blue-50 transition">
-          Contactar arrendatario
-        </button>
       </div>
-    );
-  }
+    </div>
+  );
+}
