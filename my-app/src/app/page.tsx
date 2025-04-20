@@ -46,9 +46,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      {/* Contenedor central como app móvil */}
-      <div className="w-full max-w-[375px] min-h-screen bg-white relative border border-gray-300 shadow-lg">
+    <div className={styles.container}>
               <header className={styles.headerTop}>
         <Navbar onLoginClick={() => setMostrarModal(true)} />
       </header>
@@ -144,7 +142,6 @@ export default function Home() {
           */}
         </div>
       </main>
-      </div>
       <footer>
         <Footer />
       </footer>
