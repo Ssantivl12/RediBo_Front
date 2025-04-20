@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { FiCheckCircle, FiX} from 'react-icons/fi'
+import { FiCheckCircle, FiX } from 'react-icons/fi'
+import ConfirmationModal from '@components/modal/ModalDeConfirmacion'
 
 interface RentaDetails {
   vehiculo: string;
@@ -60,7 +61,6 @@ export default function PasarelaDePago({
       onPaymentComplete();
     }
     // todo: falta redireccionar a otra pagina
-    // todo: componentizar el modal de confirmacion
   }
 
   if (!isOpen && !showConfirmModal && !showSuccessModal) {
@@ -101,12 +101,12 @@ export default function PasarelaDePago({
                   
                   <div className="flex justify-between py-2 border-b border-gray-200">
                     <span>Fechas:</span>
-                    <span className="font-medium">{rentaDetails.fechaInicio}</span>
+                    <span className="font-medium">{rentaDetails.fechaInicio} - {rentaDetails.fechaFin}</span>
                   </div>
                   
                   <div className="flex justify-between py-2 border-b border-gray-200">
                     <span>Duración:</span>
-                    <span className="font-medium">{rentaDetails.dias} días</span>
+                    <span className="font-medium">{rentaDetails.dias} día(s)</span>
                   </div>
                   
                   <div className="flex justify-between py-2">
@@ -218,71 +218,32 @@ export default function PasarelaDePago({
         </div>
       )}
 
-      {/* Modal de Confirmación */}
-      {showConfirmModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full my-8">
-            <div className="bg-[#EFE2D2] rounded-lg px-6 py-4">
-              <h2 className="text-xl font-bold text-black text-center">
-                ¿Está seguro que desea pagar?
-              </h2>
-            </div>
-            <div className="p-6 space-y-4 text-center">
-              <p className="text-black">
-                Una vez confirmada, esta acción no se puede deshacer. ¿Desea confirmar el pago de ${rentaDetails.total} por la renta del vehículo?
-              </p>
-              <div className="flex justify-between flex-row">
-                <button
-                  onClick={() => setShowConfirmModal(false)}
-                  className="px-6 py-3 bg-[#11295B] hover:bg-[#0a1a33] text-white rounded-lg font-medium"
-                >
-                  CANCELAR
-                </button>
-                <button
-                  onClick={handleConfirmarPago}
-                  disabled={isProcessing}
-                  className="px-6 py-3 bg-[#FFA500] hover:bg-[#e69500] text-black rounded-lg font-medium disabled:bg-yellow-300"
-                >
-                  {isProcessing ? 'Procesando...' : 'ACEPTAR'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modal de Confirmación usando el componente */}
+      <ConfirmationModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={handleConfirmarPago}
+        title="¿Está seguro que desea pagar?"
+        message={`Una vez confirmada, esta acción no se puede deshacer. ¿Desea confirmar el pago de $${rentaDetails.total} por la renta del vehículo?`}
+        confirmText="ACEPTAR"
+        cancelText="CANCELAR"
+        isProcessing={isProcessing}
+        variant="confirmation"
+        showSuccess={false}
+      />
 
-      {/* Modal de Éxito */}
-      {showSuccessModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full my-8 relative">
-            <div className="bg-[#EFE2D2] px-6 py-4">
-              <h2 className="text-xl font-bold text-black text-center">Pago realizado con éxito</h2>
-            </div>
-            <button 
-              onClick={handleFinalizarPago}
-              className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100 transition-colors"
-              aria-label="Cerrar modal"
-            >
-              <FiX className="text-gray-500 text-lg" />
-            </button>
-
-            <div className="p-6 space-y-4 text-center">
-              <div className="flex justify-center text-[#FFA500]">
-                <FiCheckCircle className="text-5xl" />
-              </div>
-              <p className="text-black">Su pago ha sido procesado correctamente. El anfitrión será notificado.</p>
-              <div className="flex justify-center pt-4">
-                <button
-                  onClick={handleFinalizarPago}
-                  className="px-6 py-2 bg-[#FFA500] hover:bg-[#e69500] text-black rounded-md font-medium"
-                >
-                  ACEPTAR
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modal de Éxito usando el componente */}
+      <ConfirmationModal
+        isOpen={showSuccessModal}
+        onClose={handleFinalizarPago}
+        onConfirm={handleFinalizarPago}
+        title="Pago realizado con éxito"
+        message="Su pago ha sido procesado correctamente. El anfitrión será notificado."
+        confirmText="ACEPTAR"
+        variant="success"
+        showSuccess={true}
+        successIcon={<FiCheckCircle className="text-5xl text-[#FFA500]" />}
+      />
     </>
   )
 }
