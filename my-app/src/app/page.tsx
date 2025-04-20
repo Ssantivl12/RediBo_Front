@@ -54,9 +54,6 @@ export default function Home() {
       {mostrarModal && <LoginModal onClose={() => setMostrarModal(false)} />}
         {/* Header */}
         <header className="w-full flex flex-col items-center">
-          {/* Línea naranja arriba */}
-          <div className="w-full h-2 bg-[#FCA311]" />
-
           {/* Icono campana */}
           <div className="w-full flex justify-end items-center p-4 relative">
             <button
