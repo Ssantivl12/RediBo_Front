@@ -222,7 +222,7 @@ export default function PasarelaDePago({
       {showConfirmModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full my-8">
-            <div className="bg-[#EFE2D2] px-6 py-4">
+            <div className="bg-[#EFE2D2] rounded-lg px-6 py-4">
               <h2 className="text-xl font-bold text-black text-center">
                 ¿Está seguro que desea pagar?
               </h2>
@@ -231,10 +231,10 @@ export default function PasarelaDePago({
               <p className="text-black">
                 Una vez confirmada, esta acción no se puede deshacer. ¿Desea confirmar el pago de ${rentaDetails.total} por la renta del vehículo?
               </p>
-              <div className="flex flex-col space-y-3">
+              <div className="flex justify-between flex-row">
                 <button
                   onClick={() => setShowConfirmModal(false)}
-                  className="px-6 py-3 bg-[#0B1F40] hover:bg-[#0a1a33] text-white rounded-lg font-medium"
+                  className="px-6 py-3 bg-[#11295B] hover:bg-[#0a1a33] text-white rounded-lg font-medium"
                 >
                   CANCELAR
                 </button>
