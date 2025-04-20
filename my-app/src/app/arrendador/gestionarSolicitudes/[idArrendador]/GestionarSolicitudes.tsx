@@ -1,12 +1,14 @@
 'use client';
 
 import React from "react";
-import FiltersBar from "@/app/components/filters/FiltersBar";
-import CarListings from "../components/carListings/CarListings";
-import Navbar from "../components/navbar/Navbar";
-import styles from "./requests.module.css";
+import FiltersBar from "@components/filters/FiltersBar";
+import CarListings from "@components/carListings/CarListings";
+import Navbar from "@components/navbar/Navbar";
 
-export default function SolicitudesPage() {
+import LoginModal from "@components/auth/LoginModal";
+import styles from "./GestionarSolicitudes.module.css";
+
+export default function GestionarSolicitudes() {
   const [mostrarModal, setMostrarModal] = React.useState(false);
   const [activeFilter, setActiveFilter] = React.useState<string>('todos');
 
@@ -20,6 +22,8 @@ export default function SolicitudesPage() {
         <Navbar onLoginClick={() => setMostrarModal(true)} />
       </header>
 
+      {mostrarModal && <LoginModal onClose={() => setMostrarModal(false)} />}
+      
       <header className={styles.headerFilters}>
         <div className={styles.body}>
           <FiltersBar 

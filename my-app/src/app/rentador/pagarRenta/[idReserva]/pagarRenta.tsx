@@ -3,17 +3,16 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import Navbar from '../../../components/navbar/Navbar';
-import Footer from '../../../components/footer/Footer';
-import LoginModal from '../../../components/auth/LoginModal';
-import FiltersBar from '../../../components/filters/FiltersBar';
+import Navbar from '@components/navbar/Navbar';
+import Footer from '@components/footer/Footer';
+import LoginModal from '@components/auth/LoginModal';
 import styles from './pagarRenta.module.css';
-import EncabezadoAuto from '../../../components/auto/EncabezadoAuto';
-import GaleriaAuto from '../../../components/auto/GaleriaAuto';
-import PropietarioAuto from '../../../components/auto/PropietarioAuto';
-import DescripcionAuto from '../../../components/auto/DescripcionAuto';
-import CaracteristicasAuto from '../../../components/auto/CaracteristicasAuto';
-import PrecioAuto from '../../../components/auto/PrecioAuto';
+import EncabezadoAuto from '@components/auto/EncabezadoAuto';
+import GaleriaAuto from '@components/auto/GaleriaAuto';
+import PropietarioAuto from '@components/auto/PropietarioAuto';
+import DescripcionAuto from '@components/auto/DescripcionAuto';
+import CaracteristicasAuto from '@components/auto/CaracteristicasAuto';
+import PrecioAuto from '@components/auto/PrecioAuto';
 
 export default function PagarRenta() {
   const params = useParams();
@@ -37,7 +36,7 @@ export default function PagarRenta() {
 
   const [carData, setCarData] = useState<CarData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const obtenerDatosAuto = async () => {
@@ -81,7 +80,7 @@ export default function PagarRenta() {
         setError(null);
       } catch (err) {
         console.error('Error al obtener detalles del auto:', err);
-        setError(err.message || 'Error al cargar los datos del auto');
+        setError(err instanceof Error ? err.message : 'Error al cargar los datos del auto');
       } finally {
         setLoading(false);
       }
@@ -126,9 +125,6 @@ export default function PagarRenta() {
     <div className="min-h-screen flex flex-col bg-white">
       <header className={styles.headerTop}>
         <Navbar onLoginClick={() => setMostrarModal(true)} />
-      </header>
-      <header className={styles.headerFilters}>
-        <FiltersBar />
       </header>
       
       {mostrarModal && <LoginModal onClose={() => setMostrarModal(false)} />}
