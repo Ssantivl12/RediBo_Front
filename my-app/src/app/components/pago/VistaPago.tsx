@@ -226,18 +226,25 @@ const VistaPago = () => {
             <div>
               <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">
                 Nombre del titular
-              </label>
-              <input
-                type="text"
-                className="w-full border bg-[#FFFFFF] rounded p-[clamp(8px,1vw,25px)] text-[clamp(15px,1.4vw,60px)]"
-                placeholder="Ej. Juan Pérez"
-                value={nombreTitular}
-                onChange={(e) => setNombreTitular(e.target.value)}
-              />
-            </div>
+                <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">
+  Nombre del titular
+</label>
+<input
+  type="text"
+  className="w-full border bg-[#FFFFFF] rounded p-[clamp(8px,1vw,25px)] text-[clamp(15px,1.4vw,60px)]"
+  placeholder="Ej. Juan Pérez"
+  value={nombreTitular}
+  onChange={(e) => {
+    let letrasSolo = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+    letrasSolo = letrasSolo
+      .toLowerCase()
+      .split(' ')
+      .map(palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1))
+      .join(' ');
+    setNombreTitular(letrasSolo);
+  }}
+/>
 
-            <div>
-              <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">
                 Número de tarjeta
               </label>
               <input
@@ -253,63 +260,79 @@ const VistaPago = () => {
             <div className="flex gap-4">
               <div className="flex-1">
                 <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">
-                  Fecha de expiración
-                </label>
-                <div className="flex gap-2 w-full">
-                  <input
-                    type="number"
-                    className="w-1/2 border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF] text-[clamp(15px,1.4vw,60px)] text-center"
-                    placeholder="MM"
-                    max={12}
-                    min={1}
-                    value={mes}
-                    onChange={(e) => {
-                      let val = e.target.value.slice(0, 2);
-                      setMes(val);
-                    }}
-                  />
-                  <input
-                    type="number"
-                    className="w-1/2 border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF] text-[clamp(15px,1.4vw,60px)] text-center"
-                    placeholder="AA"
-                    value={anio}
-                    onChange={(e) => {
-                      let val = e.target.value.slice(0, 2);
-                      setAnio(val);
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div className="w-1/3">
                 <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">
+  Fecha de expiración
+</label>
+<div className="flex gap-2 w-full">
+  <input
+    type="number"
+    className="w-1/2 border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF] text-[clamp(15px,1.4vw,60px)] text-center"
+    placeholder="MM"
+    max={12}
+    min={1}
+    value={mes}
+    onChange={(e) => {
+      let val = e.target.value.slice(0, 2);
+      if (parseInt(val) > 12) val = "12";
+      if (parseInt(val) < 1) val = "01";
+      setMes(val);
+    }}
+  />
+  <input
+    type="number"
+    className="w-1/2 border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF] text-[clamp(15px,1.4vw,60px)] text-center"
+    placeholder="AA"
+    value={anio}
+    onChange={(e) => {
+      let val = e.target.value.slice(0, 2);
+      const currentYear = new Date().getFullYear() % 100; // Últimos dos dígitos del año
+      const currentMonth = new Date().getMonth() + 1; // Enero es 0
+
+      if (parseInt(val) < currentYear) {
+        val = currentYear.toString().padStart(2, '0');
+      } else if (parseInt(val) === currentYear && parseInt(mes) < currentMonth) {
+        setMes(currentMonth.toString().padStart(2, '0'));
+      }
+
+      setAnio(val);
+    }}
+  />
+</div>
+
                   CVV
-                </label>
-                <input
-                  type="number"
-                  className="w-full border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF] text-[clamp(15px,1.4vw,60px)]"
-                  placeholder="123"
-                  value={cvv}
-                  onChange={(e) => setCvv(e.target.value)}
-                />
-              </div>
-            </div>
+                  </label>
+<input
+  type="number"
+  className="w-full border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF] text-[clamp(15px,1.4vw,60px)]"
+  placeholder="123"
+  value={cvv}
+  onChange={(e) => {
+    const val = e.target.value.slice(0, 3); 
+    setCvv(val);
+  }}
+/>
+</div>
+</div>
 
-            <div>
-              <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">
+<div>
+  <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">
                 Dirección
-              </label>
-              <input
-                type="text"
-                className="w-full border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF] text-[clamp(15px,1.4vw,60px)]"
-                placeholder="Ej. Calle Oquendo"
-                value={direccion}
-                onChange={(e) => setDireccion(e.target.value)}
-              />
-            </div>
+</label>
+<input
+  type="text"
+  className="w-full border rounded p-[clamp(8px,1vw,25px)] bg-[#FFFFFF] text-[clamp(15px,1.4vw,60px)]"
+  placeholder="Ej. Calle Oquendo"
+  value={direccion}
+  onChange={(e) => {
+    const textoLimpio = e.target.value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g, '');
+    setDireccion(textoLimpio);
+  }}
+/>
+</div>
 
-            <div>
-              <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">
+<div>
+  <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">
+
                 Correo electrónico
               </label>
               <input
