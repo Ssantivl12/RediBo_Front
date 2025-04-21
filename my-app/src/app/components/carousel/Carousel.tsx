@@ -10,6 +10,7 @@ interface Vehicle {
   imageUrl: string;
   brand: string;
   model: string;
+  colour: string;
   pricePerDay: number;
   averageRating?: number;
 }
@@ -26,12 +27,12 @@ export default function Carousel() {
       const response = await axios.get('http://localhost:3000/vehiculo/obtenerVehiculosTop');
       const data = response.data;
 
-      // Aseguramos que el formato sea compatible con la interfaz Vehicle
       const formattedData: Vehicle[] = data.map((vehiculo: any) => ({
         id: vehiculo.idvehiculo,
         imageUrl: vehiculo.imagen,
         brand: vehiculo.marca,
         model: vehiculo.modelo,
+        colour: vehiculo.color,
         pricePerDay: vehiculo.tarifa,
         averageRating: vehiculo.promedio_calificacion,
       }));
@@ -56,51 +57,70 @@ export default function Carousel() {
     return () => clearInterval(interval);
   }, [vehicles]);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error loading vehicles</div>;
+  const handleNext = () => {
+    setCurrentIndex(prev => (prev + 1) % vehicles.length);
+  };
+
+  const handlePrev = () => {
+    setCurrentIndex(prev => (prev - 1 + vehicles.length) % vehicles.length);
+  };
+
+  if (loading) return <div className={styles.loading}>Cargando...</div>;
+  if (error) return <div className={styles.error}>Error al cargar vehículos</div>;
 
   return (
     <div className={styles.carouselContainer}>
+      <button 
+        onClick={handlePrev}
+        className={styles.navButton}
+        aria-label="Anterior"
+      >
+        &lt;
+      </button>
+      
       {vehicles.map((vehicle, index) => (
         <div
           key={vehicle.id}
-          className={` 
-            ${styles.slide}
+          className={`${styles.slide} 
             ${index === currentIndex ? styles.active : ''}
             ${index === (currentIndex + 1) % vehicles.length ? styles.next : ''}
             ${index === (currentIndex - 1 + vehicles.length) % vehicles.length ? styles.prev : ''}
           `}
         >
-          <img
-            src={`/${vehicle.imageUrl}`} 
-            alt={`${vehicle.brand} ${vehicle.model}`}
-            className={styles.image}
-          />
-          <div className={styles.info}>
-            <h3>Modelo: {vehicle.model}</h3>
-            <p>Marca: {vehicle.brand}</p>
-            <p>Precio: {vehicle.pricePerDay} $/day</p>
-            <p>Rating: {vehicle.averageRating?.toFixed(2) || 'N/A'}</p>
-            <button
-  onClick={() => router.push("/reserva")}
-  style={{
-    backgroundColor: '#3b82f6', 
-    color: 'white',
-    fontWeight: '600', 
-    padding: '0.5rem 1rem',
-    borderRadius: '0.375rem',
-    cursor: 'pointer',
-    transition: 'background-color 0.3s ease', 
-  }}
-  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'} // Hover
-  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'} // Hover fuera
->
-  RESERVAR
-</button>
+          <div className={styles.imageContainer}>
+            <img
+              src={vehicle.imageUrl.startsWith('/') ? vehicle.imageUrl : `/${vehicle.imageUrl}`}
+              alt={`${vehicle.brand} ${vehicle.model}`}
+              className={styles.image}
+              loading="lazy"
+            />
           </div>
-          
+          <div className={styles.info}>
+            <h3>{vehicle.brand} {vehicle.model}</h3>
+            <h2>Descripción: {vehicle.brand} {vehicle.model} es de color {vehicle.colour}</h2>
+            <div className={styles.details}>
+              <p className={styles.price}>${vehicle.pricePerDay}/día</p>
+              <p className={styles.rating}>
+                ⭐ {vehicle.averageRating?.toFixed(2) || 'N/A'}
+              </p>
+            </div>
+            <button
+              onClick={() => router.push("/reserva")}
+              className={styles.reserveButton}
+            >
+              RESERVAR AHORA
+            </button>
+          </div>
         </div>
       ))}
+
+      <button 
+        onClick={handleNext}
+        className={styles.navButton}
+        aria-label="Siguiente"
+      >
+        &gt;
+      </button>
     </div>
   );
 }
