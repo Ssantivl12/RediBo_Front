@@ -1,15 +1,18 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import axios from 'axios'
-import '../../globals.css'
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
+import ModalSeleccionPago from './ModalSeleccionPago';
+import PagoTargeta from './PagoTargeta'; // <-- corregido, no Targeta
+import PagoQR from './PagoQR';
+import '../../globals.css';
 
 const VistaPago = () => {
   const router = useRouter();
-  const [modoPago, setModoPago] = useState(null);
-  const [loading, setLoading] = useState(false); // asegúrate de declarar esto
-  const [qrImage, setQrImage] = useState(""); // y esto también
+  const [modoPago, setModoPago] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [qrImage, setQrImage] = useState("");
 
   const [nombreTitular, setNombreTitular] = useState("");
   const [numeroTarjeta, setNumeroTarjeta] = useState("");
@@ -19,75 +22,41 @@ const VistaPago = () => {
   const [mes, setMes] = useState("");
   const [anio, setAnio] = useState("");
 
-  const fechaExpiracion = `${mes.padStart(2, "0")}/${anio.padStart(2, "0")}`;
-
-  // 👇 Este useEffect debe estar aquí, no dentro de handleConfirmacion
   useEffect(() => {
     const generarQR = async () => {
       setLoading(true);
       try {
         const monto = 100;
-
-        const response = await axios.get(
-          `http://localhost:3000/generarQR/${monto}`
-        );
-        console.log("Respuesta completa del QR:", response.data);
+        const response = await axios.get(`http://localhost:3000/generarQR/${monto}`);
         if (response.data.mensaje === "QR generado correctamente") {
           setQrImage(`http://localhost:3000/temp/${response.data.archivoQR}`);
-          //ese datarachivoQR almacenar en un const o variable para luego usar en otra variable en handleConfirmacionQR
         }
       } catch (error) {
-        console.error("Error generando el QR:", error);
+        console.error(error);
       } finally {
         setLoading(false);
       }
     };
 
-    if (modoPago === "qr") {
+    if (modoPago === 'qr') {
       generarQR();
     }
   }, [modoPago]);
-  const handleConfirmacionQR = async () => {
-    const idReserva = 29; 
-    const monto = 150.50;
-    const concepto = "Reserva de Toyota";
-    const correoElectronico = "samuelmoya786@gmail.com";
-  
-    const nombreArchivoQR = qrImage.split('/').pop();
-  
-    if (!correoElectronico) {
-      alert("Por favor ingresa un correo electrónico.");
-      return;
-    }
-  
-    const datosPagoQR = {
-      nombreArchivoQR,
-      monto,
-      concepto,
-      correoElectronico
-    };
-  
-    console.log("Datos a enviar:", datosPagoQR);
-  
-    try {
-      const response = await axios.post(
-        `http://localhost:3000/pagos/pagarConQR/${idReserva}`,
-        datosPagoQR
-      );
-  
-      if (response.status === 200) {
-        alert("¡Pago QR confirmado con éxito!");
-        router.push("/pago");
-      } else {
-        alert("Error en el pago QR: " + (response.data?.mensaje || "Error desconocido"));
-      }
-    } catch (error: any) {
-      console.error("Error:", error);
-      const msg = error.response?.data?.error || "Hubo un error al realizar el pago QR.";
-      alert("Error: " + msg);
+
+
+
+  const handleDescargarQR = () => {
+    if (qrImage) {
+      const link = document.createElement('a');
+      link.href = qrImage;
+      link.download = 'codigo-qr.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   };
 
+<<<<<<< Updated upstream
   const handleConfirmacion = async () => {
     const idReserva = 27; // o el valor que tengas dinámicamente
     const concepto = "Pago por reserva de Nissan"; // puedes ajustarlo según necesidad
@@ -163,6 +132,41 @@ const VistaPago = () => {
       <div className="w-full max-w-[3700px] mx-auto shadow-lg rounded-xl p-6 flex flex-row gap-[80px] lg:flex-row overflow-y-auto">
         {/* Contenedor de la imagen y detalles del vehículo */}
         <div className="flex-1 bg-[#E4D5C1] p-4 rounded-xl space-y-4 overflow-y-auto text-[clamp(16px,1.5vw,60px)]">
+=======
+
+
+
+
+
+
+
+
+  const handleConfirmacionQR = async () => {
+    // Aquí pones tu código igual que antes
+  };
+
+  const handleConfirmacion = async () => {
+    // Aquí pones tu código igual que antes
+  };
+
+  const renderDetallesAuto = () => (
+    <div className="flex-1 bg-[#E4D5C1] p-4 rounded-xl space-y-4 overflow-y-auto text-[clamp(16px,1.5vw,60px)]">
+
+          <div className="flex justify-start">
+            <button
+              onClick={() => setModoPago(null)}
+              className="p-2 rounded-lg hover:bg-gray-300 transition"
+            >
+              <img 
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRewU2upLSOlIp9_BHGTmQqdTbEb_Q3TVtvA&shttps://i.pinimg.com/564x/35/b3/c1/35b3c1ecf233d242dc8d504203eebeec.jpg"  // <-- Ruta correcta en /public
+                alt="Flecha volver" 
+                className="w-12 h-12 object-contain"
+              />
+            </button>
+          </div>
+
+
+>>>>>>> Stashed changes
           <div className="flex justify-center">
             <img
               src="https://s3-us-west-2.amazonaws.com/my-car-mexico/modelos/fdbcb845/2023-Kia-Sportage-HEV-29_11zon.webp"
@@ -183,12 +187,12 @@ const VistaPago = () => {
               type="text"
               value="1852PHD"
               readOnly
-              className="w-full border rounded p-[clamp(8px,1vw,20px)] bg-[#FFFFFF] text-[clamp(15px,1.4vw,50px)]"
+              className="w-full border rounded p-[clamp(8px,1vw,20px)] text-[#000000] text-[clamp(15px,1.4vw,50px)]"
             />
           </div>
 
           <div>
-            <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">
+            <label className="block text-[#000000] font-semibold text-[clamp(15px,1.4vw,60px)]">
               Inicio del viaje
             </label>
             <div className="flex gap-2">
@@ -205,7 +209,7 @@ const VistaPago = () => {
           </div>
 
           <div>
-            <label className="block font-semibold  text-[clamp(15px,1.4vw,60px)]">
+            <label className="block font-semibold text-[#000000]  text-[clamp(15px,1.4vw,60px)]">
               Fin del viaje
             </label>
             <div className="flex gap-2">
@@ -222,18 +226,51 @@ const VistaPago = () => {
           </div>
 
           <div>
-            <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">
+            <label className="block font-semibold text-[#000000] text-[clamp(15px,1.4vw,60px)]">
               Monto total a pagar (bs)
             </label>
             <input
               type="number"
               value="500"
               readOnly
-              className="w-full border rounded p-[clamp(8px,1vw,20px)] bg-white text-[clamp(15px,1.4vw,50px)]"
+              className="w-full border text-[#000000] rounded p-[clamp(8px,1vw,20px)] bg-white text-[clamp(15px,1.4vw,50px)]"
             />
           </div>
         </div>
+  );
+  const renderFormularioPago = () => (
+    <div className="flex-1">
+      {modoPago === 'tarjeta' ? (
+        <PagoTargeta
+          nombreTitular={nombreTitular}
+          numeroTarjeta={numeroTarjeta}
+          mes={mes}
+          anio={anio}
+          cvv={cvv}
+          direccion={direccion}
+          correoElectronico={correoElectronico}
+          setNombreTitular={setNombreTitular}
+          setNumeroTarjeta={setNumeroTarjeta}
+          setMes={setMes}
+          setAnio={setAnio}
+          setCvv={setCvv}
+          setDireccion={setDireccion}
+          setCorreoElectronico={setCorreoElectronico}
+          handleConfirmacion={handleConfirmacion}
+          onCancel={() => setModoPago(null)}
+        />
+      ) : (
+        <PagoQR
+          loading={loading}
+          qrImage={qrImage}
+          handleConfirmacionQR={handleConfirmacionQR}
+          onCancel={() => setModoPago(null)}
+        />
+      )}
+    </div>
+  );
 
+<<<<<<< Updated upstream
         {/* Contenedor de transferencia bancaria */}
         {modoPago === "tarjeta" && (
           <div className="flex-1 bg-[#E4D5C1] p-6 rounded-xl shadow-lg space-y-6 text-[clamp(16px,1.5vw,60px)] overflow-y-auto">
@@ -465,45 +502,22 @@ const VistaPago = () => {
       </div>
     );
   };
+=======
+  const renderVistaPago = () => (
+    <div className="w-full max-w-[3700px] mx-auto shadow-lg rounded-xl p-6 flex flex-col lg:flex-row gap-[80px] overflow-y-auto">
+      {renderDetallesAuto()}
+      {renderFormularioPago()}
+    </div>
+  );
+>>>>>>> Stashed changes
 
   return (
     <div className="relative min-h-screen bg-gray-50 px-4 py-8 overflow-hidden">
-      {/* Modal de selección de método de pago */}
-      {!modoPago && (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-          <div className="bg-[#E4D5C1] rounded-xl shadow-lg w-full max-w-[1500px] h-[900px] overflow-y-auto p-6 space-y-8">
-            <h2 className="text-[clamp(16px,2vw,65px)] font-bold text-center text-[#000000]">
-              SELECCIONE EL MÉTODO DE PAGO
-            </h2>
-
-            <div className="flex flex-col justify-center gap-[70px] px-6">
-              <button
-                onClick={() => setModoPago("tarjeta")}
-                className="mx-auto w-[70%] py-[clamp(12px,2vw,45px)] rounded bg-[#FCA311] font-bold hover:bg-yellow-400 text-[clamp(16px,2vw,45px)] text-[#000000]"
-              >
-                PAGAR CON TARJETA
-              </button>
-
-              <button
-                onClick={() => setModoPago("qr")}
-                className="mx-auto w-[70%] py-[clamp(12px,2vw,45px)] rounded bg-[#14213D] font-bold text-[#FFFFFF] hover:bg-blue-700 text-[clamp(16px,2vw,45px)]"
-              >
-                PAGAR CON QR
-              </button>
-
-              <button
-                onClick={() => router.push("/pago")}
-                className="mx-auto w-[70%] py-[clamp(12px,2vw,45px)] bg-[#14213D] rounded bg-[#f2e8d8] font-bold text-black hover:bg-red-600 text-[clamp(16px,2vw,45px)]"
-              >
-                CANCELAR
-              </button>
-            </div>
-          </div>
-        </div>
+      {!modoPago ? (
+        <ModalSeleccionPago setModoPago={setModoPago} onCancel={() => router.push('/pago')} />
+      ) : (
+        renderVistaPago()
       )}
-
-      {/* Mostrar contenido de pago si hay método seleccionado */}
-      {modoPago && renderContenidoPago()}
     </div>
   );
 };

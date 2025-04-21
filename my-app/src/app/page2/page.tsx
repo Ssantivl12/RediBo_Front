@@ -1,6 +1,6 @@
 'use client';
 
-import TarjetaNotificacion from '../components/noti/compnot/TarjetaNotificacion';
+import TargetaNotificacion from '../components/noti/compnot/TarjetaNotificacion';
 
 export default function NotificacionesPage() {
   const notificaciones = [
