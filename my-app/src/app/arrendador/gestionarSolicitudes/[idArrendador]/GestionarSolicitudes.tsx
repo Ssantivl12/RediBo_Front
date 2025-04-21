@@ -13,51 +13,25 @@ export default function GestionarSolicitudes() {
   const params = useParams();
   const [mostrarModal, setMostrarModal] = useState(false);
   const [activeFilter, setActiveFilter] = useState<string>('todos');
+  
+  interface SolicitudPendiente {
+    idReserva: string;
+    nombreSolicitante: string;
+    fechas: string;
+  }
+  
   interface Auto {
-    titulo: string;
-    tipo: string;
-    año: string;
-    color: string;
-    placa: string;
-    transmision: string;
-    imagenes: string;
-  }
-  
-  interface Cliente {
+    idAuto: string;
     nombre: string;
-    email: string;
-    telefono: string;
-  }
-  
-  interface Reserva {
-    fechaInicio: string;
-    fechaFin: string;
-    dias: number;
-  }
-  
-  interface Costes {
-    precio: number;
-    dias: number;
-    subtotal: number;
-    garantia: number;
-    total: number;
-  }
-  
-  interface SolicitudReserva {
-    idReserva: number;
-    idAuto: number;
-    idCliente: number;
-    fechaSolicitud: string;
-    fechaLimitePago: string;
-    auto: Auto;
-    cliente: Cliente;
-    reserva: Reserva;
-    costes: Costes;
-    estaPagada: boolean;
+    placa: string;
+    precioPorDia: number;
+    imagen: string | null;
+    solicitudesPendientes: SolicitudPendiente[];
+    estaRentado: boolean;
   }
   
   interface SolicitudesData {
-    reservas: SolicitudReserva[];
+    autos: Auto[];
     cantidad: number;
   }
 
