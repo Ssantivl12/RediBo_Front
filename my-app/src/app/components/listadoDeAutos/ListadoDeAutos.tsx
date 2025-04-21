@@ -195,7 +195,7 @@ const ListadoDeAutos: React.FC<ListadoDeAutosProps> = ({ activeFilter, autos = [
           autosFiltrados.map(auto => (
             <div key={auto.id} className={styles.carContainer}>
               <img 
-                src={'https://cdn.motor1.com/images/mgl/9mQXO1/s1/2025-mercedes-amg-g63-review.jpg'} 
+                src={'https://cdn.motor1.com/images/mgl/6ZzvLZ/s1/2024-audi-rs7-performance-review.jpg'} 
                 alt={auto.nombre} 
                 className={styles.carImage}
                 onError={(e) => {
