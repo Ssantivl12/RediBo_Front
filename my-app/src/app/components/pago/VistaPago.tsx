@@ -101,10 +101,12 @@ const VistaPago = () => {
       !mes ||
       !anio
     ) {
+
       alert("Por favor completa todos los campos.");
       return;
     }
-  
+    
+    
     const fechaExpiracion = `${mes}/${anio}`; // si no lo tenías calculado
   
     const datosPago = {
@@ -137,6 +139,22 @@ const VistaPago = () => {
       const msg =
         error.response?.data?.error || "Hubo un error al realizar el pago.";
       alert("Error: " + msg);
+    }
+  };
+
+  const handleRecargarQR = () => {
+    setQrImage("");
+    setModoPago("qr");
+  };
+  
+  const handleDescargarQR = () => {
+    if (qrImage) {
+      const link = document.createElement('a');
+      link.href = qrImage;
+      link.download = 'codigo-qr.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   };
   
@@ -388,10 +406,44 @@ const VistaPago = () => {
               </div>
             </div>
 
-            <p className="text-center font-medium">
-              Escanea este código QR con tu app bancaria o billetera móvil para
-              realizar el pago del alquiler.
-            </p>
+            <div className="flex justify-center items-center gap-4">
+            <button
+  onClick={handleRecargarQR}
+  className="bg-gray-400 hover:bg-gray-500 p-3 rounded-md flex items-center justify-center"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-8 w-8 text-black"
+    fill="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path d="M17.65 6.35A7.95 7.95 0 0 0 12 4a8 8 0 1 0 8 8h-2a6 6 0 1 1-6-6c1.31 0 2.5.44 3.45 1.17L13 11h7V4l-2.35 2.35z"/>
+  </svg>
+</button>
+
+
+
+
+      <button
+        onClick={handleDescargarQR}
+        className="bg-[#FCA311] hover:bg-yellow-600 p-3 rounded-full"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-6 w-6 text-white"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2m-4-4l-4 4m0 0l-4-4m4 4V4"
+          />
+        </svg>
+      </button>
+    </div>
 
             <div className="flex flex-col justify-center gap-12 px-6">
               <button
