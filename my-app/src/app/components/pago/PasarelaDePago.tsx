@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { FiCheckCircle, FiX } from 'react-icons/fi'
 import ConfirmationModal from '@components/modal/ModalDeConfirmacion'
 
@@ -31,6 +31,7 @@ export default function PasarelaDePago({
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('tarjeta')
+  const [isFormValid, setIsFormValid] = useState(false)
 
   // Campos del formulario
   const [cardName, setCardName] = useState('')
@@ -38,8 +39,17 @@ export default function PasarelaDePago({
   const [expDate, setExpDate] = useState('')
   const [cvc, setCvc] = useState('')
 
-  // Estado para mostrar errores
-  const [showErrors, setShowErrors] = useState(false)
+  // Validar formulario cada vez que cambien los campos
+  useEffect(() => {
+    const isValid = cardName.trim() !== '' && 
+                   cardName.trim().length >= 5 &&
+                   cardName.trim().length <= 30 &&
+                   cardNumber.replace(/\s/g, '').length === 16 &&
+                   /^\d{2}\/\d{2}$/.test(expDate) &&
+                   cvc.length === 3
+    
+    setIsFormValid(isValid)
+  }, [cardName, cardNumber, expDate, cvc])
 
   // Función para resetear el formulario
   const resetForm = () => {
@@ -47,7 +57,7 @@ export default function PasarelaDePago({
     setCardNumber('')
     setExpDate('')
     setCvc('')
-    setShowErrors(false)
+    setIsFormValid(false)
   }
 
   // Handler para cancelar
@@ -73,7 +83,7 @@ export default function PasarelaDePago({
     let value = e.target.value.replace(/\D/g, '')
     if (value.length > 4) value = value.substring(0, 4)
     if (value.length > 2) {
-      value = `${value.substring(0, 2)} / ${value.substring(2)}`
+      value = `${value.substring(0, 2)}/${value.substring(2)}`
     }
     setExpDate(value)
   }
@@ -84,18 +94,8 @@ export default function PasarelaDePago({
     setCvc(value)
   }
 
-  const validateForm = () => {
-    const isValid = cardName.trim() !== '' && 
-                   cardNumber.replace(/\s/g, '').length === 16 &&
-                   /^\d{2}\/\d{2}$/.test(expDate) &&
-                   cvc.length === 3
-    
-    setShowErrors(!isValid)
-    return isValid
-  }
-
   const handleProcesarPago = () => {
-    if (!validateForm()) return
+    if (!isFormValid) return
     onClose()
     setShowConfirmModal(true)
   }
@@ -109,7 +109,7 @@ export default function PasarelaDePago({
   }
 
   const handleFinalizarPago = () => {
-    resetForm() // Limpiar formulario al finalizar
+    resetForm()
     setShowSuccessModal(false)
     if (onPaymentComplete) {
       onPaymentComplete()
@@ -119,11 +119,6 @@ export default function PasarelaDePago({
   if (!isOpen && !showConfirmModal && !showSuccessModal) {
     return null
   }
-
-  const isFormValid = cardName.trim() !== '' && 
-                     cardNumber.replace(/\s/g, '').length === 16 &&
-                     /^\d{2}\/\d{2}$/.test(expDate) &&
-                     cvc.length === 3
 
   return (
     <>
@@ -199,15 +194,12 @@ export default function PasarelaDePago({
                     </label>
                     <input
                       type="text"
-                      placeholder="Nombre completo"
+                      placeholder="NOMBRE COMPLETO"
                       className="w-full p-2 border border-gray-300 rounded-lg"
                       value={cardName}
                       onChange={handleCardNameChange}
                       maxLength={30}
                     />
-                    {showErrors && cardName.trim() === '' && (
-                      <span className="text-black text-xs mt-1 block">* Campo obligatorio</span>
-                    )}
                   </div>
                   
                   <div>
@@ -216,14 +208,11 @@ export default function PasarelaDePago({
                     </label>
                     <input
                       type="text" 
-                      placeholder="xxxx xxxx xxxx xxxx"
+                      placeholder="1234 1234 1234 1234"
                       className="w-full p-2 border border-gray-300 rounded-lg"
                       value={cardNumber}
                       onChange={handleCardNumberChange}
                     />
-                    {showErrors && cardNumber.replace(/\s/g, '').length !== 16 && (
-                      <span className="text-black text-xs mt-1 block">* Campo obligatorio</span>
-                    )}
                   </div>
                   
                   <div className="flex gap-4">
@@ -238,9 +227,6 @@ export default function PasarelaDePago({
                         value={expDate}
                         onChange={handleExpDateChange}
                       />
-                      {showErrors && !/^\d{2}\/\d{2}$/.test(expDate) && (
-                        <span className="text-black text-xs mt-1 block">* Campo obligatorio</span>
-                      )}
                     </div>
                     <div className="flex-1">
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -254,9 +240,6 @@ export default function PasarelaDePago({
                         onChange={handleCvcChange}
                         maxLength={3}
                       />
-                      {showErrors && cvc.length !== 3 && (
-                        <span className="text-black text-xs mt-1 block">* Campo obligatorio</span>
-                      )}
                     </div>
                   </div>
                 </div>
