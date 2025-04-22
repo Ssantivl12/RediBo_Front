@@ -1,41 +1,43 @@
 'use client';
 
 import { FC } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface ModalSeleccionPagoProps {
   setModoPago: (modo: string) => void;
-  onCancel: () => void;
 }
 
-const ModalSeleccionPago: FC<ModalSeleccionPagoProps> = ({ setModoPago, onCancel }) => {
+const ModalSeleccionPago: FC<ModalSeleccionPagoProps> = ({ setModoPago }) => {
+  const router = useRouter();
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="bg-[#E4D5C1] rounded-xl shadow-lg w-full max-w-[1500px] h-[900px] overflow-y-auto p-6 space-y-8">
-        <h2 className="text-[clamp(16px,2vw,65px)] font-bold text-center text-[#000000]">
-          SELECCIONE EL MÉTODO DE PAGO
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-75 px-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md md:max-w-lg p-6 md:p-10">
+        <h2 className="text-2xl md:text-3xl font-semibold text-center text-gray-800 mb-6">
+          Seleccione el método de pago
         </h2>
 
-        <div className="flex flex-col justify-center gap-[70px] px-6">
+        <div className="space-y-4">
           <button
             onClick={() => setModoPago('tarjeta')}
-            className="mx-auto w-[70%] py-[clamp(12px,2vw,45px)] rounded bg-[#FCA311] font-bold hover:bg-yellow-400 text-[clamp(16px,2vw,45px)] text-[#000000]"
+            className="w-full py-3 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white font-semibold text-lg transition-colors duration-300"
           >
-            PAGAR CON TARJETA
+            Pagar con tarjeta
           </button>
 
           <button
             onClick={() => setModoPago('qr')}
-            className="mx-auto w-[70%] py-[clamp(12px,2vw,45px)] rounded bg-[#14213D] font-bold text-[#FFFFFF] hover:bg-blue-700 text-[clamp(16px,2vw,45px)]"
+            className="w-full py-3 rounded-lg bg-blue-900 hover:bg-blue-700 text-white font-semibold text-lg transition-colors duration-300"
           >
-            PAGAR CON QR
+            Pagar con QR
           </button>
 
           <button
-  onClick={onCancel}
-  className="mx-auto w-[70%] py-[clamp(12px,2vw,45px)] rounded bg-[#f2e8d8] font-bold text-black hover:bg-red-600 text-[clamp(16px,2vw,45px)]"
->
-  CANCELAR
-</button>
+            onClick={() => router.back()}
+            className="w-full py-3 rounded-lg bg-gray-200 hover:bg-red-500 text-gray-800 hover:text-white font-semibold text-lg transition-colors duration-300"
+          >
+            Cancelar
+          </button>
         </div>
       </div>
     </div>

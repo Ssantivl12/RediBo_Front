@@ -8,7 +8,7 @@ export default function RootRedirect() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/reserva');
+    router.replace('/carousel');
   }, [router]);
   return null;
 }
