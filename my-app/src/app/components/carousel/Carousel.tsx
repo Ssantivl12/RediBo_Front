@@ -11,6 +11,8 @@ interface Vehicle {
   brand: string;
   model: string;
   colour: string;
+  plate: string;
+  description: string;
   pricePerDay: number;
   averageRating?: number;
 }
@@ -33,6 +35,8 @@ export default function Carousel() {
         brand: vehiculo.marca,
         model: vehiculo.modelo,
         colour: vehiculo.color,
+        plate: vehiculo.placa,
+        description: vehiculo.descripcion,
         pricePerDay: vehiculo.tarifa,
         averageRating: vehiculo.promedio_calificacion,
       }));
@@ -97,7 +101,7 @@ export default function Carousel() {
           </div>
           <div className={styles.info}>
             <h3>{vehicle.brand} {vehicle.model}</h3>
-            <h2>Descripción: {vehicle.brand} {vehicle.model} es de color {vehicle.colour}</h2>
+            <h2>{vehicle.description}</h2>
             <div className={styles.details}>
               <p className={styles.price}>Bs. {vehicle.pricePerDay}/día</p>
               <p className={styles.rating}>
