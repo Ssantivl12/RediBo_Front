@@ -81,14 +81,7 @@ export default function ReservaActiva() {
     }
   };
 
-  const confirmarPago = async () => {
-    try {
-      router.push("/pago");
-    } catch (error) {
-      console.error("Error al confirmar el pago:", error);
-      alert("Hubo un error al confirmar el pago.");
-    }
-  };
+  
 
   if (!vehiculo) {
     return <p>Cargando información de la reserva...</p>;
@@ -123,7 +116,7 @@ export default function ReservaActiva() {
 
       <div className="flex justify-center gap-4 mt-8">
         <button
-          onClick={confirmarPago}
+          onClick={() => router.push(`/pago?id=${idVehiculo}&monto=${vehiculo.tarifa}`)}
           className="bg-[#FCA311] hover:bg-[#e2910f] text-white px-6 py-3 rounded-xl shadow-lg transition duration-200 transform hover:scale-105"
         >
           Confirmar Pago

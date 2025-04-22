@@ -4,6 +4,7 @@ import VistaPago from '@/app/components/pago/VistaPago'
 
 export default function Page() {
   const searchParams = useSearchParams();
-    const idReserva = searchParams.get('idReserva');
+  const monto = searchParams.get('monto');
+  const id = searchParams.get('id');
   return <VistaPago />
 }

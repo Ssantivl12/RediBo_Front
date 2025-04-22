@@ -1,7 +1,8 @@
 'use client';
 
-import { FC } from 'react';
-import { useRouter } from 'next/navigation';
+import { FC, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import axios from "axios";
 
 interface PagoTarjetaProps {
   nombreTitular: string;
@@ -18,7 +19,6 @@ interface PagoTarjetaProps {
   setCvv: (value: string) => void;
   setDireccion: (value: string) => void;
   setCorreoElectronico: (value: string) => void;
-  handleConfirmacion: () => void;
 }
 
 const PagoTarjeta: FC<PagoTarjetaProps> = ({
@@ -36,14 +36,90 @@ const PagoTarjeta: FC<PagoTarjetaProps> = ({
   setCvv,
   setDireccion,
   setCorreoElectronico,
-  handleConfirmacion,
 }) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [monto, setMonto] = useState<number | null>(null);
+  const [idReserva, setIdReserva] = useState<number | null>(null);
+
+  useEffect(() => {
+    // Obtén el idReserva y monto de los parámetros de la URL
+    const idReserva = searchParams.get("id");
+    if (idReserva) {
+      const valor = parseInt(idReserva);
+      if (!isNaN(valor)) {
+        setIdReserva(valor);  // Guarda el idReserva en el estado
+      }
+    }
+
+    const montoParam = searchParams.get("monto");
+    if (montoParam) {
+      const valor = parseFloat(montoParam);
+      if (!isNaN(valor)) {
+        setMonto(valor);
+      }
+    }
+  }, [searchParams]);
+
+  const handleConfirmacion = async () => {
+    const fechaExpiracion = `${mes}/${anio}`;
+    const concepto = "Pago de reserva con tarjeta";
+
+    // Validación de los campos
+    if (
+      !nombreTitular ||
+      !numeroTarjeta ||
+      !cvv ||
+      !direccion ||
+      !correoElectronico ||
+      !mes ||
+      !anio
+    ) {
+      alert("Por favor completa todos los campos.");
+      return;
+    }
+
+    if (!monto || !idReserva) {
+      alert("Monto o idReserva no definido. Verifica la URL.");
+      return;
+    }
+
+    const datosPago = {
+      monto,
+      concepto,
+      nombreTitular,
+      numeroTarjeta,
+      fechaExpiracion,
+      cvv,
+      direccion,
+      correoElectronico,
+    };
+
+    console.log("Datos a enviar:", { idReserva, datosPago });
+
+    try {
+      const response = await axios.post(
+        `http://localhost:3000/pagos/pagarConTarjeta/${idReserva}`,
+        datosPago
+      );
+
+      if (response.status === 200) {
+        alert("¡Pago confirmado con éxito!");
+        router.push("/pago");
+      } else {
+        alert("Error en el pago: " + (response.data?.mensaje || "Error desconocido"));
+      }
+    } catch (error: any) {
+      console.error("Error:", error);
+      const msg = error.response?.data?.error || "Hubo un error al realizar el pago.";
+      alert("Error: " + msg);
+    }
+  };
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 bg-white rounded-xl shadow-lg">
       <h2 className="text-xl md:text-2xl font-bold text-center text-gray-800 mb-6">
-        Transferencia Bancaria
+        Pago con Tarjeta
       </h2>
 
       <div className="space-y-4">

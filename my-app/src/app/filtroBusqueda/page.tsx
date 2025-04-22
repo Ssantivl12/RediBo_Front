@@ -1,5 +1,5 @@
-import FiltroBusqueda from '@/app/components/filtroBusqueda/filtroBusqueda'
+import FiltroBusqueda from "@/app/components/filtroBusqueda/filtroBusqueda";
 
-export default function Page() {
-  return <FiltroBusqueda />
-}
+export default function FiltroBusquedaPage() {
+  return <FiltroBusqueda />;
+} 

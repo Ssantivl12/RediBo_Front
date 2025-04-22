@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import ModalSeleccionPago from "./ModalSeleccionPago";
 import PagoTargeta from "./PagoTargeta";
@@ -10,9 +10,15 @@ import "../../globals.css";
 
 const VistaPago = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [modoPago, setModoPago] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [qrImage, setQrImage] = useState("");
+
+  const [idVehiculo, setIdVehiculo] = useState<number | null>(null);
+  const [vehiculo, setVehiculo] = useState<any>(null);
+  const [idReserva, setIdReserva] = useState<number | null>(null);
 
   const [nombreTitular, setNombreTitular] = useState("");
   const [numeroTarjeta, setNumeroTarjeta] = useState("");
@@ -22,179 +28,120 @@ const VistaPago = () => {
   const [mes, setMes] = useState("");
   const [anio, setAnio] = useState("");
 
+  // ✅ Obtener ID desde la URL
   useEffect(() => {
-    const generarQR = async () => {
-      setLoading(true);
-      try {
-        const monto = 100; // O el monto que corresponda
-        const response = await axios.get(
-          `http://localhost:3000/generarQR/${monto}`
-        );
-        if (response.data.mensaje === "QR generado correctamente") {
-          setQrImage(`http://localhost:3000/temp/${response.data.archivoQR}`);
-        }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (modoPago === "qr") {
-      generarQR();
+    const idParam = searchParams.get("id");
+    if (idParam) {
+      setIdVehiculo(parseInt(idParam));
     }
-  }, [modoPago]);
+  }, [searchParams]);
 
-  const handleConfirmacion = async () => {
-    const idReserva = 27; // O el valor dinámico
-    const concepto = "Pago por reserva de Nissan";
-
-    if (
-      !nombreTitular ||
-      !numeroTarjeta ||
-      !cvv ||
-      !direccion ||
-      !correoElectronico ||
-      !mes ||
-      !anio
-    ) {
-      alert("Por favor completa todos los campos.");
-      return;
+  // ✅ Obtener detalles del vehículo desde la API
+  useEffect(() => {
+    if (idVehiculo) {
+      axios
+        .get(`http://localhost:3000/vehiculo/obtenerDetalleVehiculo/${idVehiculo}`)
+        .then((response) => {
+          if (response.data.success) {
+            const data = response.data.data;
+            setVehiculo(data);
+            setIdReserva(data.reserva?.idreserva ?? null);
+          }
+        })
+        .catch((error) => {
+          console.error("Error al obtener detalles del vehículo:", error);
+        });
     }
+  }, [idVehiculo]);
 
-    const fechaExpiracion = `${mes}/${anio}`;
-
-    const datosPago = {
-      monto: 1000,
-      concepto,
-      nombreTitular,
-      numeroTarjeta,
-      fechaExpiracion,
-      cvv,
-      direccion,
-      correoElectronico,
-    };
-
-    try {
-      const response = await axios.post(
-        `http://localhost:3000/pagos/pagarConTarjeta/${idReserva}`,
-        datosPago
-      );
-
-      if (response.status === 200) {
-        alert("¡Pago confirmado con éxito!");
-        router.push("/pago");
-      } else {
-        alert(
-          "Error en el pago: " + (response.data?.mensaje || "Error desconocido")
-        );
-      }
-    } catch (error: any) {
-      console.error("Error:", error);
-      const msg =
-        error.response?.data?.error || "Hubo un error al realizar el pago.";
-      alert("Error: " + msg);
-    }
+  const handleConfirmacion = () => {
+    alert("Pago con tarjeta confirmado");
   };
 
-  const handleConfirmacionQR = async () => {
-    // Aquí iría tu lógica de confirmar pago por QR
-    alert("Verificación de pago QR aún no implementada.");
+  const handleConfirmacionQR = () => {
+    alert("Verificación de pago con QR realizada");
   };
 
-  const handleRecargarQR = () => {
-    setQrImage("");
-    setModoPago("qr");
-  };
+  const renderDetallesAuto = () => {
+    if (!vehiculo) return null;
 
-  const handleDescargarQR = () => {
-    if (qrImage) {
-      const link = document.createElement("a");
-      link.href = qrImage;
-      link.download = "codigo-qr.png";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  };
+    const fechaInicio = new Date(vehiculo.reserva.fecha_inicio);
+    const fechaFin = new Date(vehiculo.reserva.fecha_fin);
 
-  const renderDetallesAuto = () => (
-    <div className="max-w-3xl mx-auto px-4 py-6 bg-white rounded-xl shadow-lg">
-      <h2 className="text-xl md:text-2xl font-bold text-center text-gray-800 mb-6">
-        Información del Vehículo
-      </h2>
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-6 bg-white rounded-xl shadow-lg">
+        <h2 className="text-xl md:text-2xl font-bold text-center text-gray-800 mb-6">
+          Información del Vehículo
+        </h2>
 
-      <div className="space-y-4">
-        {/* Imagen del vehículo con botón de expandir en esquina inferior derecha */}
-        <div className="relative flex justify-center">
-          <img
-            src="https://s3-us-west-2.amazonaws.com/my-car-mexico/modelos/fdbcb845/2023-Kia-Sportage-HEV-29_11zon.webp"
-            alt="Kia Sportage HEV 2023"
-            className="w-[400px] h-[250px] object-cover rounded-lg shadow-lg"
-          />
-          <button
-            onClick={() => {
-              const imageWindow = window.open("", "_blank");
-              imageWindow.document.write(
-                '<img src="https://s3-us-west-2.amazonaws.com/my-car-mexico/modelos/fdbcb845/2023-Kia-Sportage-HEV-29_11zon.webp" alt="Vehículo" style="width: 100%; height: auto;"/>'
-              );
-            }}
-            className="absolute bottom-2 right-2 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition"
-            title="Ver imagen en pantalla completa"
-          >
-            {/* Icono expandir */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+        <div className="space-y-4">
+          <div className="relative flex justify-center">
+            <img
+              src={`/${vehiculo.imagen}`}
+              alt={`${vehiculo.marca} ${vehiculo.modelo}`}
+              className="w-[400px] h-[250px] object-cover rounded-lg shadow-lg"
+            />
+            <button
+              onClick={() => {
+                const imageWindow = window.open("", "_blank");
+                imageWindow.document.write(
+                  `<img src="http://localhost:3000/imagenes/${vehiculo.imagen}" style="width: 100%; height: auto;" />`
+                );
+              }}
+              className="absolute bottom-2 right-2 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition"
+              title="Ver imagen en pantalla completa"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M15 3h6v6m0 0L10 21m11-11l-6 6M3 9V3h6m0 0L21 21"
-              />
-            </svg>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M15 3h6v6m0 0L10 21m11-11l-6 6M3 9V3h6m0 0L21 21"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <div className="text-gray-800 space-y-3 text-sm md:text-base">
+            <h3 className="text-2xl font-bold text-center text-gray-900 mb-4">
+              {vehiculo.marca} {vehiculo.modelo}
+            </h3>
+
+            <div className="flex justify-between px-4">
+              <span className="font-semibold">Descripción:</span>
+              <span>{vehiculo.descripcion}</span>
+            </div>
+
+            <div className="flex justify-between px-4">
+              <span className="font-semibold">Placa:</span>
+              <span>{vehiculo.placa}</span>
+            </div>
+
+            <div className="flex justify-between px-4">
+              <span className="font-semibold">Inicio del viaje:</span>
+              <span>{fechaInicio.toLocaleString()}</span>
+            </div>
+
+            <div className="flex justify-between px-4">
+              <span className="font-semibold">Fin del viaje:</span>
+              <span>{fechaFin.toLocaleString()}</span>
+            </div>
+
+            <div className="flex justify-between px-4 text-lg font-semibold text-[#14213D] pt-2 border-t border-gray-200">
+              <span>Monto total a pagar:</span>
+              <span>{vehiculo.tarifa} Bs.</span>
+            </div>
+          </div>
         </div>
-
-        {/* Detalles del vehículo */}
-<div className="text-gray-800 space-y-3 text-sm md:text-base">
-  <h3 className="text-2xl font-bold text-center text-gray-900 mb-4">
-    Toyota RJ45
-  </h3>
-
-  <div className="flex justify-between px-4">
-    <span className="font-semibold">Descripción:</span>
-    <span>Aquí toda la descripción del vehículo.</span>
-  </div>
-
-  <div className="flex justify-between px-4">
-    <span className="font-semibold">Placa:</span>
-    <span>1852PHD</span>
-  </div>
-
-  <div className="flex justify-between px-4">
-    <span className="font-semibold">Inicio del viaje:</span>
-    <span>18/04/2025 a las 10:00 a.m.</span>
-  </div>
-
-  <div className="flex justify-between px-4">
-    <span className="font-semibold">Fin del viaje:</span>
-    <span>21/04/2025 a las 10:00 a.m.</span>
-  </div>
-
-  <div className="flex justify-between px-4 text-lg font-semibold text-[#14213D] pt-2 border-t border-gray-200">
-    <span>Monto total a pagar:</span>
-    <span>500 Bs.</span>
-  </div>
-</div>
-
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderFormularioPago = () => (
     <div className="flex-1">
@@ -217,14 +164,15 @@ const VistaPago = () => {
           handleConfirmacion={handleConfirmacion}
           onCancel={() => setModoPago(null)}
         />
-      ) : (
+      ) : vehiculo ? (
         <PagoQR
           loading={loading}
           qrImage={qrImage}
           handleConfirmacionQR={handleConfirmacionQR}
-          onCancel={() => setModoPago(null)}
+          idVehiculo={vehiculo.idvehiculo}
+          monto={vehiculo.tarifa}
         />
-      )}
+      ) : null}
     </div>
   );
 
@@ -240,7 +188,7 @@ const VistaPago = () => {
       {!modoPago ? (
         <ModalSeleccionPago
           setModoPago={setModoPago}
-          onCancel={() => router.push("/pago")}
+          onCancel={() => router.push("/")}
         />
       ) : (
         renderVistaPago()
