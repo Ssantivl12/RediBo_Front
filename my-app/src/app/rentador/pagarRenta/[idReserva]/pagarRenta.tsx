@@ -50,7 +50,13 @@ export default function PagarRenta() {
         const response = await fetch(`http://localhost:3000/api/reservas/${idReserva}/detalles`);
         
         if (!response.ok) {
-          throw new Error(`Error al obtener datos: ${response.status}`);
+          // Intenta obtener el mensaje de error del cuerpo de la respuesta
+          const errorData = await response.json().catch(() => null);
+          if (errorData && errorData.error) {
+            throw new Error(errorData.error);
+          } else {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+          }
         }
         
         const data = await response.json();
@@ -77,14 +83,20 @@ export default function PagarRenta() {
         
         setCarData(datosFormateados);
         setError(null);
-      } catch (err) {
+      } catch (err: unknown) {
         console.error('Error al obtener detalles del auto:', err);
-        setError(err instanceof Error ? err.message : 'Error al cargar los datos del auto');
+        
+        // Manejar el unknown y devolver el mensaje formateado
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError('Error al cargar los datos del auto');
+        }
       } finally {
         setLoading(false);
       }
     };
-
+  
     obtenerDatosAuto();
   }, [params.idReserva]);
 
