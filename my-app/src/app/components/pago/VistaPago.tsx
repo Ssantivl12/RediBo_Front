@@ -1,4 +1,4 @@
-'use client';
+/*'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -56,7 +56,6 @@ const VistaPago = () => {
     }
   };
 
-<<<<<<< Updated upstream
   const handleConfirmacion = async () => {
     const idReserva = 27; // o el valor que tengas dinámicamente
     const concepto = "Pago por reserva de Nissan"; // puedes ajustarlo según necesidad
@@ -130,43 +129,8 @@ const VistaPago = () => {
   const renderContenidoPago = () => {
     return (
       <div className="w-full max-w-[3700px] mx-auto shadow-lg rounded-xl p-6 flex flex-row gap-[80px] lg:flex-row overflow-y-auto">
-        {/* Contenedor de la imagen y detalles del vehículo */}
+        
         <div className="flex-1 bg-[#E4D5C1] p-4 rounded-xl space-y-4 overflow-y-auto text-[clamp(16px,1.5vw,60px)]">
-=======
-
-
-
-
-
-
-
-
-  const handleConfirmacionQR = async () => {
-    // Aquí pones tu código igual que antes
-  };
-
-  const handleConfirmacion = async () => {
-    // Aquí pones tu código igual que antes
-  };
-
-  const renderDetallesAuto = () => (
-    <div className="flex-1 bg-[#E4D5C1] p-4 rounded-xl space-y-4 overflow-y-auto text-[clamp(16px,1.5vw,60px)]">
-
-          <div className="flex justify-start">
-            <button
-              onClick={() => setModoPago(null)}
-              className="p-2 rounded-lg hover:bg-gray-300 transition"
-            >
-              <img 
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRewU2upLSOlIp9_BHGTmQqdTbEb_Q3TVtvA&shttps://i.pinimg.com/564x/35/b3/c1/35b3c1ecf233d242dc8d504203eebeec.jpg"  // <-- Ruta correcta en /public
-                alt="Flecha volver" 
-                className="w-12 h-12 object-contain"
-              />
-            </button>
-          </div>
-
-
->>>>>>> Stashed changes
           <div className="flex justify-center">
             <img
               src="https://s3-us-west-2.amazonaws.com/my-car-mexico/modelos/fdbcb845/2023-Kia-Sportage-HEV-29_11zon.webp"
@@ -270,8 +234,8 @@ const VistaPago = () => {
     </div>
   );
 
-<<<<<<< Updated upstream
-        {/* Contenedor de transferencia bancaria */}
+
+        
         {modoPago === "tarjeta" && (
           <div className="flex-1 bg-[#E4D5C1] p-6 rounded-xl shadow-lg space-y-6 text-[clamp(16px,1.5vw,60px)] overflow-y-auto">
             <h2 className="text-center font-bold text-[clamp(24px,2.5vw,56px)]">
@@ -311,7 +275,7 @@ const VistaPago = () => {
               />
             </div>
 
-            {/* Fecha y CVV */}
+            
             <div className="flex gap-4">
               <div className="flex-1">
                 <label className="block font-semibold text-[clamp(15px,1.4vw,60px)]">
@@ -416,7 +380,7 @@ const VistaPago = () => {
             </div>
           </div>
         )}
-        {/* Contenedor de pago por QR */}
+        
         {modoPago === "qr" && (
           <div className="flex-1 bg-[#E4D5C1] p-6 rounded-xl shadow-lg space-y-6 text-[clamp(16px,1.5vw,60px)] overflow-y-auto">
             <h2 className="text-center text-[#000000] font-bold text-[clamp(24px,2.5vw,56px)]">
@@ -523,3 +487,4 @@ const VistaPago = () => {
 };
 
 export default VistaPago;
+*/

@@ -1,95 +1,140 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import axios from 'axios'
-import '../../globals.css'
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import "../../globals.css";
 
 export default function ReservaActiva() {
-  const router = useRouter()
+  const router = useRouter();
 
-  const ID_RESERVA = '5' // Reemplaza con el ID real de la reserva
-  const TIEMPO_INICIAL = 3 * 60 * 60 // 3 horas en segundos
-  const [estadoTiempo, setEstadoTiempo] = useState<number>(TIEMPO_INICIAL)
+  const [vehiculo, setVehiculo] = useState<any>(null);
+  const [estadoTiempo, setEstadoTiempo] = useState<number>(0);
+  const [idReserva, setIdReserva] = useState<number | null>(null);
+  const [idVehiculo, setIdVehiculo] = useState<number | null>(null);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get("id");
+    if (id) setIdVehiculo(parseInt(id));
+  }, []);
+
+  useEffect(() => {
+    if (idVehiculo) {
+      axios
+        .get(`http://localhost:3000/vehiculo/obtenerDetalleVehiculo/${idVehiculo}`)
+        .then((response) => {
+          if (response.data.success) {
+            setVehiculo(response.data.data);
+            setIdReserva(response.data.data.reserva.idreserva);
+            const fechaFin = new Date(response.data.data.reserva.fecha_fin);
+            const tiempoRestante = Math.floor(
+              (fechaFin.getTime() - Date.now()) / 1000
+            );
+            setEstadoTiempo(tiempoRestante > 0 ? tiempoRestante : 0);
+          }
+        })
+        .catch((error) => {
+          console.error("Error al obtener detalles del vehículo:", error);
+        });
+    }
+  }, [idVehiculo]);
 
   useEffect(() => {
     const intervalo = setInterval(() => {
-      setEstadoTiempo((prev) => {
-        if (prev <= 1) {
-          clearInterval(intervalo)
-          cancelarReserva(true)
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
+      if (idReserva) {
+        axios
+          .get(`http://localhost:3000/reservas/obtenerTiempoReserva/${idReserva}`)
+          .then((response) => {
+            if (response.data.success) {
+              setEstadoTiempo(response.data.tiempoRestante);
+            }
+          })
+          .catch((error) => {
+            console.error("Error al obtener el tiempo restante:", error);
+          });
+      }
+    }, 1000);
 
-    return () => clearInterval(intervalo)
-  }, [])
+    return () => clearInterval(intervalo);
+  }, [idReserva]);
 
   const formatoTiempo = (segundos: number) => {
-    const hrs = Math.floor(segundos / 3600)
-    const mins = Math.floor((segundos % 3600) / 60)
-    const secs = segundos % 60
-    return `${hrs.toString().padStart(2, '0')}:${mins
+    const hrs = Math.floor(segundos / 3600);
+    const mins = Math.floor((segundos % 3600) / 60);
+    const secs = segundos % 60;
+    return `${hrs.toString().padStart(2, "0")}:${mins
       .toString()
-      .padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-  }
+      .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
 
   const cancelarReserva = async (porTiempo = false) => {
-    const idReserva = 29; 
-  
-    try {
-      await axios.post(`http://localhost:3000/reservas/cancelar/${idReserva}`);
-      alert('Cancelado correctamente');
-      router.push('/reserva-expirada');
-    } catch (error) {
-      console.error('Error al cancelar:', error);
-      alert('Hubo un error al cancelar la reserva. Intenta nuevamente.');
+    if (idReserva) {
+      try {
+        await axios.post(`http://localhost:3000/reservas/cancelar/${idReserva}`);
+        alert("Reserva cancelada correctamente");
+        router.push("/reserva-expirada");
+      } catch (error) {
+        console.error("Error al cancelar:", error);
+        alert("Hubo un error al cancelar la reserva. Intenta nuevamente.");
+      }
     }
   };
-  
+
   const confirmarPago = async () => {
-    router.push('/pago')
+    try {
+      router.push("/pago");
+    } catch (error) {
+      console.error("Error al confirmar el pago:", error);
+      alert("Hubo un error al confirmar el pago.");
+    }
+  };
+
+  if (!vehiculo) {
+    return <p>Cargando información de la reserva...</p>;
   }
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-xl shadow-md space-y-4">
-      <h2 className="text-2xl font-bold">Reserva</h2>
-      <p className="text-gray-600">Información de la reserva. Detalles aquí.</p>
+    <div className="max-w-7xl mx-auto mt-10 p-8 bg-white rounded-xl shadow-lg space-y-6 md:max-w-5xl sm:max-w-xl">
+      <h2 className="text-3xl font-bold text-gray-800">Detalles de tu Reserva</h2>
+      <p className="text-gray-600">Revisa los detalles de la reserva de tu vehículo.</p>
 
-      <div className="bg-gray-100 rounded-lg p-4 flex items-center justify-between">
-        <div>
-          <p className="text-xl font-semibold">LAMBORGHINI HUARACAN EVO</p>
-          <p>Fecha Inicio: 15/04/16 Hora: 10:00</p>
-          <p className="font-bold">Self Pickup</p>
-          <p className="font-bold text-xl">Bs 100.00</p>
-          <p>Lugar Recogida: 1 día 0 hrs</p>
+      <div className="flex flex-col md:flex-row bg-gray-100 rounded-lg p-6 gap-6 items-center">
+        <div className="w-full md:w-2/3">
+          <h3 className="text-2xl font-semibold text-gray-800">{vehiculo.marca} {vehiculo.modelo}</h3>
+          <p className="text-gray-500">Placa: {vehiculo.placa}</p>
+          <p className="text-gray-600 mt-2">{vehiculo.descripcion}</p>
+          <p className="font-semibold text-xl mt-4">Bs {vehiculo.tarifa}</p>
+          <p className="text-gray-600 mt-2">Fecha de inicio: {new Date(vehiculo.reserva.fecha_inicio).toLocaleString()}</p>
+          <p className="text-gray-600">Fecha de fin: {new Date(vehiculo.reserva.fecha_fin).toLocaleString()}</p>
+          <p className="mt-2 text-gray-600">Estado: {vehiculo.reserva.estado === 'confirmada' ? 'Confirmada' : 'Pendiente'}</p>
         </div>
-        <img src="/auto.png" alt="Lamborghini" className="w-32 h-auto rounded" />
+        <img
+          src={`/${vehiculo.imagen}`}
+          alt={vehiculo.marca}
+          className="w-full md:w-48 h-auto rounded-lg shadow-md object-cover"
+        />
       </div>
 
-      <div className="text-center">
-        <p className="font-semibold">TIEMPO RESTANTE</p>
-        <p id="countdown" className="text-3xl font-mono">
-          {formatoTiempo(estadoTiempo)}
-        </p>
+      <div className="text-center mt-6">
+        <p className="font-semibold text-lg">Tiempo Restante</p>
+        <p id="countdown" className="text-4xl font-mono text-gray-800">{formatoTiempo(estadoTiempo)}</p>
       </div>
 
-      <div className="flex justify-around space-x-2">
+      <div className="flex justify-center gap-4 mt-8">
         <button
           onClick={confirmarPago}
-          className="bg-[#FCA311] hover:bg-[#e2910f] text-white px-4 py-2 rounded"
+          className="bg-[#FCA311] hover:bg-[#e2910f] text-white px-6 py-3 rounded-xl shadow-lg transition duration-200 transform hover:scale-105"
         >
           Confirmar Pago
         </button>
         <button
           onClick={() => cancelarReserva(false)}
-          className="bg-[#FCA311] hover:bg-[#e2910f] text-white px-4 py-2 rounded"
+          className="bg-[#FCA311] hover:bg-[#e2910f] text-white px-6 py-3 rounded-xl shadow-lg transition duration-200 transform hover:scale-105"
         >
           Cancelar Reserva
         </button>
       </div>
     </div>
-  )
+  );
 }

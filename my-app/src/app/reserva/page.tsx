@@ -1,5 +1,10 @@
-import ReservaActiva from '@/app/components/reserva/ReservaActiva'
+'use client';
+import { useSearchParams } from 'next/navigation';
+import ReservaActiva from '@/app/components/reserva/ReservaActiva';
 
 export default function Page() {
-  return <ReservaActiva />
+  const searchParams = useSearchParams();
+  const id = searchParams.get('id');
+
+  return <ReservaActiva vehiculoId={id} />;
 }

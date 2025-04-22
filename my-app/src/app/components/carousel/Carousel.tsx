@@ -99,13 +99,13 @@ export default function Carousel() {
             <h3>{vehicle.brand} {vehicle.model}</h3>
             <h2>Descripción: {vehicle.brand} {vehicle.model} es de color {vehicle.colour}</h2>
             <div className={styles.details}>
-              <p className={styles.price}>${vehicle.pricePerDay}/día</p>
+              <p className={styles.price}>Bs. {vehicle.pricePerDay}/día</p>
               <p className={styles.rating}>
                 ⭐ {vehicle.averageRating?.toFixed(2) || 'N/A'}
               </p>
             </div>
             <button
-              onClick={() => router.push("/reserva")}
+              onClick={() => router.push(`/reserva?id=${vehicle.id}`)}
               className={styles.reserveButton}
             >
               RESERVAR AHORA
