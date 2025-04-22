@@ -41,6 +41,21 @@ export default function PasarelaDePago({
   // Estado para mostrar errores
   const [showErrors, setShowErrors] = useState(false)
 
+  // Función para resetear el formulario
+  const resetForm = () => {
+    setCardName('')
+    setCardNumber('')
+    setExpDate('')
+    setCvc('')
+    setShowErrors(false)
+  }
+
+  // Handler para cancelar
+  const handleCancel = () => {
+    resetForm()
+    onClose()
+  }
+
   // Handlers para cada campo
   const handleCardNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '').toUpperCase()
@@ -58,7 +73,7 @@ export default function PasarelaDePago({
     let value = e.target.value.replace(/\D/g, '')
     if (value.length > 4) value = value.substring(0, 4)
     if (value.length > 2) {
-      value = `${value.substring(0, 2)}/${value.substring(2)}`
+      value = `${value.substring(0, 2)} / ${value.substring(2)}`
     }
     setExpDate(value)
   }
@@ -94,6 +109,7 @@ export default function PasarelaDePago({
   }
 
   const handleFinalizarPago = () => {
+    resetForm() // Limpiar formulario al finalizar
     setShowSuccessModal(false)
     if (onPaymentComplete) {
       onPaymentComplete()
@@ -120,7 +136,7 @@ export default function PasarelaDePago({
                 Completar pago
               </h2>
               <button 
-                onClick={onClose}
+                onClick={handleCancel}
                 className="p-1 rounded-full hover:bg-gray-200 transition-colors"
                 aria-label="Cerrar modal"
               >
@@ -179,11 +195,11 @@ export default function PasarelaDePago({
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Nombre en la tarjeta
+                      Nombre del titular de la tarjeta
                     </label>
                     <input
                       type="text"
-                      placeholder="NOMBRE COMPLETO"
+                      placeholder="Nombre completo"
                       className="w-full p-2 border border-gray-300 rounded-lg"
                       value={cardName}
                       onChange={handleCardNameChange}
@@ -196,11 +212,11 @@ export default function PasarelaDePago({
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Número de tarjeta
+                      Información de la tarjeta
                     </label>
                     <input
                       type="text" 
-                      placeholder="1234 5678 9012 3456"
+                      placeholder="xxxx xxxx xxxx xxxx"
                       className="w-full p-2 border border-gray-300 rounded-lg"
                       value={cardNumber}
                       onChange={handleCardNumberChange}
@@ -217,7 +233,7 @@ export default function PasarelaDePago({
                       </label>
                       <input
                         type="text" 
-                        placeholder="MM/AA"
+                        placeholder="MM / AA"
                         className="w-full p-2 border border-gray-300 rounded-lg"
                         value={expDate}
                         onChange={handleExpDateChange}
@@ -232,7 +248,7 @@ export default function PasarelaDePago({
                       </label>
                       <input
                         type="text" 
-                        placeholder="123"
+                        placeholder="CVC"
                         className="w-full p-2 border border-gray-300 rounded-lg"
                         value={cvc}
                         onChange={handleCvcChange}
@@ -256,7 +272,7 @@ export default function PasarelaDePago({
               
               <div className="flex gap-3 pt-4">
                 <button
-                  onClick={onClose}
+                  onClick={handleCancel}
                   className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md font-medium"
                 >
                   Cancelar
