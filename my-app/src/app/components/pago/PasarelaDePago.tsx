@@ -30,49 +30,91 @@ export default function PasarelaDePago({
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState('tarjeta') // 'tarjeta' o 'qr'
-  
+  const [paymentMethod, setPaymentMethod] = useState('tarjeta')
+
   // Campos del formulario
   const [cardName, setCardName] = useState('')
   const [cardNumber, setCardNumber] = useState('')
   const [expDate, setExpDate] = useState('')
   const [cvc, setCvc] = useState('')
 
+  // Estado para mostrar errores
+  const [showErrors, setShowErrors] = useState(false)
+
+  // Handlers para cada campo
+  const handleCardNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '').toUpperCase()
+    setCardName(value)
+  }
+
+  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, '')
+    if (value.length > 16) value = value.substring(0, 16)
+    value = value.replace(/(\d{4})(?=\d)/g, '$1 ')
+    setCardNumber(value)
+  }
+
+  const handleExpDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, '')
+    if (value.length > 4) value = value.substring(0, 4)
+    if (value.length > 2) {
+      value = `${value.substring(0, 2)}/${value.substring(2)}`
+    }
+    setExpDate(value)
+  }
+
+  const handleCvcChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '')
+    if (value.length > 3) return
+    setCvc(value)
+  }
+
+  const validateForm = () => {
+    const isValid = cardName.trim() !== '' && 
+                   cardNumber.replace(/\s/g, '').length === 16 &&
+                   /^\d{2}\/\d{2}$/.test(expDate) &&
+                   cvc.length === 3
+    
+    setShowErrors(!isValid)
+    return isValid
+  }
+
   const handleProcesarPago = () => {
-    onClose(); // Cierra el modal principal
-    setShowConfirmModal(true);
+    if (!validateForm()) return
+    onClose()
+    setShowConfirmModal(true)
   }
 
   const handleConfirmarPago = async () => {
     setIsProcessing(true)
-    // Simulación de procesamiento
-    await new Promise(resolve => setTimeout(resolve, 1000)) 
+    await new Promise(resolve => setTimeout(resolve, 1000))
     setShowConfirmModal(false)
     setShowSuccessModal(true)
     setIsProcessing(false)
-    
-    // todo: registrar el pago en la base de datos
-    // enviarNotificacionAlRentador(rentaDetails)
   }
 
   const handleFinalizarPago = () => {
-    setShowSuccessModal(false);
+    setShowSuccessModal(false)
     if (onPaymentComplete) {
-      onPaymentComplete();
+      onPaymentComplete()
     }
-    // todo: falta redireccionar a otra pagina
   }
 
   if (!isOpen && !showConfirmModal && !showSuccessModal) {
-    return null;
+    return null
   }
+
+  const isFormValid = cardName.trim() !== '' && 
+                     cardNumber.replace(/\s/g, '').length === 16 &&
+                     /^\d{2}\/\d{2}$/.test(expDate) &&
+                     cvc.length === 3
 
   return (
     <>
       {/* Modal de Pago */}
       {isOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
-        <div className="bg-white rounded-lg  max-w-md w-full mt-15">
+          <div className="bg-white rounded-lg max-w-md w-full mt-15">
             <div className="bg-gray-100 rounded-lg px-6 py-4 flex justify-between items-center">
               <h2 className="text-xl font-bold text-gray-800">
                 Completar pago
@@ -87,12 +129,10 @@ export default function PasarelaDePago({
             </div>
             
             <div className="p-6 space-y-4">
-              <p className="text-gray-700">Estás pagando el XXX% de la renta.</p>
+              <p className="text-gray-700">Estás pagando el {rentaDetails.total === rentaDetails.total * 2 ? '100%' : '50%'} de la renta.</p>
               
-              {/* Resumen del pago */}
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                 <h3 className="font-semibold text-lg mb-2">Resumen del pago</h3>
-                
                 <div className="space-y-2">
                   <div className="flex justify-between py-2 border-b border-gray-200">
                     <span>Vehículo:</span>
@@ -111,12 +151,11 @@ export default function PasarelaDePago({
                   
                   <div className="flex justify-between py-2">
                     <span className="font-semibold">Total a pagar ahora:</span>
-                    <span className="font-bold">${rentaDetails.total}</span>
+                    <span className="font-bold">${rentaDetails.total} {rentaDetails.moneda}</span>
                   </div>
                 </div>
               </div>
               
-              {/* Métodos de pago */}
               <div className="flex gap-2 mb-3">
                 <button 
                   className={`flex-1 py-2 px-4 rounded-lg border ${paymentMethod === 'tarjeta' 
@@ -136,7 +175,7 @@ export default function PasarelaDePago({
                 </button>
               </div>
               
-              {paymentMethod === 'tarjeta' ? (
+              {paymentMethod === 'tarjeta' && (
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -144,11 +183,15 @@ export default function PasarelaDePago({
                     </label>
                     <input
                       type="text"
-                      placeholder="Nombre completo"
+                      placeholder="NOMBRE COMPLETO"
                       className="w-full p-2 border border-gray-300 rounded-lg"
                       value={cardName}
-                      onChange={(e) => setCardName(e.target.value)}
+                      onChange={handleCardNameChange}
+                      maxLength={30}
                     />
+                    {showErrors && cardName.trim() === '' && (
+                      <span className="text-black text-xs mt-1 block">* Campo obligatorio</span>
+                    )}
                   </div>
                   
                   <div>
@@ -160,8 +203,11 @@ export default function PasarelaDePago({
                       placeholder="1234 5678 9012 3456"
                       className="w-full p-2 border border-gray-300 rounded-lg"
                       value={cardNumber}
-                      onChange={(e) => setCardNumber(e.target.value)}
+                      onChange={handleCardNumberChange}
                     />
+                    {showErrors && cardNumber.replace(/\s/g, '').length !== 16 && (
+                      <span className="text-black text-xs mt-1 block">* Campo obligatorio</span>
+                    )}
                   </div>
                   
                   <div className="flex gap-4">
@@ -174,8 +220,11 @@ export default function PasarelaDePago({
                         placeholder="MM/AA"
                         className="w-full p-2 border border-gray-300 rounded-lg"
                         value={expDate}
-                        onChange={(e) => setExpDate(e.target.value)}
+                        onChange={handleExpDateChange}
                       />
+                      {showErrors && !/^\d{2}\/\d{2}$/.test(expDate) && (
+                        <span className="text-black text-xs mt-1 block">* Campo obligatorio</span>
+                      )}
                     </div>
                     <div className="flex-1">
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -186,12 +235,18 @@ export default function PasarelaDePago({
                         placeholder="123"
                         className="w-full p-2 border border-gray-300 rounded-lg"
                         value={cvc}
-                        onChange={(e) => setCvc(e.target.value)}
+                        onChange={handleCvcChange}
+                        maxLength={3}
                       />
+                      {showErrors && cvc.length !== 3 && (
+                        <span className="text-black text-xs mt-1 block">* Campo obligatorio</span>
+                      )}
                     </div>
                   </div>
                 </div>
-              ) : (
+              )}
+              
+              {paymentMethod === 'qr' && (
                 <div className="flex justify-center py-8">
                   <div className="bg-gray-200 p-4 rounded-lg w-48 h-48 flex items-center justify-center">
                     <span className="text-gray-600">Código QR para pago</span>
@@ -208,7 +263,12 @@ export default function PasarelaDePago({
                 </button>
                 <button
                   onClick={handleProcesarPago}
-                  className="flex-1 px-4 py-2 bg-[#FFA500] hover:bg-[#e69500] text-white rounded-md font-medium"
+                  disabled={!isFormValid}
+                  className={`flex-1 px-4 py-2 ${
+                    !isFormValid
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-[#FFA500] hover:bg-[#e69500]'
+                  } text-white rounded-md font-medium`}
                 >
                   Pagar
                 </button>
@@ -218,13 +278,13 @@ export default function PasarelaDePago({
         </div>
       )}
 
-      {/* Modal de Confirmación usando el componente */}
+      {/* Modal de Confirmación */}
       <ConfirmationModal
         isOpen={showConfirmModal}
         onClose={() => setShowConfirmModal(false)}
         onConfirm={handleConfirmarPago}
         title="¿Está seguro que desea pagar?"
-        message={`Una vez confirmada, esta acción no se puede deshacer. ¿Desea confirmar el pago de $${rentaDetails.total} por la renta del vehículo?`}
+        message={`Una vez confirmada, esta acción no se puede deshacer. ¿Desea confirmar el pago de $${rentaDetails.total} ${rentaDetails.moneda} por la renta del vehículo?`}
         confirmText="ACEPTAR"
         cancelText="CANCELAR"
         isProcessing={isProcessing}
@@ -232,7 +292,7 @@ export default function PasarelaDePago({
         showSuccess={false}
       />
 
-      {/* Modal de Éxito usando el componente */}
+      {/* Modal de Éxito */}
       <ConfirmationModal
         isOpen={showSuccessModal}
         onClose={handleFinalizarPago}
