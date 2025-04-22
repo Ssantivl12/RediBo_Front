@@ -42,83 +42,142 @@ const PagoTarjeta: FC<PagoTarjetaProps> = ({
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 bg-white rounded-xl shadow-lg">
-  <h2 className="text-xl md:text-2xl font-bold text-center text-gray-800 mb-6">
-    Pago con Código QR
-  </h2>
+      <h2 className="text-xl md:text-2xl font-bold text-center text-gray-800 mb-6">
+        Transferencia Bancaria
+      </h2>
 
-  <div className="flex justify-center mb-4">
-    {loading ? (
-      <p className="text-base text-gray-600">Generando código QR...</p>
-    ) : qrImage ? (
-      <img
-        src={qrImage}
-        alt="Código QR"
-        className="w-52 h-52 md:w-64 md:h-64 border-4 border-gray-800 rounded-lg object-contain"
-      />
-    ) : (
-      <p className="text-red-500 text-base">No se pudo generar el QR.</p>
-    )}
-  </div>
+      <div className="space-y-4">
+        {/* Nombre del titular */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Nombre del titular</label>
+          <input
+            type="text"
+            value={nombreTitular}
+            onChange={(e) => {
+              let letrasSolo = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+              letrasSolo = letrasSolo
+                .toLowerCase()
+                .split(' ')
+                .map(p => p.charAt(0).toUpperCase() + p.slice(1))
+                .join(' ');
+              setNombreTitular(letrasSolo);
+            }}
+            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Ej. Juan Pérez"
+          />
+        </div>
 
-  <p className="text-center text-sm text-gray-700 mb-4">
-    Escanee este código con su aplicación bancaria para realizar el pago.
-  </p>
+        {/* Número de tarjeta */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Número de tarjeta</label>
+          <input
+            type="text"
+            value={numeroTarjeta}
+            onChange={(e) => {
+              let value = e.target.value.replace(/\D/g, '');
+              value = value.slice(0, 16);
+              const formatted = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+              setNumeroTarjeta(formatted);
+            }}
+            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+            placeholder="1234 5678 9012 3456"
+          />
+        </div>
 
-  <div className="flex justify-center gap-6 mb-6">
-    <button
-      onClick={handleRecargarQR}
-      className="p-3 bg-gray-200 hover:bg-gray-300 rounded-full transition"
-      title="Recargar QR"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-6 w-6 text-gray-800"
-        fill="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path d="M17.65 6.35A7.95 7.95 0 0 0 12 4a8 8 0 1 0 8 8h-2a6 6 0 1 1-6-6c1.31 0 2.5.44 3.45 1.17L13 11h7V4l-2.35 2.35z" />
-      </svg>
-    </button>
+        {/* Fecha de expiración y CVV */}
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-700">Mes</label>
+            <input
+              type="number"
+              value={mes}
+              onChange={(e) => {
+                let val = e.target.value.slice(0, 2);
+                if (parseInt(val) > 12) val = '12';
+                if (parseInt(val) < 1) val = '01';
+                setMes(val);
+              }}
+              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-center"
+              placeholder="MM"
+              min={1}
+              max={12}
+            />
+          </div>
 
-    <button
-      onClick={handleDescargarQR}
-      className="p-3 bg-yellow-500 hover:bg-yellow-600 rounded-full transition"
-      title="Descargar QR"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-6 w-6 text-white"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2m-4-4l-4 4m0 0l-4-4m4 4V4"
-        />
-      </svg>
-    </button>
-  </div>
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-700">Año</label>
+            <input
+              type="text"
+              value={anio}
+              onChange={(e) => {
+                let val = e.target.value.replace(/\D/g, '').slice(0, 2);
+                if (val.length === 2) {
+                  const num = parseInt(val);
+                  if (num < 25) val = '25';
+                  else if (num > 35) val = '35';
+                }
+                setAnio(val);
+              }}
+              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-center"
+              placeholder="AA"
+            />
+          </div>
 
-  <div className="flex flex-col gap-4">
-    <button
-      onClick={handleConfirmacionQR}
-      className="w-full py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-xl transition text-base"
-    >
-      Verificar Pago
-    </button>
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-700">CVV</label>
+            <input
+              type="number"
+              value={cvv}
+              onChange={(e) => setCvv(e.target.value.slice(0, 3))}
+              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-center"
+              placeholder="123"
+            />
+          </div>
+        </div>
 
-    <button
-      onClick={() => router.back()}
-      className="w-full py-3 bg-gray-100 hover:bg-gray-300 text-gray-800 font-semibold rounded-xl transition text-base"
-    >
-      Cancelar
-    </button>
-  </div>
-</div>
+        {/* Dirección */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Dirección</label>
+          <input
+            type="text"
+            value={direccion}
+            onChange={(e) =>
+              setDireccion(e.target.value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g, ''))
+            }
+            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+            placeholder="Ej. Calle Oquendo"
+          />
+        </div>
 
+        {/* Correo electrónico */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Correo electrónico</label>
+          <input
+            type="email"
+            value={correoElectronico}
+            onChange={(e) => setCorreoElectronico(e.target.value)}
+            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+            placeholder="Ej. juan.perez@gmail.com"
+          />
+        </div>
+      </div>
+
+      {/* Botones */}
+      <div className="mt-6 flex justify-between gap-4">
+        <button
+          onClick={() => router.back()}
+          className="w-1/2 py-2 px-4 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition text-sm"
+        >
+          Cancelar
+        </button>
+        <button
+          onClick={handleConfirmacion}
+          className="w-1/2 py-2 px-4 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition text-sm"
+        >
+          Confirmar
+        </button>
+      </div>
+    </div>
   );
 };
 
