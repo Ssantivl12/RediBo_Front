@@ -7,6 +7,7 @@ import UsuarioIcon from './imagenesIconos/usuario.png';
 import KilometrajeIcon from './imagenesIconos/velocimetro.png';
 import TransmisionIcon from './imagenesIconos/caja-de-cambios.png';
 import CombustibleIcon from './imagenesIconos/gasolinera.png';
+import MaletaIcon from './imagenesIconos/maleta.png';
 import { Auto } from '@/types/auto';
 import { Comentario } from '@/types/auto';
 
@@ -19,6 +20,8 @@ export default function DetalleCocheCliente({ auto }: Props) {
   const [mostrarPanel, setMostrarPanel] = useState(false);
   const [imagenActual, setImagenActual] = useState(0); 
   const listaComentariosRef = useRef<HTMLDivElement>(null);
+  // Estado para rastrear qué comentarios están expandidos
+  const [comentariosExpandidos, setComentariosExpandidos] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     fetch(`http://localhost:4000/api/autos/${auto.id}/comentarios`)
@@ -38,6 +41,19 @@ export default function DetalleCocheCliente({ auto }: Props) {
       document.body.style.overflow = 'auto';
     };
   }, [mostrarPanel]);
+
+  // Función para alternar la expansión de un comentario
+  const toggleExpansion = (comentarioId: number) => {
+    setComentariosExpandidos(prev => ({
+      ...prev,
+      [comentarioId]: !prev[comentarioId]
+    }));
+  };
+  
+  // Función para verificar si un texto es más largo que 3 líneas
+  const esComentarioLargo = (texto: string) => {
+    return texto.length > 180;                           // Aproximadamente 3 líneas (60 caracteres por línea)
+  };
 
   const siguienteImagen = () => {
     if (imagenActual < auto.imagenes?.length - 1) {
@@ -122,7 +138,7 @@ export default function DetalleCocheCliente({ auto }: Props) {
   </button>
   
   <div className="p-4 border-b border-[#ccc]">
-    <h2 className="text-black text-[30px]"><i>{auto.marca}{' '}{auto.modelo}</i></h2>
+    <h2 className="text-black text-[30px]"><i>{auto.marca}{' - '}{auto.modelo}</i></h2>
     <hr className="border-t-4 border-black"/>
     <h3 className="text-black text-[20px]"><i>Puntuaciones del auto</i></h3>
     <div className="flex gap-4 items-center">
@@ -172,6 +188,9 @@ export default function DetalleCocheCliente({ auto }: Props) {
           const calificacion = comentario.calificacion;
           const estrellasLlenas = Math.floor(calificacion);
           const estrellasVacias = 5 - estrellasLlenas;
+          const esLargo = esComentarioLargo(comentario.contenido);
+          const estaExpandido = comentariosExpandidos[comentario.id] || false;
+          
           return (
             <div key={comentario.id} className="bg-white pb-3 mb-4 border-b-2 border-black flex flex-col w-full">
             <div className="flex justify-between items-center w-full">
@@ -197,8 +216,20 @@ export default function DetalleCocheCliente({ auto }: Props) {
               </div>
             </div>
           
-            <p className="text-[#0a0707] text-justify whitespace-pre-wrap break-words w-full">
-              {comentario.contenido}</p>
+            <div className="text-[#0a0707] text-justify whitespace-pre-wrap break-words w-full mt-2">
+              <p className={`${!estaExpandido && esLargo ? 'line-clamp-3' : ''}`}>
+                {comentario.contenido}
+              </p>
+              
+              {esLargo && (
+                <button 
+                  onClick={() => toggleExpansion(comentario.id)}
+                  className="text-[#002a5c] font-medium hover:underline mt-1 focus:outline-none"
+                >
+                  {estaExpandido ? 'Ver menos' : 'Ver más'}
+                </button>
+              )}
+            </div>
           </div>              
           )
         })
@@ -291,9 +322,10 @@ export default function DetalleCocheCliente({ auto }: Props) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               {[
                 { icon: UsuarioIcon, label: 'Capacidad', value: `${auto.capacidad} personas` },
-                { icon: KilometrajeIcon, label: 'Kilometraje', value: auto.kilometraje },
+                { icon: KilometrajeIcon, label: 'Kilometraje', value: `${auto.kilometraje} km` },
                 { icon: TransmisionIcon, label: 'Transmisión', value: auto.transmision },
                 { icon: CombustibleIcon, label: 'Combustible', value: auto.combustible },
+                { icon: MaletaIcon, label: 'Capacidad', value: '3 maletas' },
               ].map(({ icon, label, value }, index) => (
                 <div key={index} className="flex items-center gap-4 flex-wrap">
                   <Image src={icon} alt={label} className="w-[50px] h-[50px]" />
@@ -328,7 +360,7 @@ export default function DetalleCocheCliente({ auto }: Props) {
               <span className="font-normal text-black">Precio por día:</span>
               <span className="font-normal text-black">{auto?.precioRentaDiario} USD</span>
             </div>
-            <div className=" font-normal text-black text-right text-[#11295b] mt-1">
+            <div className=" font-normal text-black text-right mt-1">
               {(parseFloat(auto?.precioRentaDiario) * 6.89).toFixed(2)} BOB
             </div>
             <div className="flex justify-between mt-4">
