@@ -31,6 +31,13 @@ export default function DetalleCocheCliente({ auto }: Props) {
         setComentarios([]);
     });
   }, [auto.id]);
+  //bloqueo de scroll al abrir panel, quitar si no funciona :'v
+  useEffect(()=>{
+    document.body.style.overflow = mostrarPanel ? 'hidden' : 'auto';
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [mostrarPanel]);
 
   const siguienteImagen = () => {
     if (imagenActual < auto.imagenes?.length - 1) {
@@ -102,10 +109,11 @@ export default function DetalleCocheCliente({ auto }: Props) {
 )}
 
 <div
-  className={`fixed top-0 w-[600px] h-screen bg-white shadow-[-2px_0_8px_rgba(0,0,0,0.2)] transition-all duration-300 ease-in-out z-[1000] p-4 flex flex-col overflow-y-auto ${
-    mostrarPanel ? 'right-0' : '-right-[600px]'
+  className={`fixed top-0 right-0 h-screen w-full sm:w-[90%] md:w-[600px] bg-white shadow-[-2px_0_8px_rgba(0,0,0,0.2)] transition-all duration-300 ease-in-out z-[1000] p-4 flex flex-col overflow-y-auto ${
+    mostrarPanel ? 'translate-x-0' : 'translate-x-full'
   }`}
 >
+
   <button
     className="absolute top-[10px] right-[20px] bg-[#fca311] text-[20px] text-white w-6 h-6 flex items-center justify-center rounded-full border-none cursor-pointer"
     onClick={() => setMostrarPanel(false)}
@@ -198,178 +206,140 @@ export default function DetalleCocheCliente({ auto }: Props) {
     </div>
 </div>
 
-      <div className="w-full max-w-[1500px] mx-auto p-5 bg-white text-[#292929]">
-        <h1 className="text-[#11295B] text-[2.5rem] mb-5">{auto.marca} - {auto.modelo}</h1>
+    <div className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-10 xl:px-16 pb-10">
+      <div className="max-w-[1550px] mx-auto">
+      <h1 className="mt-6 sm:mt-8 text-xl sm:text-2xl md:text-3xl lg:text-4xl text-[var(--azul-oscuro)] font-bold text-left pl-2 sm:pl-4 mb-6">
+        {auto.marca} - {auto.modelo}
+      </h1>
 
-        <div className="grid grid-cols-[1fr_2fr_1fr] gap-7.5">
-          <div>
-            <div className="relative w-full max-w-full h-[250px] border border-black rounded-[20px] overflow-hidden bg-white">
-              
-              {/* Flecha izquierda */}
-              <div className="absolute top-1/2 transform -translate-y-1/2 w-10 h-10 bg-white/30 rounded-full flex items-center justify-center cursor-pointer text-[40px] text-black z-50 transition-colors duration-200 ease-in-out"
-                onClick={imagenAnterior}>
-                {'<'}
-              </div>
-
-              {/* Contenedor de imágenes */}
-              <div className="relative w-full max-w-full h-[250px] border border-black rounded-[20px] overflow-hidden bg-white">
-                {auto.imagenes && (
-                  <Image
-                    key={auto.imagenes[imagenActual].id}
-                    src={auto.imagenes[imagenActual].direccionImagen}
-                    alt={`Imagen del auto ${auto.marca} ${auto.modelo}`}
-                    className="relative w-full max-w-full h-[250px] border border-black rounded-[20px] overflow-hidden bg-white"
-                    fill
-                    style={{ objectFit: 'cover' }}
-                  />
-                )}
-              </div>
-
-              {/* Flecha derecha */}
-              <div className="absolute top-1/2 right-2 transform -translate-y-1/2 w-10 h-10 bg-white/30 rounded-full flex items-center justify-center cursor-pointer text-[40px] text-black z-50 transition-colors duration-200 ease-in-out"
-                onClick={siguienteImagen}>
-                {'>'}
-              </div>
-            </div>
-            <div className="mt-[15px]">
-              <div className="flex items-center justify-start gap-[10px] p-[10px]">
-                <span className="font-bold text-[18px] text-[#11295B]">Puntuación {promedioCalificacion}</span>
-                <span className="flex flex-row text-[#fca311] text-[20px]">
-                  {obtenerEstrellas(promedioCalificacion)}
-                </span>
-              </div>
-              <button className="m-0 inline-block bg-[#fca311] text-white 
-                        px-5 py-2.5 border-none rounded-full 
-                        text-base font-semibold font-inter text-center 
-                        no-underline cursor-pointer 
-                        transition duration-300 ease-in-out 
-                        shadow-md hover:bg-[#e69500] hover:-translate-y-0.5 hover:shadow-lg 
-                        active:bg-[#cc8400] active:translate-y-0 active:shadow-sm"
-                    onClick={() => setMostrarPanel(true)}>
-                Ver Reseñas
-              </button>
+      <div className="flex flex-col lg:flex-row gap-8 w-full">
+        {/* SECCIÓN IZQUIERDA */}
+        <div className="flex-1 min-w-0">
+          <div className="relative w-full h-[250px] border border-black rounded-[20px] overflow-hidden">
+            <div
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/30 rounded-full flex items-center justify-center cursor-pointer text-[40px] text-black z-50"
+              onClick={imagenAnterior}
+            >
+              {'<'}
             </div>
 
-            {/*HASTA AQUI YO*/}
-            
-            <div className="bg-white relative top-[-10px] left-[5px] w-[530px] h-[250px]">
-              <h3 className="text-[#11295B] text-[1.5rem] font-semibold mt-5">Detalles</h3>
-              <div className="mt-2">
-                <div className="grid grid-cols-[repeat(auto-fit,_minmax(100px,_1fr))] gap-5 mt-2">
-                  <div className="flex gap-2 text-[16px]">
-                    <strong>Año:</strong>
-                    <span>{auto.año}</span>
-                  </div>
-                  <div className="flex gap-2 text-[16px]">
-                    <strong>Placa:</strong>
-                    <span>{auto.placa}</span>
-                  </div>
-                  <div className="flex gap-2 text-[16px]">
-                    <strong>Color:</strong>
-                    <span>{auto.color}</span>
-                  </div>
-                </div>
-                <h4 className="text-[#11295B] text-[1.5rem] font-semibold mt-5">Descripción</h4>
-                <div className="text-[16px]">{auto.descripcion}</div>
-              </div>
+            {auto.imagenes && (
+              <Image
+                key={auto.imagenes[imagenActual].id}
+                src={auto.imagenes[imagenActual].direccionImagen}
+                alt={`Imagen del auto ${auto.marca} ${auto.modelo}`}
+                fill
+                style={{ objectFit: 'cover' }}
+                className="rounded-[20px]"
+              />
+            )}
+
+            <div
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/30 rounded-full flex items-center justify-center cursor-pointer text-[40px] text-black z-50"
+              onClick={siguienteImagen}
+            >
+              {'>'}
             </div>
           </div>
-          <div>
 
-            <div className="bg-white p-5 w-full box-border">
-              <h2 className="text-[#11295B] text-[1.5rem] font-bold mb-4">Características Principales</h2>
-              <div className="grid grid-cols-2 gap-5 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2">
-                <div className="flex items-center gap-4 flex-wrap">
-                  <Image 
-                    src={UsuarioIcon} 
-                    alt="Icono de personas"
-                    className="w-[50px] h-[50px] flex-shrink-0"
-                  />
-                  <div className="flex flex-col text-[14px] flex-grow">
-                    <span className="font-bold text-black text-[16px] whitespace-nowrap">{auto.capacidad} personas</span>
-                    <span>Capacidad</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4 flex-wrap">
-                  <Image 
-                    src={KilometrajeIcon} 
-                    alt="Icono de kilometraje" 
-                    className="w-[50px] h-[50px] flex-shrink-0"
-                  />
-                  <div className="flex flex-col text-[14px] flex-grow">
-                    <span className="font-bold text-black text-[16px] whitespace-nowrap">{auto.kilometraje}</span>    
-                    <span>Kilometraje</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4 flex-wrap">
-                  <Image 
-                    src={TransmisionIcon} 
-                    alt="Icono de transmisión" 
-                    className="w-[50px] h-[50px] flex-shrink-0"
-                  />
-                  <div className="flex flex-col text-[14px] flex-grow">
-                    <span className="font-bold text-black text-[16px] whitespace-nowrap">{auto.transmision}</span>   
-                    <span>Transmisión</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4 flex-wrap">
-                  <Image 
-                    src={CombustibleIcon} 
-                    alt="Icono de combustible" 
-                    className="w-[50px] h-[50px] flex-shrink-0"
-                  />
-                  <div className="flex flex-col text-[14px] flex-grow">
-                    <span className="font-bold text-black text-[16px] whitespace-nowrap">{auto.combustible}</span>        
-                    <span>Combustible</span>
-                  </div>
-                </div>
-              </div>
+          <div className="mt-4">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="font-bold text-lg text-[#11295B]">
+                Puntuación {promedioCalificacion}
+              </span>
+              <span className="flex text-[#fca311] text-xl">
+                {obtenerEstrellas(promedioCalificacion)}
+              </span>
             </div>
+            <button
+              className="bg-[#fca311] text-white px-5 py-2.5 rounded-full text-base font-semibold transition duration-300 hover:bg-[#e69500] active:bg-[#cc8400]"
+              onClick={() => setMostrarPanel(true)}
+            >
+              Ver Reseñas
+            </button>
           </div>
-          
-          <div className="flex flex-wrap gap-5 justify-between w-full items-start">
-            <div className="flex-1 min-w-[300px]">
-              <div className="bg-[#f5f5f5] p-4 rounded-lg shadow-md">
-                <h3 className="text-[#11295b] font-semibold text-lg text-center mb-4 pb-2">
-                  Datos del host
-                </h3>
-                <div className="flex justify-center">
-                    <Image 
-                      src={UsuarioIcon} 
-                      alt="Icono de persona"
-                      className="w-[80px] h-[80px] bg-[#ccc] rounded-full mb-4"
-                    />
-                  </div>
-                <div className="text-center text-[#333] text-lg">
-                  Nombre: {auto.propietario?.nombre} {auto.propietario?.apellido}
-                </div>
+
+          {/* DETALLES */}
+          <div className="bg-white mt-5">
+            <h3 className="text-[#11295B] text-xl font-semibold">Detalles</h3>
+
+            <div className="flex flex-wrap gap-x-6 gap-y-4 mt-3">
+              <div className="flex gap-2 text-base items-center">
+                <strong className="font-normal text-black">Año:</strong>
+                <span className="font-normal text-black">{auto.año}</span>
+              </div>
+              <div className="flex gap-2 text-base items-center">
+                <strong className="font-normal text-black">Placa:</strong>
+                <span className="font-normal text-black">{auto.placa.replace('-', '\u2011')}</span>
+              </div>
+              <div className="flex gap-2 text-base items-center">
+                <strong className="font-normal text-black">Color:</strong>
+                <span className="font-normal text-black">{auto.color}</span>
               </div>
             </div>
 
-                <div className="flex-1 min-w-[300px]">
-                  <div className="bg-[#f5f5f5] p-4 rounded-lg shadow-md">
-                    <h3 className="text-[#11295b] font-semibold text-lg mb-4">
-                      Desglose del precio
-                    </h3>
+            <h4 className="text-[#11295B] text-lg font-semibold mt-4">Descripción</h4>
+            <p className="font-normal text-black">{auto.descripcion}</p>
+          </div>
 
-                    <div className="flex justify-between mt-2">
-                      <div>Precio por día:</div>
-                      <div>{auto?.precioRentaDiario}{' USD'}</div>
-                    </div>
+        </div>
 
-                    <div className="text-[#333] mt-2 text-right">
-                        {(parseFloat(auto?.precioRentaDiario) * 6.89).toFixed(2)}{' BOB'}
-                      </div>
+        {/* SECCIÓN CENTRAL */}
+        <div className="flex-1 min-w-0">
+          <div className="bg-white p-5 w-full">
+            <h2 className="text-[#11295B] text-xl font-bold mb-4">Características Principales</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {[
+                { icon: UsuarioIcon, label: 'Capacidad', value: `${auto.capacidad} personas` },
+                { icon: KilometrajeIcon, label: 'Kilometraje', value: auto.kilometraje },
+                { icon: TransmisionIcon, label: 'Transmisión', value: auto.transmision },
+                { icon: CombustibleIcon, label: 'Combustible', value: auto.combustible },
+              ].map(({ icon, label, value }, index) => (
+                <div key={index} className="flex items-center gap-4 flex-wrap">
+                  <Image src={icon} alt={label} className="w-[50px] h-[50px]" />
+                  <div className="flex flex-col">
+                      <span className="font-bold text-[16px] text-black whitespace-nowrap">{value}</span>
+                      <span className="text-[14px] text-[#292929]">{label}</span>
 
-                    <div className="flex justify-between mt-4">
-                      <div>Precio total:</div>
-                      <div>{(parseFloat(auto?.precioRentaDiario) * 6.89 * 5).toFixed(2)}{' BOB'}</div>
-                    </div>
                   </div>
                 </div>
-              </div>
+              ))}
+            </div>
           </div>
+        </div>
+
+        {/* SECCIÓN DERECHA */}
+        <div className="flex-1 min-w-0 flex flex-col gap-4">
+          <div className="bg-[#f5f5f5] p-6 w-full rounded-2xl shadow-md border-2 border-black">
+            <h3 className="text-[#11295b] font-semibold text-center mb-4">Datos del host</h3>
+            <div className="flex justify-center mb-4">
+              <div className="w-[80px] h-[80px] bg-[#ccc] rounded-full flex items-center justify-center">
+                <Image src={UsuarioIcon} alt="Host" className="w-[80px] h-[80px]" />
+              </div>
+            </div>
+            <p className="text-center text-[#333] text-lg">
+              Nombre: {auto.propietario?.nombre} {auto.propietario?.apellido}
+            </p>
+          </div>
+
+          <div className="bg-[#f5f5f5] p-6 w-full rounded-lg shadow-md border-2 border-black">
+            <h3 className="text-[#11295b] font-semibold text-lg mb-4">Desglose del precio</h3>
+            <div className="flex justify-between">
+              <span className="font-normal text-black">Precio por día:</span>
+              <span className="font-normal text-black">{auto?.precioRentaDiario} USD</span>
+            </div>
+            <div className=" font-normal text-black text-right text-[#11295b] mt-1">
+              {(parseFloat(auto?.precioRentaDiario) * 6.89).toFixed(2)} BOB
+            </div>
+            <div className="flex justify-between mt-4">
+              <span className="font-normal text-black">Precio total:</span>
+              <span className="font-normal text-black">{(parseFloat(auto?.precioRentaDiario) * 6.89 * 5).toFixed(2)} BOB</span>
+            </div>
+          </div>
+        </div>
       </div>
+    </div>
+    </div>
     </>
   );
 }
