@@ -2,16 +2,17 @@
 import React, { useState } from 'react';
 import styles from './ListadoDeAutos.module.css';
 import ModalDeConfirmacion from '@components/modal/ModalDeConfirmacion';
+import { useRouter } from 'next/navigation';
 
 // Interfaces para las solicitudes y autos
 interface SolicitudPendiente {
-  id: string;
+  idReserva: string;
   nombreSolicitante: string;
   fechas: string;
 }
 
 interface Auto {
-  id: string;
+  idAuto: string;
   nombre: string;
   placa: string;
   precioPorDia: number;
@@ -26,13 +27,15 @@ interface ListadoDeAutosProps {
 }
 
 const ListadoDeAutos: React.FC<ListadoDeAutosProps> = ({ activeFilter, autos = [] }) => {
+  const router = useRouter();
   // Estados para gestionar el modal
   const [modalAbierto, setModalAbierto] = useState(false);
   const [modalConfig, setModalConfig] = useState({
     title: '',
     message: '',
-    confirmText: '',
-    action: () => {},
+    confirmText: 'ACEPTAR',
+    cancelText: 'CANCELAR',
+    onConfirm: () => {},
     variant: 'confirmation' as 'confirmation' | 'success',
     showSuccess: false,
     isProcessing: false
@@ -65,12 +68,14 @@ const ListadoDeAutos: React.FC<ListadoDeAutosProps> = ({ activeFilter, autos = [
   // Función para mostrar el modal de aceptar solicitud
   const mostrarModalAceptar = (autoId: string, solicitudId: string, nombreSolicitante: string) => {
     setAutoSeleccionado(autoId);
+    console.log(solicitudId);
     setSolicitudSeleccionada(solicitudId);
     setModalConfig({
       title: "Confirmar Aceptación",
       message: `¿Estás seguro de que deseas aceptar la solicitud de ${nombreSolicitante}?`,
       confirmText: "ACEPTAR",
-      action: () => ejecutarAceptarSolicitud(autoId, solicitudId),
+      cancelText: "CANCELAR", 
+      onConfirm: () => ejecutarAceptarSolicitud(autoId, solicitudId),
       variant: 'confirmation',
       showSuccess: false,
       isProcessing: false
@@ -81,12 +86,15 @@ const ListadoDeAutos: React.FC<ListadoDeAutosProps> = ({ activeFilter, autos = [
   // Función para mostrar el modal de denegar solicitud
   const mostrarModalDenegar = (autoId: string, solicitudId: string, nombreSolicitante: string) => {
     setAutoSeleccionado(autoId);
+    
+    console.log(solicitudId);
     setSolicitudSeleccionada(solicitudId);
     setModalConfig({
       title: "Confirmar Rechazo",
       message: `¿Estás seguro de que deseas denegar la solicitud de ${nombreSolicitante}?`,
       confirmText: "DENEGAR",
-      action: () => ejecutarDenegarSolicitud(autoId, solicitudId),
+      cancelText: "CANCELAR",
+      onConfirm: () => ejecutarDenegarSolicitud(autoId, solicitudId),
       variant: 'confirmation',
       showSuccess: false,
       isProcessing: false
@@ -97,34 +105,44 @@ const ListadoDeAutos: React.FC<ListadoDeAutosProps> = ({ activeFilter, autos = [
   // Funciones para ejecutar las acciones tras la confirmación
   const ejecutarAceptarSolicitud = async (autoId: string, solicitudId: string) => {
     try {
+      // Actualizar el estado del modal para mostrar que está procesando
       setModalConfig(prev => ({ ...prev, isProcessing: true }));
+      // Realizar la petición a la API para aceptar la solicitud
+      const response = await fetch(`http://localhost:3000/api/reservas/${solicitudId}/aceptar`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       
-      // Aquí iría la lógica para aceptar la solicitud mediante una llamada a la API
-      console.log(`Aceptando solicitud ${solicitudId} para el auto ${autoId}`);
+      if (!response.ok) {
+        throw new Error(`Error al aceptar la reserva: ${response.status}`);
+      }
       
-      // Simular un tiempo de procesamiento
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Esperar una respuesta exitosa
+      const data = await response.json();
       
-      // Mostrar mensaje de éxito
+      // Cambiar el modal a variante de éxito
       setModalConfig({
         title: "Solicitud Aceptada",
         message: "La solicitud ha sido aceptada correctamente",
         confirmText: "CONTINUAR",
-        action: cerrarModal,
+        cancelText: "CANCELAR",
+        onConfirm: cerrarModalYActualizar,
         variant: 'success',
         showSuccess: true,
         isProcessing: false
       });
       
-      // Aquí actualizarías los datos localmente o harías una nueva petición al servidor
-      
     } catch (error) {
       console.error("Error al aceptar la solicitud:", error);
+      // En caso de error, mostrar un modal de error pero con variante 'success' para que tenga un solo botón
       setModalConfig({
         title: "Error",
         message: "Ocurrió un error al procesar tu solicitud. Inténtalo de nuevo.",
         confirmText: "ENTENDIDO",
-        action: cerrarModal,
+        cancelText: "CANCELAR",
+        onConfirm: cerrarModal,
         variant: 'success',
         showSuccess: false,
         isProcessing: false
@@ -134,34 +152,45 @@ const ListadoDeAutos: React.FC<ListadoDeAutosProps> = ({ activeFilter, autos = [
 
   const ejecutarDenegarSolicitud = async (autoId: string, solicitudId: string) => {
     try {
+      // Actualizar el estado del modal para mostrar que está procesando
       setModalConfig(prev => ({ ...prev, isProcessing: true }));
+      console.log(solicitudId);
+      // Realizar la petición a la API para denegar la solicitud
+      const response = await fetch(`http://localhost:3000/api/reservas/${solicitudId}/denegar`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       
-      // Aquí iría la lógica para denegar la solicitud mediante una llamada a la API
-      console.log(`Denegando solicitud ${solicitudId} para el auto ${autoId}`);
+      if (!response.ok) {
+        throw new Error(`Error al denegar la reserva: ${response.status}`);
+      }
       
-      // Simular un tiempo de procesamiento
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Esperar una respuesta exitosa
+      const data = await response.json();
       
-      // Mostrar mensaje de éxito
+      // Cambiar el modal a variante de éxito
       setModalConfig({
         title: "Solicitud Denegada",
         message: "La solicitud ha sido denegada correctamente",
         confirmText: "CONTINUAR",
-        action: cerrarModal,
+        cancelText: "CANCELAR",
+        onConfirm: cerrarModalYActualizar,
         variant: 'success',
         showSuccess: true,
         isProcessing: false
       });
       
-      // Aquí actualizarías los datos localmente o harías una nueva petición al servidor
-      
     } catch (error) {
       console.error("Error al denegar la solicitud:", error);
+      // En caso de error, mostrar un modal de error pero con variante 'success' para que tenga un solo botón
       setModalConfig({
         title: "Error",
         message: "Ocurrió un error al procesar tu solicitud. Inténtalo de nuevo.",
         confirmText: "ENTENDIDO",
-        action: cerrarModal,
+        cancelText: "CANCELAR",
+        onConfirm: cerrarModal,
         variant: 'success',
         showSuccess: false,
         isProcessing: false
@@ -169,10 +198,23 @@ const ListadoDeAutos: React.FC<ListadoDeAutosProps> = ({ activeFilter, autos = [
     }
   };
 
+  // Función para cerrar el modal y limpiar estados
   const cerrarModal = () => {
     setModalAbierto(false);
     setAutoSeleccionado(null);
     setSolicitudSeleccionada(null);
+  };
+
+  // Función para cerrar el modal y actualizar datos (podría recargar los datos o modificar los datos locales)
+  const cerrarModalYActualizar = () => {
+    cerrarModal();
+    
+    // Por ejemplo, actualizar localmente (esto es una simulación):
+    if (autoSeleccionado && solicitudSeleccionada) {
+      // En un caso real, lo ideal sería notificar al componente padre para que recargue los datos
+      console.log(`Solicitud ${solicitudSeleccionada} procesada para el auto ${autoSeleccionado}`);
+    }
+    router.push('/');
   };
 
   // Si no hay autos disponibles en absoluto
@@ -186,6 +228,7 @@ const ListadoDeAutos: React.FC<ListadoDeAutosProps> = ({ activeFilter, autos = [
 
   return (
     <>
+
       <div className={styles.carsContainer}>
         {autosFiltrados.length === 0 ? (
           <div className="text-center py-8">
@@ -225,7 +268,7 @@ const ListadoDeAutos: React.FC<ListadoDeAutosProps> = ({ activeFilter, autos = [
                   <div className={styles.requestsTitle}>Solicitudes de renta</div>
                   
                   {auto.solicitudesPendientes.map(solicitud => (
-                    <div key={solicitud.id} className={styles.requestItem}>
+                    <div key={solicitud.idReserva} className={styles.requestItem}>
                       <div className={styles.requesterInfo}>
                         <div className={styles.requesterName}>{solicitud.nombreSolicitante}</div>
                         <div className={styles.requestDate}>{solicitud.fechas}</div>
@@ -233,13 +276,13 @@ const ListadoDeAutos: React.FC<ListadoDeAutosProps> = ({ activeFilter, autos = [
                       <div className={styles.buttonContainer}>
                         <button 
                           className={`${styles.btn} ${styles.btnReject}`}
-                          onClick={() => mostrarModalDenegar(auto.id, solicitud.id, solicitud.nombreSolicitante)}
+                          onClick={() => mostrarModalDenegar(auto.idAuto, solicitud.idReserva, solicitud.nombreSolicitante)}
                         >
                           Denegar
                         </button>
                         <button 
                           className={`${styles.btn} ${styles.btnAccept}`}
-                          onClick={() => mostrarModalAceptar(auto.id, solicitud.id, solicitud.nombreSolicitante)}
+                          onClick={() => mostrarModalAceptar(auto.idAuto, solicitud.idReserva, solicitud.nombreSolicitante)}
                         >
                           Aceptar
                         </button>
@@ -256,10 +299,11 @@ const ListadoDeAutos: React.FC<ListadoDeAutosProps> = ({ activeFilter, autos = [
       <ModalDeConfirmacion
         isOpen={modalAbierto}
         onClose={cerrarModal}
-        onConfirm={modalConfig.action}
+        onConfirm={modalConfig.onConfirm}
         title={modalConfig.title}
         message={modalConfig.message}
         confirmText={modalConfig.confirmText}
+        cancelText={modalConfig.cancelText}
         isProcessing={modalConfig.isProcessing}
         variant={modalConfig.variant}
         showSuccess={modalConfig.showSuccess}

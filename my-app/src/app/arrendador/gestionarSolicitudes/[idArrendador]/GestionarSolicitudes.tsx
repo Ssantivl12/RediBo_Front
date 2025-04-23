@@ -9,13 +9,13 @@ import LoginModal from "@components/auth/LoginModal";
 import styles from "./GestionarSolicitudes.module.css";
 
 interface SolicitudPendiente {
-  id: string;
+  idReserva: string;
   nombreSolicitante: string;
   fechas: string;
 }
 
 interface Auto {
-  id: string;
+  idAuto: string;
   nombre: string;
   placa: string;
   precioPorDia: number;
