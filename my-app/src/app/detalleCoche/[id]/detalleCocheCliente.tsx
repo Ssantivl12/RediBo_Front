@@ -293,7 +293,7 @@ export default function DetalleCocheCliente({ auto }: Props) {
               <div className="mt-4">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="font-bold text-lg text-[#11295B]">
-                    Puntuación {promedioCalificacion}
+                    Calificación {promedioCalificacion}
                   </span>
                   <span className="flex text-[#fca311] text-xl">
                     {obtenerEstrellas(promedioCalificacion)}
