@@ -13,7 +13,6 @@ export default function HomePage() {
   return (
     <div className={styles.container}>
       <header className={styles.headerTop}>
-        <Navbar onLoginClick={() => setMostrarModal(true)} />
       </header>
 
       <header className={styles.headerFilters}>

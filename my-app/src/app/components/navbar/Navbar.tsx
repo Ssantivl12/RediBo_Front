@@ -2,10 +2,9 @@
 
 import { useState } from 'react';
 
-export default function Navbar() {  // Quitamos el prop onLoginClick
+export default function Navbar() {
   const [activeBtn, setActiveBtn] = useState(0);
 
-  // Función interna para manejar el clic
   const handleLoginClick = () => {
     console.log('Login clicked');
     // Aquí puedes implementar la lógica de inicio de sesión en el futuro
@@ -48,7 +47,7 @@ export default function Navbar() {  // Quitamos el prop onLoginClick
             Registrarse
           </button>
           <button
-            onClick={handleLoginClick}  // Usamos la función interna
+            onClick={handleLoginClick}
             className="w-1/2 md:w-auto px-4 py-[0.4rem] rounded-r-[20px] bg-[var(--naranja)] text-[var(--blanco)] font-[var(--tamaña-bold)] shadow-[var(--sombra)] transition-transform duration-100 active:scale-[0.97] active:shadow-[0_1px_3px_rgba(0,0,0,0.2)] text-sm md:text-base"
           >
             Iniciar Sesión

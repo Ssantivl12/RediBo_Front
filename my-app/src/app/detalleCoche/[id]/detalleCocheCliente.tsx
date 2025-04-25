@@ -1,5 +1,6 @@
 'use client';
 
+import Navbar from '@/app/components/navbar/NavbarDetalle';
 import { useState, useEffect, useMemo, useRef} from 'react';
 import Image from 'next/image';
 import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
@@ -125,6 +126,8 @@ export default function DetalleCocheCliente({ auto }: Props) {
   
   return (
     <>
+      <Navbar />
+      
       {mostrarPanel && (
         <div
           className="fixed inset-0 bg-[rgba(0,0,0,0.5)] z-[999]"
