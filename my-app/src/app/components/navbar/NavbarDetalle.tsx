@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 export default function NavbarDetalle() {
   return (
     <div className="px-6 py-4 border-b border-[rgba(0,0,0,0.05)] bg-white flex justify-between items-center">

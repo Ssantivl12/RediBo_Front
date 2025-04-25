@@ -2,8 +2,6 @@
 import { getAutos } from '@/libs/api';
 import { Auto } from '@/types/auto';
 
-import styles from './listaAutos.module.css';
-
 export default async function AutosPage() {
   const { data: autos } = await getAutos();
 

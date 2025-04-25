@@ -77,11 +77,6 @@ export default function DetalleCocheCliente({ auto }: Props) {
       [comentarioId]: !prev[comentarioId]
     }));
   };
-  
-  // Función para verificar si un texto es más largo que 3 líneas
-  const esComentarioLargo = (texto: string) => {
-    return texto.length > 180;                           // Aproximadamente 3 líneas (60 caracteres por línea)
-  };
 
   const siguienteImagen = () => {
     if (imagenActual < auto.imagenes?.length - 1) {
