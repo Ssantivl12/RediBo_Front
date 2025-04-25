@@ -23,6 +23,8 @@ export default function DetalleCocheCliente({ auto }: Props) {
   const listaComentariosRef = useRef<HTMLDivElement>(null);
   // Estado para rastrear qué comentarios están expandidos
   const [comentariosExpandidos, setComentariosExpandidos] = useState<Record<number, boolean>>({});
+  const refsComentarios = useRef<Record<number, HTMLParagraphElement | null>>({});
+  const [comentariosConOverflow, setComentariosConOverflow] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     fetch(`http://localhost:4000/api/autos/${auto.id}/comentarios`)
@@ -42,6 +44,31 @@ export default function DetalleCocheCliente({ auto }: Props) {
       document.body.style.overflow = 'auto';
     };
   }, [mostrarPanel]);
+  // para los comentarios - resenias, observar los tamanios en los comentarios
+
+  useEffect(() => {
+    const observers: ResizeObserver[] = [];
+  
+    comentarios.forEach((comentario) => {
+      const el = refsComentarios.current[comentario.id];
+      if (el) {
+        const observer = new ResizeObserver(() => {
+          const isOverflowing = el.scrollHeight > el.clientHeight + 2;
+          setComentariosConOverflow((prev) => ({
+            ...prev,
+            [comentario.id]: isOverflowing,
+          }));
+        });
+        observer.observe(el);
+        observers.push(observer);
+      }
+    });
+  
+    return () => {
+      observers.forEach((observer) => observer.disconnect());
+    };
+  }, [comentarios]);
+  
 
   // Función para alternar la expansión de un comentario
   const toggleExpansion = (comentarioId: number) => {
@@ -190,8 +217,7 @@ export default function DetalleCocheCliente({ auto }: Props) {
         </div>
         
         <h2 className="text-black text-[20px]"><i>Comentarios</i></h2>
-        <div className="flex flex-col mt-8 gap-5 pr-2.5 text-black" 
-          ref={listaComentariosRef}>
+        <div className="flex flex-col mt-8 gap-5 pr-2.5 text-black" ref={listaComentariosRef}>
           {comentarios.length === 0 || !comentarios.some(c => c.calificacion > 0 && c.contenido && c.contenido.trim() !== "") ? (
             <p>Sin comentarios.</p>
           ) : (
@@ -199,18 +225,17 @@ export default function DetalleCocheCliente({ auto }: Props) {
               .filter(c => c.calificacion > 0 && c.contenido && c.contenido.trim() !== "")
               .map((comentario) => {
                 const fechaObj = new Date(comentario.fechaCreacion);
-                
                 const fechaFormateada = fechaObj.toLocaleDateString('es-ES', {
                   day: 'numeric',
                   month: 'long',
                   year: 'numeric',
                 });
+
                 const calificacion = comentario.calificacion;
                 const estrellasLlenas = Math.floor(calificacion);
                 const estrellasVacias = 5 - estrellasLlenas;
-                const esLargo = esComentarioLargo(comentario.contenido);
                 const estaExpandido = comentariosExpandidos[comentario.id] || false;
-                
+
                 return (
                   <div key={comentario.id} className="bg-white pb-3 mb-4 border-b-2 border-black flex flex-col w-full">
                     <div className="flex justify-between items-center w-full">
@@ -235,13 +260,18 @@ export default function DetalleCocheCliente({ auto }: Props) {
                         </div>
                       </div>
                     </div>
-                  
+
                     <div className="text-[#0a0707] text-justify whitespace-pre-wrap break-words w-full mt-2">
-                      <p className={`${!estaExpandido && esLargo ? 'line-clamp-3' : ''}`}>
+                      <p
+                        ref={(el) => {
+                          refsComentarios.current[comentario.id] = el;
+                        }}
+                        className={`${!estaExpandido ? 'line-clamp-3' : ''} transition-all duration-200`}
+                      >
                         {comentario.contenido}
                       </p>
-                      
-                      {esLargo && (
+
+                      {(comentariosConOverflow[comentario.id] || estaExpandido) && (
                         <button 
                           onClick={() => toggleExpansion(comentario.id)}
                           className="text-[#002a5c] font-medium hover:underline mt-1 focus:outline-none"
@@ -249,12 +279,15 @@ export default function DetalleCocheCliente({ auto }: Props) {
                           {estaExpandido ? 'Ver menos' : 'Ver más'}
                         </button>
                       )}
+
                     </div>
-                  </div>              
-                )
+                  </div>
+                );
               })
           )}
         </div>
+
+
       </div>
 
       <div className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-10 xl:px-16 pb-10">
@@ -316,15 +349,15 @@ export default function DetalleCocheCliente({ auto }: Props) {
 
                 <div className="flex flex-wrap gap-x-6 gap-y-4 mt-3">
                   <div className="flex gap-2 text-base items-center">
-                    <strong className="font-normal text-black">Año:</strong>
+                    <strong className="font-bold text-black">Año:</strong>
                     <span className="font-normal text-black">{auto.año}</span>
                   </div>
                   <div className="flex gap-2 text-base items-center">
-                    <strong className="font-normal text-black">Placa:</strong>
+                    <strong className="font-bold text-black">Placa:</strong>
                     <span className="font-normal text-black">{auto.placa.replace('-', '\u2011')}</span>
                   </div>
                   <div className="flex gap-2 text-base items-center">
-                    <strong className="font-normal text-black">Color:</strong>
+                    <strong className="font-bold text-black">Color:</strong>
                     <span className="font-normal text-black">{auto.color}</span>
                   </div>
                 </div>
