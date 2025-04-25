@@ -293,7 +293,7 @@ export default function DetalleCocheCliente({ auto }: Props) {
 
           <div className="flex flex-col lg:flex-row gap-8 w-full">
             {/* SECCIÓN IZQUIERDA */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-[450px] max-w-full">
               <div className="relative w-full h-[250px] border border-black rounded-[20px] overflow-hidden">
                 <div
                   className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/30 rounded-full flex items-center justify-center cursor-pointer text-[40px] text-black z-50"
@@ -363,16 +363,16 @@ export default function DetalleCocheCliente({ auto }: Props) {
             </div>
 
             {/* SECCIÓN CENTRAL */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-[200px] max-w-full">
               <div className="bg-white p-5 w-full">
                 <h2 className="text-[#11295B] text-xl font-bold mb-4">Características Principales</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div className="flex flex-wrap gap-10">
                   {[
                     { icon: UsuarioIcon, label: 'Capacidad', value: `${auto.capacidad} personas` },
                     { icon: KilometrajeIcon, label: 'Kilometraje', value: `${auto.kilometraje} km` },
                     { icon: TransmisionIcon, label: 'Transmisión', value: auto.transmision },
-                    { icon: CombustibleIcon, label: 'Combustible', value: auto.combustible },
-                    { icon: MaletaIcon, label: 'Capacidad', value: '3 maletas' },
+                    { icon: CombustibleIcon, label: 'Combustible', value: `${auto.combustible} personas` },
+                    { icon: MaletaIcon, label: 'Capacidad', value: `${auto.capacidadMaletero} personas` },
                   ].map(({ icon, label, value }, index) => (
                     <div key={index} className="flex items-center gap-4 flex-wrap">
                       <Image src={icon} alt={label} className="w-[50px] h-[50px]" />
@@ -387,34 +387,39 @@ export default function DetalleCocheCliente({ auto }: Props) {
             </div>
 
             {/* SECCIÓN DERECHA */}
-            <div className="flex-1 min-w-0 flex flex-col gap-4">
-              <div className="bg-[#f5f5f5] p-6 w-full rounded-2xl shadow-md border-2 border-black">
-                <h3 className="text-[#11295b] font-semibold text-center mb-4">Datos del host</h3>
-                <div className="flex justify-center mb-4">
-                  <div className="w-[80px] h-[80px] bg-[#ccc] rounded-full flex items-center justify-center">
-                    <Image src={UsuarioIcon} alt="Host" className="w-[80px] h-[80px]" />
+            <div className="flex-1 min-w-[250px] max-w-full">
+              <div className="flex flex-wrap gap-10">
+                <div className="bg-[#f5f5f5] p-6 w-full min-w-[250] max-w-[400px] rounded-2xl shadow-md border-2 border-black">
+                  <h3 className="text-[#11295b] font-semibold text-center mb-4">Datos del host</h3>
+                  <div className="flex justify-center mb-4">
+                    <div className="w-[80px] h-[80px] bg-[#ccc] rounded-full flex items-center justify-center">
+                      <Image src={UsuarioIcon} alt="Host" className="w-[80px] h-[80px]" />
+                    </div>
                   </div>
+                  <p className="text-center text-[#333] text-lg mb-0">
+                    {auto.propietario?.nombre} {auto.propietario?.apellido}
+                  </p>
                 </div>
-                <p className="text-center text-[#333] text-lg">
-                  {auto.propietario?.nombre} {auto.propietario?.apellido}
-                </p>
-              </div>
 
-              <div className="bg-[#f5f5f5] p-6 w-full rounded-lg shadow-md border-2 border-black">
-                <h3 className="text-[#11295b] font-semibold text-lg mb-4">Desglose del precio</h3>
-                <div className="flex justify-between">
-                  <span className="font-normal text-black">Precio por día:</span>
-                  <span className="font-normal text-black">{auto?.precioRentaDiario} USD</span>
-                </div>
-                <div className=" font-normal text-black text-right mt-1">
-                  {(parseFloat(auto?.precioRentaDiario) * 6.89).toFixed(2)} BOB
-                </div>
-                <div className="flex justify-between mt-4">
-                  <span className="font-normal text-black">Precio total:</span>
-                  <span className="font-normal text-black">{(parseFloat(auto?.precioRentaDiario) * 6.89 * 5).toFixed(2)} BOB</span>
+                <div className="bg-[#f5f5f5] p-6 w-full min-w-[250] max-w-[400px] rounded-2xl shadow-md border-2 border-black">
+                  <h3 className="text-[#11295b] font-semibold text-lg mb-4">Desglose del precio</h3>
+                  <div className="flex justify-between">
+                    <span className="font-normal text-black">Precio por día:</span>
+                    <span className="font-normal text-black">{auto?.precioRentaDiario} USD</span>
+                  </div>
+                  <div className="font-normal text-black text-right mt-1">
+                    {(parseFloat(auto?.precioRentaDiario) * 6.89).toFixed(2)} BOB
+                  </div>
+                  <div className="flex justify-between mt-4">
+                    <span className="font-normal text-black">Precio total:</span>
+                    <span className="font-normal text-black">
+                      {(parseFloat(auto?.precioRentaDiario) * 6.89 * 5).toFixed(2)} BOB
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </div>

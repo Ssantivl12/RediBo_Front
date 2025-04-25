@@ -28,6 +28,8 @@ export interface Auto {
   transmision: string;
   combustible: string;
   capacidad: number;
+  capacidadMaletero: number;
+  tipoAuto: string;
   propietarioId: number;
   propietario: Usuario;
   historialMantenimiento?: HistorialMantenimiento[];
