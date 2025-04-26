@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import styles from './ListadoDeAutos.module.css';
 import ModalDeConfirmacion from '@components/modal/ModalDeConfirmacion';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/router';
 
 // Interfaces para las solicitudes y autos
 interface SolicitudPendiente {
@@ -214,7 +214,7 @@ const ListadoDeAutos: React.FC<ListadoDeAutosProps> = ({ activeFilter, autos = [
       // En un caso real, lo ideal sería notificar al componente padre para que recargue los datos
       console.log(`Solicitud ${solicitudSeleccionada} procesada para el auto ${autoSeleccionado}`);
     }
-    router.push('/');
+    router.reload();
   };
 
   // Si no hay autos disponibles en absoluto
