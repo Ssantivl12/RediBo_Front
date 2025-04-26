@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image';
 import { useState, useEffect } from 'react'
 import { FiCheckCircle, FiX } from 'react-icons/fi'
 import ConfirmationModal from '@components/modal/ModalDeConfirmacion'
@@ -247,9 +248,12 @@ export default function PasarelaDePago({
               
               {paymentMethod === 'qr' && (
                 <div className="flex justify-center py-8">
-                  <div className="bg-gray-200 p-4 rounded-lg w-48 h-48 flex items-center justify-center">
-                    <span className="text-gray-600">Código QR para pago</span>
-                  </div>
+      <Image
+        src="/qr.png" 
+        alt="Código QR"
+        width={200} // el tamaño que quieras
+        height={200}
+      />
                 </div>
               )}
               
