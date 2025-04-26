@@ -372,7 +372,7 @@ export default function DetalleCocheCliente({ auto }: Props) {
                     { icon: KilometrajeIcon, label: 'Kilometraje', value: `${auto.kilometraje} km` },
                     { icon: TransmisionIcon, label: 'Transmisión', value: auto.transmision },
                     { icon: CombustibleIcon, label: 'Combustible', value: `${auto.combustible} personas` },
-                    { icon: MaletaIcon, label: 'Capacidad', value: `${auto.capacidadMaletero} personas` },
+                    { icon: MaletaIcon, label: 'Capacidad', value: `${auto.capacidadMaletero} equipaje/s` },
                   ].map(({ icon, label, value }, index) => (
                     <div key={index} className="flex items-center gap-4 flex-wrap">
                       <Image src={icon} alt={label} className="w-[50px] h-[50px]" />

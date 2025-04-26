@@ -43,7 +43,7 @@ export default async function AutosPage() {
                     { icon: '/imagenesIconos/velocimetro.png', label: 'Kilometraje', value: `${auto.kilometraje} km` },
                     { icon: '/imagenesIconos/cajaDeCambios.png', label: 'Transmisión', value: auto.transmision },
                     { icon: '/imagenesIconos/gasolinera.png', label: 'Combustible', value: auto.combustible },
-                    { icon: '/imagenesIconos/maleta.png', label: 'Maletero', value: `${auto.capacidadMaletero} personas` },
+                    { icon: '/imagenesIconos/maleta.png', label: 'Maletero', value: `${auto.capacidadMaletero} equipaje/s` },
                   ].map(({ icon, label, value }, index) => (
                     <div key={index} className="flex items-center gap-4 flex-wrap">
                       <Image
