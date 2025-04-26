@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 interface ModalSeleccionPagoProps {
   setModoPago: (modo: string) => void;
+  onCancel: () => void;
 }
 
 const ModalSeleccionPago: FC<ModalSeleccionPagoProps> = ({ setModoPago }) => {

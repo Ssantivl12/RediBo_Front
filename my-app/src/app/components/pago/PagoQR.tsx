@@ -1,21 +1,28 @@
-'use client';
+"use client";
 
-import { FC, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import axios from 'axios';
+import { FC, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import Modal from "./Modal";
 
 interface PagoQRProps {
   loading: boolean;
   qrImage: string;
+  idVehiculo: number | string;
+  monto: any;
+  handleConfirmacionQR: () => void;
 }
 
-const PagoQR: FC<PagoQRProps> = ({ loading, qrImage}) => {
+const PagoQR: FC<PagoQRProps> = ({ loading, qrImage }) => {
   const router = useRouter();
   const [idVehiculo, setIdVehiculo] = useState<number | null>(null);
   const [monto, setMonto] = useState<number | null>(null);
   const [qrURL, setQrURL] = useState<string>(qrImage);
+  const [mensajeModalQR, setMensajeModalQR] = useState<string | null>(null);
 
-  // Obtener parámetros de la URL
+  const [mostrarModalCancelacionQR, setMostrarModalCancelacionQR] = useState(false);
+  const [mensajeErrorModalQR, setMensajeErrorModalQR] = useState<string | null>(null);
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get("id");
@@ -25,18 +32,16 @@ const PagoQR: FC<PagoQRProps> = ({ loading, qrImage}) => {
     if (montoParam) setMonto(parseFloat(montoParam));
   }, []);
 
-  // Crear QR automáticamente al montar
   useEffect(() => {
     const crearQR = async () => {
       if (!qrImage && idVehiculo && monto) {
         try {
           const response = await axios.get(
-            `http://localhost:3000/generarQR/crear/${monto}/${idVehiculo}`
+            `https://vercelbackspeedcode.onrender.com/generarQR/crear/${monto}/${idVehiculo}`
           );
           const data = response.data;
-
           if (data?.archivoQR) {
-            setQrURL(`http://localhost:3000/temp/${data.archivoQR}`);
+            setQrURL(`https://vercelbackspeedcode.onrender.com/qr/${data.archivoQR}`);
           } else {
             alert("Error al crear el QR.");
           }
@@ -50,7 +55,6 @@ const PagoQR: FC<PagoQRProps> = ({ loading, qrImage}) => {
     crearQR();
   }, [idVehiculo, monto, qrImage]);
 
-  // Recargar el QR llamando a la API de regenerar
   const handleRecargarQR = async () => {
     if (!idVehiculo || !monto) {
       alert("Faltan datos para regenerar el QR.");
@@ -58,11 +62,12 @@ const PagoQR: FC<PagoQRProps> = ({ loading, qrImage}) => {
     }
 
     try {
-      const response = await axios.get(`http://localhost:3000/generarQR/regenerar/${monto}/${idVehiculo}`);
+      const response = await axios.get(
+        `https://vercelbackspeedcode.onrender.com/generarQR/regenerar/${monto}/${idVehiculo}`
+      );
       const data = response.data;
-
       if (data?.archivoQR) {
-        setQrURL(`http://localhost:3000/temp/${data.archivoQR}`);
+        setQrURL(`https://vercelbackspeedcode.onrender.com/qr/${data.archivoQR}`);
       } else {
         alert("Error al regenerar el QR.");
       }
@@ -72,56 +77,55 @@ const PagoQR: FC<PagoQRProps> = ({ loading, qrImage}) => {
     }
   };
 
-  // Descargar QR
   const handleDescargarQR = () => {
     if (!qrURL) {
       alert("No hay QR para descargar");
       return;
     }
 
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = qrURL;
-    link.download = 'codigo-qr.png';
+    link.download = "codigo-qr.png";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
   const handleConfirmacionQR = async () => {
-    const correoElectronico="pruebaTEST@gmail.com";
+    const correoElectronico = "pruebaTEST@gmail.com";
     if (!idVehiculo || !monto || !qrURL || !correoElectronico) {
-      alert("Faltan datos para realizar el pago.");
+      setMensajeModalQR("Aún no se ha realizado el pago.");
       return;
     }
 
-    const nombreArchivoQR = qrURL.split('/').pop(); // extraer archivo desde URL
+    const nombreArchivoQR = qrURL.split("/").pop();
     const concepto = "Pago con QR";
 
     const datosPagoQR = {
       nombreArchivoQR,
       monto: monto.toString(),
       concepto,
-      correoElectronico
+      correoElectronico,
     };
-
-    console.log("Datos a enviar:", datosPagoQR);
 
     try {
       const response = await axios.post(
-        `http://localhost:3000/pagos/pagarConQR/${idVehiculo}`,
+        `https://vercelbackspeedcode.onrender.com/pagos/pagarConQR/${idVehiculo}`,
         datosPagoQR
       );
 
       if (response.status === 200) {
-        alert("¡Pago QR confirmado con éxito!");
-        router.push("/confirmacion");
+        setMensajeModalQR("Pago realizado con éxito.");
+        setTimeout(() => {
+          router.push("/confirmacion");
+        }, 2000);
       } else {
-        alert("Error en el pago QR: " + (response.data?.mensaje || "Error desconocido"));
+        setMensajeModalQR("Error al realizar el pago: " + (response.data?.mensaje || "Error desconocido"));
       }
     } catch (error: any) {
       console.error("Error:", error);
-      const msg = error.response?.data?.error || "Hubo un error al realizar el pago QR.";
-      alert("Error: " + msg);
+      const msg = error.response?.data?.error || "Hubo un error al realizar el pago.";
+      setMensajeModalQR("Error al realizar el pago: " + msg);
     }
   };
 
@@ -147,9 +151,12 @@ const PagoQR: FC<PagoQRProps> = ({ loading, qrImage}) => {
           )}
         </div>
 
-        {/* Texto de escaneo */}
+        {/* Texto */}
         <p className="text-center text-gray-700 text-sm md:text-base">
           Escanee el código QR para realizar el pago.
+        </p>
+        <p className="text-center text-gray-500 text-xs">
+          Aún no se ha confirmado ningún pago.
         </p>
 
         {/* Botones */}
@@ -158,6 +165,7 @@ const PagoQR: FC<PagoQRProps> = ({ loading, qrImage}) => {
             onClick={handleRecargarQR}
             className="p-3 bg-gray-200 hover:bg-gray-300 rounded-full transition"
             title="Recargar QR"
+            aria-label="Recargar código QR"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-800" fill="currentColor" viewBox="0 0 24 24">
               <path d="M17.65 6.35A7.95 7.95 0 0 0 12 4a8 8 0 1 0 8 8h-2a6 6 0 1 1-6-6c1.31 0 2.5.44 3.45 1.17L13 11h7V4l-2.35 2.35z" />
@@ -168,6 +176,7 @@ const PagoQR: FC<PagoQRProps> = ({ loading, qrImage}) => {
             onClick={handleDescargarQR}
             className="p-3 bg-yellow-500 hover:bg-yellow-600 rounded-full transition"
             title="Descargar QR"
+            aria-label="Descargar código QR"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -185,13 +194,41 @@ const PagoQR: FC<PagoQRProps> = ({ loading, qrImage}) => {
           </button>
 
           <button
-            onClick={() => router.back()}
+            onClick={() => setMostrarModalCancelacionQR(true)}
             className="w-full py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-xl transition text-sm md:text-base"
           >
             Cancelar
           </button>
         </div>
       </div>
+
+      {/* Modales */}
+      {mensajeModalQR && (
+        <Modal
+          mensaje={mensajeModalQR}
+          onConfirmar={() => setMensajeModalQR(null)}
+          onCancelar={() => setMensajeModalQR(null)}
+        />
+      )}
+
+      {mostrarModalCancelacionQR && (
+        <Modal
+          mensaje="¿Seguro que deseas cancelar el pago con QR?"
+          onConfirmar={() => {
+            setMostrarModalCancelacionQR(false);
+            router.back();
+          }}
+          onCancelar={() => setMostrarModalCancelacionQR(false)}
+        />
+      )}
+
+      {mensajeErrorModalQR && (
+        <Modal
+          mensaje={mensajeErrorModalQR}
+          onConfirmar={() => setMensajeErrorModalQR(null)}
+          onCancelar={() => setMensajeErrorModalQR(null)}
+        />
+      )}
     </div>
   );
 };

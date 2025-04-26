@@ -26,7 +26,7 @@ export default function Carousel() {
 
   const obtenerVehiculosTop = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/vehiculo/obtenerVehiculosTop');
+      const response = await axios.get('https://vercel-back-speed-code.vercel.app/vehiculo/obtenerVehiculosTop');
       const data = response.data;
 
       const formattedData: Vehicle[] = data.map((vehiculo: any) => ({
@@ -93,7 +93,7 @@ export default function Carousel() {
         >
           <div className={styles.imageContainer}>
             <img
-              src={vehicle.imageUrl.startsWith('/') ? vehicle.imageUrl : `/${vehicle.imageUrl}`}
+              src={vehicle.imageUrl}
               alt={`${vehicle.brand} ${vehicle.model}`}
               className={styles.image}
               loading="lazy"
