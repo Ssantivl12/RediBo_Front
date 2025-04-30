@@ -47,7 +47,7 @@ const PagoTarjeta: FC<PagoTarjetaProps> = ({
   const [mostrarModalConfirmacion, setMostrarModalConfirmacion] = useState(false);
   const [mostrarModalCancelacion, setMostrarModalCancelacion] = useState(false);
   const [mensajeErrorModal, setMensajeErrorModal] = useState<string | null>(null);
-
+  const [errorAnio, setErrorAnio] = useState(false);
   const [idReserva, setIdReserva] = useState<number | null>(null);
 
   useEffect(() => {
@@ -210,12 +210,25 @@ const PagoTarjeta: FC<PagoTarjetaProps> = ({
                 const currentYear = new Date().getFullYear() % 100;
                 const maxYear = currentYear + 10;
                 const num = parseInt(anio);
-                if (isNaN(num) || num < currentYear || num > maxYear) setAnio('');
+
+                if (isNaN(num) || num < currentYear || num > maxYear) {
+                  setAnio('');
+                  setErrorAnio(true); // Marca error si el valor es inválido
+                } else {
+                  setErrorAnio(false); // Quita el error si el valor es válido
+                  if (anio.length === 1) setAnio('0' + anio);
+                }
               }}
               className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-center"
               placeholder="AA"
             />
+            {errorAnio && (
+              <p className="text-red-500 text-xs mt-1">
+                Ingrese un año válido. Debe estar entre {new Date().getFullYear() % 100} y {(new Date().getFullYear() % 100) + 10}.
+              </p>
+            )}
           </div>
+
 
           {/* CVV */}
           <div className="flex-1">
@@ -317,6 +330,7 @@ const PagoTarjeta: FC<PagoTarjetaProps> = ({
           onConfirmar={() => {
             setMostrarModalCancelacion(false);
             router.back();
+            
           }}
           onCancelar={() => setMostrarModalCancelacion(false)}
         />
