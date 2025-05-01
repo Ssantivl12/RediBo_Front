@@ -49,39 +49,36 @@ export default function PasarelaDePago({
 
   // Validar formulario
   useEffect(() => {
+    if (paymentMethod === 'qr') {
+      setIsFormValid(true);
+      return;
+    }
+
     const currentYear = new Date().getFullYear() % 100;
     const currentMonth = new Date().getMonth() + 1;
     
-    // Extraer mes y año de la fecha
     const [monthStr, yearStr] = expDate.split('/');
     const month = monthStr ? parseInt(monthStr) : 0;
     const year = yearStr ? parseInt(yearStr) : 0;
     
-    // Validar formato MM/AA
     const isFormatValid = /^\d{2}\/\d{2}$/.test(expDate);
-    
-    // Validar mes (1-12)
     const isMonthValid = month >= 1 && month <= 12;
-    
-    // Validar año y mostrar advertencias
     let isYearValid = true;
+
     if (yearStr) {
       if (year < 25) {
         setDateWarning('Año no válido (mínimo 25)');
         isYearValid = false;
       } else if (year >= 35) {
         setDateWarning('Año muy lejano');
-        isYearValid = true; // Aún válido pero con advertencia
+        isYearValid = true;
       } else {
         setDateWarning('');
       }
-    } else {
-      setDateWarning('');
     }
     
-    // Validar que la fecha no sea anterior a la actual
     const isDateValid = year > currentYear || 
-                       (year === currentYear && month >= currentMonth);
+                      (year === currentYear && month >= currentMonth);
     
     const isValid = cardName.trim().length >= 5 &&
                    cardNumber.replace(/\s/g, '').length === 16 &&
@@ -92,7 +89,7 @@ export default function PasarelaDePago({
                    cvc.length === 3;
     
     setIsFormValid(isValid);
-  }, [cardName, cardNumber, expDate, cvc]);
+  }, [cardName, cardNumber, expDate, cvc, paymentMethod]);
 
   const resetForm = () => {
     setCardName('');
@@ -131,39 +128,31 @@ export default function PasarelaDePago({
   const handleExpDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
     
-    // Solo permitir números y /
     value = value.replace(/[^\d/]/g, '');
     
-    // Limitar a 5 caracteres (MM/AA)
     if (value.length > 5) value = value.substring(0, 5);
     
-    // Insertar automáticamente la barra después de 2 dígitos
     if (value.length === 2 && !value.includes('/')) {
       value = value + '/';
     }
     
-    // Validar mes mientras se escribe (primeros 2 dígitos)
     if (value.length >= 1) {
       const monthPart = value.split('/')[0];
       if (monthPart) {
         const monthNum = parseInt(monthPart);
         if (monthNum > 12) {
-          // Si el usuario escribe un número mayor a 12, lo limitamos a 12
           value = '12' + (value.length > 2 ? value.substring(2) : '');
         } else if (monthPart.length === 2 && monthNum < 1) {
-          // Si el mes es menor a 01, lo establecemos a 01
           value = '01' + (value.length > 2 ? value.substring(2) : '/');
         }
       }
     }
     
-    // Validar año mientras se escribe (últimos 2 dígitos)
     if (value.length > 3) {
       const yearPart = value.split('/')[1];
       if (yearPart) {
         const yearNum = parseInt(yearPart);
         if (yearNum < 25 && yearPart.length === 2) {
-          // Si el año es menor a 25, lo establecemos a 25
           value = value.substring(0, 3) + '25';
         }
       }
@@ -181,7 +170,7 @@ export default function PasarelaDePago({
   };
 
   const handleProcesarPago = () => {
-    if (!isFormValid) return;
+    if (paymentMethod === 'tarjeta' && !isFormValid) return;
     onClose();
     setShowConfirmModal(true);
   };
@@ -204,19 +193,15 @@ export default function PasarelaDePago({
     return null;
   }
 
-  // Funciones de validación para estilos
   const isCardNameValid = cardName.trim().length >= 5;
   const isCardNumberValid = cardNumber.replace(/\s/g, '').length === 16;
-  
   const [monthStr, yearStr] = expDate.split('/');
   const month = monthStr ? parseInt(monthStr) : 0;
   const year = yearStr ? parseInt(yearStr) : 0;
-  
   const isExpDateValid = /^\d{2}\/\d{2}$/.test(expDate) && 
                         month >= 1 && 
                         month <= 12 && 
                         year >= 25;
-  
   const isCvcValid = cvc.length === 3;
 
   const getInputClass = (isValid: boolean, isTouched: boolean) => 
@@ -395,9 +380,11 @@ export default function PasarelaDePago({
                 </button>
                 <button
                   onClick={handleProcesarPago}
-                  disabled={!isFormValid}
+                  disabled={paymentMethod === 'tarjeta' && !isFormValid}
                   className={`flex-1 px-4 py-2 ${
-                    !isFormValid ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#FFA500] hover:bg-[#e69500]'
+                    (paymentMethod === 'tarjeta' && !isFormValid)
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-[#FFA500] hover:bg-[#e69500]'
                   } text-white rounded-md font-medium`}
                 >
                   Pagar
