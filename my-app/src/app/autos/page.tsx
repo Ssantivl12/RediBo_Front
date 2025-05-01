@@ -22,9 +22,9 @@ export default async function AutosPage() {
                   <Image
                     src={auto.imagenes[0].direccionImagen}
                     alt="Imagen del auto"
-                    fill
                     style={{ objectFit: 'cover' }}
                     className="rounded-lg"
+                    fill
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-xs text-gray-500">
@@ -52,6 +52,7 @@ export default async function AutosPage() {
                         width={50}
                         height={50}
                         className="w-[50px] h-[50px]"
+                        unoptimized
                       />
                       <div className="flex flex-col">
                         <span className="font-bold text-[16px] text-black whitespace-nowrap">{value}</span>

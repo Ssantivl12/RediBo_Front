@@ -1,18 +1,14 @@
-import { Auto } from '@/types/auto';
 import { notFound } from 'next/navigation';
 import DetalleCocheCliente from './detalleCocheCliente';
+import { getAutoPorId } from '@/libs/api';
 
-interface DetalleCocheProps {
-  params: { id: string };
-}
+export default async function Page(props: { params: { id: string } }) {
+  const params = props.params; // forzar evaluación sin await
 
-export default async function DetalleCoche({ params }: DetalleCocheProps) {
-  const { id } = await params;
-  const res = await fetch(`http://localhost:4000/api/autos/${id}`);
-  if (!res.ok) notFound();
-
-  const data = await res.json();
-  const auto: Auto = data.data;
-
-  return <DetalleCocheCliente auto={auto} />;
+  try {
+    const { data: auto } = await getAutoPorId(params.id);
+    return <DetalleCocheCliente auto={auto} />;
+  } catch {
+    return notFound();
+  }
 }

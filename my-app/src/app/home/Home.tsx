@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import FiltersBar from '../components/filters/FiltersBar';
-import Footer from '../components/footer/Footer';
-import LoginModal from '../components/auth/LoginModal';
+import FiltersBar from '../../components/filters/FiltersBar';
+import Footer from '../../components/footer/Footer';
+import LoginModal from '../../components/auth/LoginModal';
 import styles from './Home.module.css';
 
 export default function HomePage() {
