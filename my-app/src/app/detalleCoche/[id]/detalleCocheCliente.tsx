@@ -46,7 +46,7 @@ export default function DetalleCocheCliente({ auto }: Props) {
         marca={auto.marca}
         modelo={auto.modelo}
       />
-
+      /* se agregaron modificaciones tanto detalles de coches como calificaciones y comentarios*/
       <div className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-10 xl:px-16 pb-10">
         <div className="max-w-[1550px] mx-auto">
           <h1 className="mt-6 text-4xl text-[#11295B] font-bold text-left mb-6 pl-2 sm:pl-4">
