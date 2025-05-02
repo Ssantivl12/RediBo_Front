@@ -15,6 +15,11 @@ import { Auto, Comentario } from '@/types/auto';
 interface Props {
   auto: Auto;
 }
+/* 
+    Se hizo cuando cambia el ID del auto, 
+    se realiza una petición HTTP GET para obtener los comentarios 
+    
+  */
 
 export default function DetalleCocheCliente({ auto }: Props) {
   const [comentarios, setComentarios] = useState<Comentario[]>([]);
