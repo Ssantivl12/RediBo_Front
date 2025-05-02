@@ -14,7 +14,8 @@ interface FilterSectionProps {
 }
 const MapaFiltro = dynamic(() => import('@/app/components/filtroBusqueda/filtroMapaPrecio'), {
   ssr: false,
-});
+  loading: () => <p>Cargando mapa...</p>
+})
 const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth }) => {
   // Estado para el historial de búsquedas
   const [searchHistory, setSearchHistory] = useState<string[]>([])
@@ -28,7 +29,8 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth }) => {
   const [currentMonth, setCurrentMonth] = useState(dayjs())
   const datePickerRef = useRef<HTMLDivElement>(null)
   const [mostrarMapa, setMostrarMapa] = useState(false);
-
+  const [showDistanceSlider, setShowDistanceSlider] = useState(false);
+  const [selectedDistance, setSelectedDistance] = useState(10); // Distancia por defecto 10km
   // Load initial visible history
   useEffect(() => {
     const stored = localStorage.getItem("searchHistory");
@@ -36,7 +38,19 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth }) => {
       setSearchHistory(JSON.parse(stored));
     }
   }, []);
-
+  //estilos del slider del filtro 2 "GPS"
+  const distanceSliderStyles: React.CSSProperties = {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    backgroundColor: 'white',
+    padding: '16px',
+    borderRadius: '8px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+    zIndex: 1000,
+    width: windowWidth < 768 ? '100%' : '300px',
+  }
+  
   // Updated autocomplete effect
   useEffect(() => {
     const storedMemory = JSON.parse(localStorage.getItem("searchMemory") || "[]");
@@ -474,100 +488,171 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth }) => {
 
           {showDatePicker && (
             <div ref={datePickerRef} style={datePickerStyles}>
-              <div style={{ display: 'flex', gap: '24px' }}>
-                {[currentMonth, currentMonth.add(1, 'month')].map((month, i) => (
-                  <div key={i} style={{ flex: 1 }}>
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      marginBottom: '16px'
-                    }}>
-                      <button
-                        onClick={() => setCurrentMonth(prev => prev.subtract(1, 'month'))}
-                        style={{ visibility: i === 0 ? 'visible' : 'hidden' }}
-                      >
-                        ←
-                      </button>
-                      <span>{month.format('MMMM YYYY')}</span>
-                      <button
-                        onClick={() => setCurrentMonth(prev => prev.add(1, 'month'))}
-                        style={{ visibility: i === 1 ? 'visible' : 'hidden' }}
-                      >
-                        →
-                      </button>
-                    </div>
-
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(7, 1fr)',
-                      gap: '4px',
-                      textAlign: 'center'
-                    }}>
-                      {['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'].map(day => (
-                        <div key={day} style={{ padding: '4px', color: '#666' }}>{day}</div>
-                      ))}
-
-                      {generateCalendarDays(month).map((day, index) => {
-                        const isStartDate = startDate && day.isSame(startDate, 'day')
-                        const isEndDate = endDate && day.isSame(endDate, 'day')
-                        const isSelected = isStartDate || isEndDate
-                        const isInRange = startDate && endDate &&
-                          day.isAfter(dayjs(startDate).startOf('day')) &&
-                          day.isBefore(dayjs(endDate).endOf('day'))
-                        const isCurrentMonth = day.month() === month.month()
-                        const isPastDate = day.isBefore(dayjs().startOf('day'))
-
-                        return (
-                          <button
-                            key={index}
-                            onClick={() => handleDateClick(day)}
-                            disabled={isPastDate}
-                            style={{
-                              padding: '8px',
-                              backgroundColor: isSelected ? '#FF6B00' :
-                                isInRange ? '#FFE4D6' : 'transparent',
-                              color: isPastDate ? '#ccc' :
-                                isSelected ? 'white' :
-                                  !isCurrentMonth ? '#ccc' : 'black',
-                              borderRadius: '4px',
-                              cursor: isPastDate ? 'not-allowed' : 'pointer',
-                              border: 'none',
-                              outline: 'none',
-                              opacity: isPastDate ? 0.4 : 1,
-                              pointerEvents: isPastDate ? 'none' : 'auto',
-                            }}
-                          >
-                            {day.format('D')}
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <button
-                onClick={() => setShowDatePicker(false)}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  backgroundColor: '#FF6B00',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  marginTop: '16px',
-                  cursor: 'pointer'
-                }}
+              <div 
+                translate="no" 
+                className="w-[90vw] max-w-[400px] mx-auto md:max-w-[700px] overflow-x-auto rounded-lg shadow-md bg-white notranslate"
               >
-                Aceptar
-              </button>
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: windowWidth < 768 ? 'column' : 'row',
+                  gap: '24px', 
+                  padding: '16px',
+                  margin: '0 auto',
+                }}>
+                  {[currentMonth, currentMonth.add(1, 'month')].map((month, i) => (
+                    <div key={i} style={{ 
+                      flex: windowWidth < 768 ? 'none' : 1,
+                      width: windowWidth < 768 ? '100%' : 'auto',
+                      minWidth: windowWidth < 768 ? 'auto' : '280px'
+                    }}>
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        marginBottom: '16px',
+                        padding: '0 8px'
+                      }}>
+                        <button
+                          onClick={() => setCurrentMonth(prev => prev.subtract(1, 'month'))}
+                          style={{ 
+                            visibility: i === 0 ? 'visible' : 'hidden',
+                            padding: '4px 8px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          ←
+                        </button>
+                        <span style={{ fontWeight: 500 }}>{month.format('MMMM YYYY')}</span>
+                        <button
+                          onClick={() => setCurrentMonth(prev => prev.add(1, 'month'))}
+                          style={{ 
+                            visibility: i === 1 ? 'visible' : 'hidden',
+                            padding: '4px 8px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          →
+                        </button>
+                      </div>
+
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(7, 1fr)',
+                        gap: '4px',
+                        textAlign: 'center'
+                      }}>
+                        {['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'].map(day => (
+                          <div key={day} style={{ padding: '4px', color: '#666' }}>{day}</div>
+                        ))}
+
+                        {generateCalendarDays(month).map((day, index) => {
+                          const isStartDate = startDate && day.isSame(startDate, 'day')
+                          const isEndDate = endDate && day.isSame(endDate, 'day')
+                          const isSelected = isStartDate || isEndDate
+                          const isInRange = startDate && endDate &&
+                            day.isAfter(dayjs(startDate).startOf('day')) &&
+                            day.isBefore(dayjs(endDate).endOf('day'))
+                          const isCurrentMonth = day.month() === month.month()
+                          const isPastDate = day.isBefore(dayjs().startOf('day'))
+
+                          return (
+                            <button
+                              key={index}
+                              onClick={() => handleDateClick(day)}
+                              disabled={isPastDate}
+                              style={{
+                                padding: '8px',
+                                backgroundColor: isSelected ? '#FF6B00' :
+                                  isInRange ? '#FFE4D6' : 'transparent',
+                                color: isPastDate ? '#ccc' :
+                                  isSelected ? 'white' :
+                                    !isCurrentMonth ? '#ccc' : 'black',
+                                borderRadius: '4px',
+                                cursor: isPastDate ? 'not-allowed' : 'pointer',
+                                border: 'none',
+                                outline: 'none',
+                                opacity: isPastDate ? 0.4 : 1,
+                                pointerEvents: isPastDate ? 'none' : 'auto',
+                              }}
+                            >
+                              {day.format('D')}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => setShowDatePicker(false)}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    backgroundColor: '#FF6B00',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    marginTop: '16px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Aceptar
+                </button>
+              </div>
             </div>
           )}
         </div>
 
-        <select style={selectStyles}>
-          <option>Filtro 2</option>
-        </select>
+        <div style={{ position: 'relative', flex: 1, minWidth: windowWidth < 1024 ? '45%' : '0' }}>
+        <button
+          onClick={() => setShowDistanceSlider(!showDistanceSlider)}
+          style={{
+            ...selectStyles,
+            cursor: 'pointer',
+            backgroundColor: showDistanceSlider ? '#f3f4f6' : 'white',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <span>Distancia: {selectedDistance} km</span>
+          <span>▼</span>
+        </button>
+
+        {showDistanceSlider && (
+          <div style={distanceSliderStyles}>
+            <div style={{ marginBottom: '12px' }}>
+              <input
+                type="range"
+                min="1"
+                max="100"
+                value={selectedDistance}
+                onChange={(e) => setSelectedDistance(Number(e.target.value))}
+                style={{ width: '100%' }}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
+                <span>1 km</span>
+                <span>{selectedDistance} km</span>
+                <span>100 km</span>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowDistanceSlider(false)}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#FF6B00',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                width: '100%'
+              }}
+            >
+              Aceptar
+            </button>
+          </div>
+        )}
+      </div>
         <select style={selectStyles}>
           <option>Filtro 3</option>
         </select>
@@ -582,7 +667,6 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth }) => {
       </div>
       <button style={filterButtonStyles}>Filtrar</button>
       {mostrarMapa && <MapaFiltro />}
-
     </div>
   )
 }
@@ -595,4 +679,3 @@ export default FilterSection
 // comentario para ver que se actualizen los archivos
 // comentario para ver que se actualizen los archivos
 // comentario para ver que se actualizen los archivos 
-
