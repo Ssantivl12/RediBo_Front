@@ -78,7 +78,7 @@ export default function FiltroMapaPrecio() {
   const [ubicacionUsuario, setUbicacionUsuario] = useState<[number, number] | null>(null);
 
   useEffect(() => {
-    fetch("http://localhost:3000/mapa/gps")
+    fetch("https://vercel-back-speed-code.vercel.app/mapa/gps")
       .then((res) => res.json())
       .then((data) => setPuntos(data));
   }, []);
@@ -86,7 +86,7 @@ export default function FiltroMapaPrecio() {
   const obtenerDetalle = async (id: number) => {
     if (!detalles[id]) {
       try {
-        const res = await fetch(`http://localhost:3000/mapa/gps/${id}`);
+        const res = await fetch(`https://vercel-back-speed-code.vercel.app/mapa/gps/${id}`);
         const data = await res.json();
         setDetalles((prev) => ({ ...prev, [id]: data }));
       } catch (err) {
