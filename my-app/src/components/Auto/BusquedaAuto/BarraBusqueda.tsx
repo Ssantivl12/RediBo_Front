@@ -1,17 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { FiSearch } from 'react-icons/fi';
 
 interface BarraBusquedaProps {
   onBuscar: (valorBusqueda: string) => void;
+  totalResultados: number;
 }
 
-export default function BarraBusqueda({ onBuscar }: BarraBusquedaProps) {
+export default function BarraBusqueda({ onBuscar, totalResultados }: BarraBusquedaProps) {
   const [valorBusqueda, setValorBusqueda] = useState('');
   const [error, setError] = useState('');
   const caracteresNoValidos = /[@#$%]/;
 
-  // Opcional: cargar historial (para usar en el futuro)
+  // Cargar historial
   useEffect(() => {
     const historial = localStorage.getItem('historialBusquedas');
     if (!historial) {
@@ -19,13 +21,15 @@ export default function BarraBusqueda({ onBuscar }: BarraBusquedaProps) {
     }
   }, []);
 
-  {/**es pa ver si llega un comentario */}
-  useEffect(() => {
-    console.log('BarraBusqueda montada');
-  }, []);
-
   const manejarCambio = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = e.target.value;
+    
+    // Validación para no empezar con espacios o tener múltiples espacios
+    if (valor.startsWith(' ') || valor.includes('  ')) {
+      setError('');
+      return;
+    }
+    
     if (valor.length > 50) return;
 
     if (caracteresNoValidos.test(valor)) {
@@ -48,12 +52,19 @@ export default function BarraBusqueda({ onBuscar }: BarraBusquedaProps) {
     const valor = valorBusqueda.trim();
 
     if (!valor) {
-      setError('Por favor, ingresa una marca o modelo para buscar.');
+      onBuscar('');
       return;
     }
 
-    if (valor.split(' ').length > 2) {
-      setError('Solo se permite buscar una marca o modelo a la vez.');
+    // Validación adicional al ejecutar la búsqueda
+    if (valorBusqueda.startsWith(' ') || valorBusqueda.includes('  ')) {
+      setError('Por favor corrija los espacios en la búsqueda');
+      return;
+    }
+
+    const palabras = valor.split(/[\s-]+/);
+    if (palabras.length > 2) {
+      setError('Formato inválido. Use "Marca Modelo"');
       return;
     }
 
@@ -67,24 +78,39 @@ export default function BarraBusqueda({ onBuscar }: BarraBusquedaProps) {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto mb-6 px-4 sm:px-6 lg:px-8">
-      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-        <input
-          type="text"
-          placeholder="Buscar por Marca o Modelo..."
-          value={valorBusqueda}
-          onChange={manejarCambio}
-          onKeyDown={manejarEnter}
-          className="flex-1 px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FCA311] text-sm sm:text-base"
-        />
+    <div className="w-full max-w-4xl mx-auto mb-4 sticky top-0 bg-white z-10 py-4">
+      {/* Barra de búsqueda con botón */}
+      <div className="flex items-center gap-2 w-full">
+        <div className="relative flex-1">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <FiSearch className="h-5 w-5 text-gray-400" />    {/**lupita */}
+          </div>
+          <input
+            type="text"
+            placeholder="Buscar por marca o modelo..."
+            value={valorBusqueda}
+            onChange={manejarCambio}
+            onKeyDown={manejarEnter}
+            className="block w-full pl-10 pr-3 py-3 border border-black rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FCA311] focus:border-transparent text-gray-700"
+          />
+        </div>
         <button
           onClick={ejecutarBusqueda}
-          className="bg-[#FCA311] text-white px-4 py-3 rounded-lg hover:bg-[#e4920b] text-sm sm:text-base"
+          className="bg-[#FCA311] hover:bg-[#e4920b] text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 text-base h-full"
         >
           Buscar
         </button>
       </div>
-      {error && <p className="text-red-500 mt-2 text-sm">{error}</p>}
+
+      {/* Contador de resultados - izquierda debajo */}
+      <div className="mt-2 text-left text-gray-600 text-sm pl-2 font-bold">
+        {totalResultados} 
+        <span className="text-lg">
+          {totalResultados === 1 ? ' coche disponible' : ' coches disponibles'}
+        </span>
+      </div>
+      
+      {error && <p className="text-red-500 mt-2 text-sm pl-2">{error}</p>}
     </div>
   );
 }
