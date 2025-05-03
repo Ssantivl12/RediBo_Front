@@ -18,7 +18,7 @@ const caracteristicas: {
 
 export default function Caracteristicas({ auto }: { auto: Auto }) {
   return (
-    <div className="flex flex-wrap gap-10">
+    <div className="flex flex-wrap gap-x-6 gap-y-4">
       {caracteristicas.map(({ icon, key, label, suffix }, index) => (
         <div key={index} className="flex items-center gap-4 flex-wrap">
           <Image src={icon} alt={label} width={50} height={50} className="w-[50px] h-[50px]" unoptimized />
@@ -33,3 +33,4 @@ export default function Caracteristicas({ auto }: { auto: Auto }) {
     </div>
   );
 }
+
