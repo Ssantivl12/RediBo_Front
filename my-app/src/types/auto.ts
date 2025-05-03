@@ -36,6 +36,7 @@ export interface Auto {
   comentarios?: Comentario[];
   imagenes: Imagen[];
   disponibilidad: Disponibilidad[];
+  promedioCalificacion: number;
 }
 
 export interface Comentario {
