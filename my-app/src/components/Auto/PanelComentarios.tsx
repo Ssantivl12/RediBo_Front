@@ -106,13 +106,17 @@ export default function PanelComentarios({ mostrar, onClose, comentarios, marca,
             {promedioCalificacion.toFixed(1)}
           </div>
           <div className="flex flex-col">
-            <div className="flex items-center gap-2">
-              <Estrellas promedio={promedioCalificacion} />
-              <div className="flex flex-col leading-tight">
-                <span className="font-bold text-black">{criterioTexto}</span>
-                <span className="text-sm text-gray-500">{comentariosValidos.length} en total</span>
-              </div>
+          <div className="flex items-center gap-3">
+            <div className="text-[#fca311] text-2xl leading-none">
+              {[...Array(Math.floor(promedioCalificacion))].map((_, i) => <span key={i}>★</span>)}
+              {[...Array(5 - Math.floor(promedioCalificacion))].map((_, i) => <span key={i}>☆</span>)}
             </div>
+            <div className="flex flex-col leading-tight">
+              <span className="font-bold text-black">{criterioTexto}</span>
+              <span className="text-sm text-gray-500">{comentariosValidos.length} en total</span>
+            </div>
+          </div>
+
           </div>
         </div>
 
@@ -148,28 +152,24 @@ export default function PanelComentarios({ mostrar, onClose, comentarios, marca,
 
           return (
             <div key={comentario.id} className="border-b border-black pb-3">
-              <div className="flex items-center gap-3 mb-2">
-                <Image
-                  src="/imagenesIconos/usuario.png"
-                  alt="Usuario"
-                  className="w-10 h-10 rounded-full"
-                  width={50}
-                  height={50}
-                  unoptimized
-                />
-                <div>
-                  <strong className="text-black font-semibold">
-                    {comentario.usuario.nombre} {comentario.usuario.apellido}
-                  </strong>
-                  <div className="text-sm text-gray-500">{fecha}</div>
+              <div className="flex justify-between items-center mb-2">
+                <div className="flex items-center gap-3">
+                  <Image src="/imagenesIconos/usuario.png" alt="Usuario" className="w-10 h-10 rounded-full" width={50} height={50} unoptimized />
+                  <div>
+                    <strong className="text-black font-semibold">{comentario.usuario.nombre} {comentario.usuario.apellido}</strong>
+                    <div className="text-sm text-gray-500">{fecha}</div>
+                  </div>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="text-[#fca311] text-2xl leading-none">
+                    {[...Array(estrellasLlenas)].map((_, i) => <span key={i}>★</span>)}
+                    {[...Array(estrellasVacias)].map((_, i) => <span key={i}>☆</span>)}
+                  </div>
+                  <div className="bg-[#002a5c] text-white text-sm px-2 py-1 rounded font-semibold mt-1">
+                    {comentario.calificacion}
+                  </div>
                 </div>
               </div>
-
-              <div className="text-[#fca311] flex mb-1">
-                {[...Array(estrellasLlenas)].map((_, i) => <span key={i}>★</span>)}
-                {[...Array(estrellasVacias)].map((_, i) => <span key={i}>☆</span>)}
-              </div>
-
               <p
                 ref={(el) => {
                   refsComentarios.current[comentario.id] = el;

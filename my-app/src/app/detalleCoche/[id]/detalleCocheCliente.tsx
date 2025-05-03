@@ -26,6 +26,7 @@ export default function DetalleCocheCliente({ auto }: Props) {
   const [mostrarPanel, setMostrarPanel] = useState(false);
 
   useEffect(() => {
+
     fetch(`http://localhost:4000/api/autos/${auto.id}/comentarios`)
       .then((res) => res.json())
       .then((data) => setComentarios(data.data))
@@ -34,7 +35,10 @@ export default function DetalleCocheCliente({ auto }: Props) {
         setComentarios([]);
       });
   }, [auto.id]);
-
+  const comentariosValidos = comentarios.filter(c => c.calificacion > 0 && c.contenido?.trim() !== '');
+  const promedio = comentariosValidos.length > 0
+  ? comentariosValidos.reduce((acc, c) => acc + c.calificacion, 0) / comentariosValidos.length
+  : 0;
   return (
     <>
       <Navbar />
@@ -46,7 +50,7 @@ export default function DetalleCocheCliente({ auto }: Props) {
         marca={auto.marca}
         modelo={auto.modelo}
       />
-      /* se agregaron modificaciones tanto detalles de coches como calificaciones y comentarios*/
+      
       <div className="w-full bg-white px-4 sm:px-6 md:px-8 lg:px-10 xl:px-16 pb-10">
         <div className="max-w-[1550px] mx-auto">
           <h1 className="mt-6 text-4xl text-[#11295B] font-bold text-left mb-6 pl-2 sm:pl-4">
@@ -59,19 +63,30 @@ export default function DetalleCocheCliente({ auto }: Props) {
               <GaleriaImagenes imagenes={auto.imagenes} marca={auto.marca} modelo={auto.modelo} />
 
               <div className="mt-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="font-bold text-lg text-[#11295B]">Calificación</span>
-                  <Estrellas promedio={
-                    comentarios.filter(c => c.calificacion > 0).reduce((acc, c, _, arr) => acc + c.calificacion / arr.length, 0)
-                  } />
+              <div className="flex items-center gap-2 mb-3">
+                <span className="font-bold text-lg text-[#11295B]">Calificación</span>
+                <span className="text-lg text-black font-medium">
+                  {promedio.toFixed(1)}
+                </span>
+                <div className="text-[#fca311] text-2xl leading-none">
+                  {[...Array(Math.floor(promedio))].map((_, i) => (
+                    <span key={i}>★</span>
+                  ))}
+                  {[...Array(5 - Math.floor(promedio))].map((_, i) => (
+                    <span key={i}>☆</span>
+                  ))}
                 </div>
-                <button
-                  className="bg-[#fca311] text-white px-5 py-2.5 rounded-full text-base font-semibold transition hover:bg-[#e69500] active:bg-[#cc8400]"
-                  onClick={() => setMostrarPanel(true)}
-                >
-                  Ver Reseñas
-                </button>
               </div>
+
+
+            <button
+              className="bg-[#fca311] text-white px-5 py-2.5 rounded-full text-base font-semibold transition hover:bg-[#e69500] active:bg-[#cc8400]"
+              onClick={() => setMostrarPanel(true)}
+            >
+              Ver Reseñas
+            </button>
+          </div>
+
 
               <div className="bg-white mt-5">
                 <h3 className="text-[#11295B] text-xl font-semibold">Detalles</h3>
