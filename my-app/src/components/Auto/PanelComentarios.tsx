@@ -98,10 +98,30 @@ export default function PanelComentarios({ mostrar, onClose, comentarios, marca,
       return () => { observers.forEach((o) => o.disconnect()); };
     }, [comentariosValidos]);
     
-
-  const toggleExpansion = (id: number) =>
-    setComentariosExpandidos(prev => ({ ...prev, [id]: !prev[id] }));
-
+      const toggleExpansion = (id: number) =>
+        setComentariosExpandidos(prev => ({ ...prev, [id]: !prev[id] }));
+      const renderEstrellasConMedia = (calificacion: number) => {
+        const estrellas = [];
+        const entero = Math.floor(calificacion);
+        const tieneDecimal = calificacion % 1 !== 0;
+      
+        for (let i = 1; i <= 5; i++) {
+          if (i <= entero) {
+            estrellas.push(<span key={i}>★</span>); 
+          } else if (i === entero + 1 && tieneDecimal) {
+            estrellas.push(<span key={i}>⯪</span>); 
+          } else {
+            estrellas.push(<span key={i}>☆</span>);
+          }
+        }
+      
+        return estrellas;
+      };
+      
+      
+      
+  
+  
   return (
     <>
       {mostrar && <div className="fixed inset-0 bg-black/50 z-[999]" onClick={onClose} />}
@@ -123,10 +143,10 @@ export default function PanelComentarios({ mostrar, onClose, comentarios, marca,
           </div>
           <div className="flex flex-col">
           <div className="flex items-center gap-3">
-            <div className="text-[#fca311] text-2xl leading-none">
-              {[...Array(Math.floor(promedioCalificacion))].map((_, i) => <span key={i}>★</span>)}
-              {[...Array(5 - Math.floor(promedioCalificacion))].map((_, i) => <span key={i}>☆</span>)}
-            </div>
+          <div className="text-[#fca311] text-2xl leading-none flex gap-1">
+            {renderEstrellasConMedia(promedioCalificacion)}
+          </div>
+
             <div className="flex flex-col leading-tight">
               <span className="font-bold text-black">{criterioTexto}</span>
               <span className="text-sm text-gray-500">{comentariosValidos.length} en total</span>
@@ -177,10 +197,11 @@ export default function PanelComentarios({ mostrar, onClose, comentarios, marca,
                   </div>
                 </div>
                 <div className="flex flex-col items-center">
-                  <div className="text-[#fca311] text-2xl leading-none">
-                    {[...Array(estrellasLlenas)].map((_, i) => <span key={i}>★</span>)}
-                    {[...Array(estrellasVacias)].map((_, i) => <span key={i}>☆</span>)}
-                  </div>
+                <div className="text-[#fca311] text-2xl leading-none flex gap-1">
+                  {[...Array(estrellasLlenas)].map((_, i) => <span key={i}>★</span>)}
+                  {[...Array(estrellasVacias)].map((_, i) => <span key={i + estrellasLlenas}>☆</span>)}
+                </div>
+
                   <div className="bg-[#002a5c] text-white text-sm px-2 py-1 rounded font-semibold mt-1">
                     {comentario.calificacion}
                   </div>
