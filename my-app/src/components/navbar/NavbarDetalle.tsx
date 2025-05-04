@@ -13,6 +13,9 @@ export default function NavbarDetalle() {
         <Image
           src="/imagenesIconos/image.png"
           alt="Icono de perfil"
+          width={50}
+          height={50}
+          unoptimized
           className="w-7 h-7 cursor-pointer"
         />
       </button>

@@ -5,6 +5,7 @@ import GaleriaImagenes from '@/components/Auto/GaleriaImagenes';
 import Caracteristicas from '@/components/Auto/Caracteristicas';
 import InfoHost from '@/components/Auto/InfoHost';
 import Precio from '@/components/Auto/Precio';
+import Estrellas from '@/components/Auto/Estrellas';
 import PanelComentarios from '@/components/Auto/PanelComentarios';
 import { useEffect, useState } from 'react';
 import { Auto, Comentario } from '@/types/auto';
@@ -68,12 +69,7 @@ export default function DetalleCocheCliente({ auto }: Props) {
                   {promedio.toFixed(1)}
                 </span>
                 <div className="text-[#fca311] text-2xl leading-none">
-                  {[...Array(Math.floor(promedio))].map((_, i) => (
-                    <span key={i}>★</span>
-                  ))}
-                  {[...Array(5 - Math.floor(promedio))].map((_, i) => (
-                    <span key={i}>☆</span>
-                  ))}
+                  <Estrellas promedio={promedio} />
                 </div>
               </div>
 
