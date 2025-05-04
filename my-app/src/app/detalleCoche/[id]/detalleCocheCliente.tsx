@@ -5,38 +5,51 @@ import GaleriaImagenes from '@/components/Auto/GaleriaImagenes';
 import Caracteristicas from '@/components/Auto/Caracteristicas';
 import InfoHost from '@/components/Auto/InfoHost';
 import Precio from '@/components/Auto/Precio';
-import Estrellas from '@/components/Auto/Estrellas';
 import PanelComentarios from '@/components/Auto/PanelComentarios';
+import SolicitudReserva from '@/components/Auto/PanelSolicitud/solicitudReserva';
+
 import { useEffect, useState } from 'react';
 import { Auto, Comentario } from '@/types/auto';
 
 interface Props {
   auto: Auto;
 }
+/* 
+    Se hizo cuando cambia el ID del auto, 
+    se realiza una petición HTTP GET para obtener los comentarios 
+    
+  */
 
 export default function DetalleCocheCliente({ auto }: Props) {
   const [comentarios, setComentarios] = useState<Comentario[]>([]);
   const [mostrarPanel, setMostrarPanel] = useState(false);
+  const [mostrarSolicitudResercva, setMostrarModalSolicitud] = useState(false);
+
 
   useEffect(() => {
-    import('@/libs/api').then(({ getComentariosDeAuto }) => {
-      getComentariosDeAuto(auto.id)
-        .then((data) => setComentarios(data.data))
-        .catch((err) => {
-          console.error('Error al obtener comentarios:', err);
-          setComentarios([]);
-        });
-    });
+
+    fetch(`http://localhost:4000/api/autos/${auto.id}/comentarios`)
+      .then((res) => res.json())
+      .then((data) => setComentarios(data.data))
+      .catch((err) => {
+        console.error('Error al obtener comentarios:', err);
+        setComentarios([]);
+      });
   }, [auto.id]);
   const comentariosValidos = comentarios.filter(c => c.calificacion > 0 && c.contenido?.trim() !== '');
   const promedio = comentariosValidos.length > 0
   ? comentariosValidos.reduce((acc, c) => acc + c.calificacion, 0) / comentariosValidos.length
   : 0;
-  console.log("Propietario recibido:", auto.propietario);
-
   return (
     <>
       <Navbar />
+
+      <SolicitudReserva
+        mostrar={mostrarSolicitudResercva}
+        onClose={() => setMostrarModalSolicitud(false)}
+        auto={auto}
+      />
+
 
       <PanelComentarios
         mostrar={mostrarPanel}
@@ -64,7 +77,12 @@ export default function DetalleCocheCliente({ auto }: Props) {
                   {promedio.toFixed(1)}
                 </span>
                 <div className="text-[#fca311] text-2xl leading-none">
-                  <Estrellas promedio={promedio} />
+                  {[...Array(Math.floor(promedio))].map((_, i) => (
+                    <span key={i}>★</span>
+                  ))}
+                  {[...Array(5 - Math.floor(promedio))].map((_, i) => (
+                    <span key={i}>☆</span>
+                  ))}
                 </div>
               </div>
 
@@ -110,12 +128,17 @@ export default function DetalleCocheCliente({ auto }: Props) {
 
             {/* Info host + precio */}
             <div className="flex-1 min-w-[250px] max-w-full flex flex-col gap-6">
-            <InfoHost
-              propietario={auto.propietario}
-              marca={auto.marca}
-              modelo={auto.modelo}
-            />
+              <InfoHost propietario={auto.propietario} marca={auto.marca}
+              modelo={auto.modelo}/>
               <Precio precioPorDia={auto.precioRentaDiario} />
+              <div className="w-full flex justify-center">
+                <button
+                  className="bg-[#fca311] text-white px-2.5 py-2.5 rounded-full text-base font-semibold transition hover:bg-[#e69500] active:bg-[#cc8400] max-w-[250px] h-[50px]"
+                  onClick={() => setMostrarModalSolicitud(true)}
+                >
+                Enviar solicitud
+                </button>
+              </div>
             </div>
           </div>
         </div>
