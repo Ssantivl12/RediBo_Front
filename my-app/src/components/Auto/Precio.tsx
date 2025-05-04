@@ -1,4 +1,3 @@
-import { Auto } from '@/types/auto';
 
 interface Props {
   precioPorDia: string;

@@ -1,6 +1,6 @@
 import { Auto, Comentario } from '@/types/auto';
 
-const BASE_URL = "http://localhost:4000/api";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
 export async function getAutos(): Promise<{ data: Auto[] }> {
   const res = await fetch(`${BASE_URL}/autos`, { cache: 'no-store' });
