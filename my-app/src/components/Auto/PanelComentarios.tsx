@@ -100,16 +100,37 @@ export default function PanelComentarios({ mostrar, onClose, comentarios, marca,
     
       const toggleExpansion = (id: number) =>
         setComentariosExpandidos(prev => ({ ...prev, [id]: !prev[id] }));
-      const renderEstrellasConMedia = (calificacion: number) => {
+      const renderEstrellasConMedia = (promedio: number) => {
         const estrellas = [];
-        const entero = Math.floor(calificacion);
-        const tieneDecimal = calificacion % 1 !== 0;
       
         for (let i = 1; i <= 5; i++) {
-          if (i <= entero) {
-            estrellas.push(<span key={i}>★</span>); 
-          } else if (i === entero + 1 && tieneDecimal) {
-            estrellas.push(<span key={i}>⯪</span>); 
+          if (promedio >= i) {
+            estrellas.push(<span key={i}>★</span>);
+          } else if (promedio >= i - 0.5) {
+            estrellas.push(
+              <span
+                key={i}
+                style={{
+                  position: 'relative',
+                  display: 'inline-block',
+                  width: '1em',
+                  height: '1em',
+                }}
+              >
+                <span
+                  style={{
+                    color: '#fca311',
+                    position: 'absolute',
+                    width: '50%',
+                    height: '100%',
+                    overflow: 'hidden',
+                  }}
+                >
+                  ★
+                </span>
+                <span style={{ color: '#e0e0e0' }}>★</span>
+              </span>
+            );
           } else {
             estrellas.push(<span key={i}>☆</span>);
           }
@@ -118,10 +139,6 @@ export default function PanelComentarios({ mostrar, onClose, comentarios, marca,
         return estrellas;
       };
       
-      
-      
-  
-  
   return (
     <>
       {mostrar && <div className="fixed inset-0 bg-black/50 z-[999]" onClick={onClose} />}
