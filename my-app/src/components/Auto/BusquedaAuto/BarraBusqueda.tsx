@@ -103,7 +103,7 @@ export default function BarraBusqueda({ onBuscar, totalResultados }: BarraBusque
       </div>
 
       {/* Contador de resultados - izquierda debajo */}
-      <div className="mt-2 text-left text-gray-600 text-sm pl-2 font-bold">
+      <div className="mt-2 text-left text-gray-600 text-lg pl-2 font-bold">
         {totalResultados} 
         <span className="text-lg">
           {totalResultados === 1 ? ' coche disponible' : ' coches disponibles'}

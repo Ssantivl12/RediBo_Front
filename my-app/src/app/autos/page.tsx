@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState} from 'react';
 import { getAutos } from '@/libs/api';
 import { Auto } from '@/types/auto';
 import Image from 'next/image';
 import BarraBusqueda from '@/components/Auto/BusquedaAuto/BarraBusqueda';
 import Link from 'next/link';
 import Estrellas from '@/components/Auto/Estrellas';
+import OrdenadoPor from '@/components/Auto/Ordenamiento/OrdenadoPor';
 
 export default function AutosPage() {
   const [autos, setAutos] = useState<Auto[]>([]);
@@ -64,21 +65,55 @@ export default function AutosPage() {
     });
   };
 
-  return (
+  const aplicarOrden = (opcion: string) => {
+    const autosOrdenados = [...autosFiltrados];
+    
+    switch(opcion) {
+      case 'Mejor calificación':
+        autosOrdenados.sort((a, b) => (b.promedioCalificacion ?? 0) - (a.promedioCalificacion ?? 0));
+        break;
+      case 'Modelo: a - z':
+        autosOrdenados.sort((a, b) => a.modelo.localeCompare(b.modelo));
+        break;
+      case 'Modelo: z - a':
+        autosOrdenados.sort((a, b) => b.modelo.localeCompare(a.modelo));
+        break;
+      case 'Marca: a - z':
+        autosOrdenados.sort((a, b) => a.marca.localeCompare(b.marca));
+        break;
+      case 'Marca: z - a':
+        autosOrdenados.sort((a, b) => b.marca.localeCompare(a.marca));
+        break;
+      case 'Precio: mayor a menor':
+        autosOrdenados.sort((a, b) => Number(b.precioRentaDiario) - Number(a.precioRentaDiario));
+        break;
+      case 'Precio: menor a mayor':
+        autosOrdenados.sort((a, b) => Number(a.precioRentaDiario) - Number(b.precioRentaDiario));
+        break;
+      default:
+        break;
+    }
+    
+    setAutosFiltrados(autosOrdenados);
+  };
 
+  return (
     <>
       <div className="max-w-4xl mx-auto px-4 py-2">
-      <BarraBusqueda 
-        onBuscar={filtrarAutos} 
-        totalResultados={autosFiltrados.length} 
-      />
+        {/* Barra de búsqueda */}
+        <div className="mb-4">
+          <BarraBusqueda 
+            onBuscar={filtrarAutos} 
+            totalResultados={autosFiltrados.length} 
+          />
+        </div>
 
-      {autosFiltrados.length > 0 ? (
-        <>
-          <p className="text-center text-gray-600 mb-6">
-            {autosFiltrados.length} coche(s) encontrado(s)
-          </p>
-
+        {/* Componente OrdenadoPor */}
+        <div className="mb-6">
+          <OrdenadoPor onOrdenar={aplicarOrden} />
+        </div>
+        {/* Lista de autos */}
+        {autosFiltrados.length > 0 ? (
           <div className="grid grid-cols-1 gap-6 max-w-4xl mx-auto">
             {autosFiltrados.map((auto: Auto) => (
               <div
@@ -225,10 +260,9 @@ export default function AutosPage() {
               </div>
             ))}
           </div>
-        </>
-      ) : (
-        <p className="text-center text-gray-600 mt-10">No se encontraron resultados</p>
-      )}
+        ) : (
+          <p className="text-center text-gray-600 mt-10">No se encontraron resultados</p>
+        )}
       </div>
     </>
   );
