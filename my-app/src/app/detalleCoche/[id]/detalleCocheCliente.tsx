@@ -12,25 +12,20 @@ import { Auto, Comentario } from '@/types/auto';
 interface Props {
   auto: Auto;
 }
-/* 
-    Se hizo cuando cambia el ID del auto, 
-    se realiza una petición HTTP GET para obtener los comentarios 
-    
-  */
 
 export default function DetalleCocheCliente({ auto }: Props) {
   const [comentarios, setComentarios] = useState<Comentario[]>([]);
   const [mostrarPanel, setMostrarPanel] = useState(false);
 
   useEffect(() => {
-
-    fetch(`http://localhost:4000/api/autos/${auto.id}/comentarios`)
-      .then((res) => res.json())
-      .then((data) => setComentarios(data.data))
-      .catch((err) => {
-        console.error('Error al obtener comentarios:', err);
-        setComentarios([]);
-      });
+    import('@/libs/api').then(({ getComentariosDeAuto }) => {
+      getComentariosDeAuto(auto.id)
+        .then((data) => setComentarios(data.data))
+        .catch((err) => {
+          console.error('Error al obtener comentarios:', err);
+          setComentarios([]);
+        });
+    });
   }, [auto.id]);
   const comentariosValidos = comentarios.filter(c => c.calificacion > 0 && c.contenido?.trim() !== '');
   const promedio = comentariosValidos.length > 0

@@ -5,9 +5,9 @@ interface Props {
 }
 
 export default function Precio({ precioPorDia, dias = 5 }: Props) {
-  const precioUSD = parseFloat(precioPorDia);
-  const precioBOB = precioUSD * 6.89;
-  const totalBOB = precioBOB * dias;
+  const precioUSD = parseFloat(precioPorDia) * 6.89;
+  const precioBOB = parseFloat(precioPorDia);
+  const totalBOB  = precioBOB * dias;
 
   return (
     <div className="bg-[#f5f5f5] p-6 rounded-2xl shadow-md border-2 border-black">
