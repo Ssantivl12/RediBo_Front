@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { DayPicker } from 'react-day-picker';
-import 'react-day-picker/style.css'; // Estilos por defecto
-import { cn } from '@/libs/utils'; // Asegúrate que este helper existe. Si no, puedes eliminar `className={cn(...)}`
+import 'react-day-picker/style.css';
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
 function Calendar({ className, classNames, showOutsideDays = true, ...props }: CalendarProps) {
