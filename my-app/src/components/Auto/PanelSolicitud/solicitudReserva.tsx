@@ -8,6 +8,8 @@ import TerminosCondiciones from './terminosCondiciones';
 import CalendarReserva from './calendario'; 
 import SelectorHoraAlquiler from './selectorHoraAlquiler'; 
 import { Auto } from '@/types/auto';
+import PanelConfirmarSolicitud from '@/components/Auto/PanelSolicitud/PanelConfirmarSolicitud';
+import PanelSolicitudEnviada from '@/components/Auto/PanelSolicitud/PanelSolicitudEnviada';
 
 interface SolicitudReservaProps {
   mostrar: boolean;
@@ -18,6 +20,9 @@ interface SolicitudReservaProps {
 export default function SolicitudReserva({ mostrar, onClose, auto }: SolicitudReservaProps) {
   const [activeTab, setActiveTab] = useState<'caracteristicas' | 'precio'>('caracteristicas');
   const [aceptoTerminos, setAceptoTerminos] = useState(false);
+  const [mostrarPanelConfirmarSolicitud, setMostrarPanelConfirmarSolicitud] = useState(false);
+  const [mostrarPanelSolicitudEnviada, setMostrarPanelSolicitudEnviada] = useState(false);
+
   const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
     from: undefined,
     to: undefined,
@@ -26,16 +31,30 @@ export default function SolicitudReserva({ mostrar, onClose, auto }: SolicitudRe
   const [pickupTime, setPickupTime] = useState('10:00');
   const [dropoffTime, setDropoffTime] = useState('12:00');
 
-  const handleEnviar = () => {
-    if (!aceptoTerminos) {
-      alert('Debe aceptar los términos y condiciones antes de continuar.');
-      return;
-    }
-    alert('Solicitud enviada correctamente.');
+  const handleConfirmarSolicitud = () => {
+    setMostrarPanelConfirmarSolicitud(false);
+    setMostrarPanelSolicitudEnviada(true); 
   };
+
+  const handleAceptarSolicitudEnviada = () => {
+    setMostrarPanelSolicitudEnviada(false);
+  };
+
 
   return (
     <>
+      <PanelConfirmarSolicitud
+        mostrar={mostrarPanelConfirmarSolicitud}
+        onClose={() => setMostrarPanelConfirmarSolicitud(false)}
+        onConfirm={handleConfirmarSolicitud}
+      />
+
+      <PanelSolicitudEnviada
+        mostrar={mostrarPanelSolicitudEnviada}
+        onClose={() => setMostrarPanelSolicitudEnviada(false)}
+        onConfirm={handleAceptarSolicitudEnviada}
+      />
+
       {mostrar && (
         <div className="fixed inset-0 bg-black/50 z-[999]" onClick={onClose} />
       )}
@@ -121,12 +140,19 @@ export default function SolicitudReserva({ mostrar, onClose, auto }: SolicitudRe
           </div>
 
           <div className="flex justify-center">
-            <button
-              className="bg-[#fca311] text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-sm sm:text-base font-semibold transition hover:bg-[#e69500] active:bg-[#cc8400] max-w-[200px] sm:max-w-[250px] w-full"
-              onClick={handleEnviar}
-            >
-              Enviar solicitud de reserva
-            </button>
+          <button
+            className="bg-[#fca311] text-white px-5 py-2.5 rounded-full text-base font-semibold transition hover:bg-[#e69500] active:bg-[#cc8400] max-w-[250px] w-full"
+            onClick={() => {
+              if (!aceptoTerminos) {
+                alert('Debe aceptar los términos y condiciones antes de continuar.');
+                return;
+              }
+              onClose(); 
+              setMostrarPanelConfirmarSolicitud(true);
+            }}
+          >
+            Enviar solicitud de reserva
+          </button>
           </div>
         </div>
       </div>
