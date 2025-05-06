@@ -17,7 +17,6 @@ interface SolicitudReservaProps {
 
 export default function SolicitudReserva({ mostrar, onClose, auto }: SolicitudReservaProps) {
   const [activeTab, setActiveTab] = useState<'caracteristicas' | 'precio'>('caracteristicas');
-  const [selectedLocation, setSelectedLocation] = useState('');
   const [aceptoTerminos, setAceptoTerminos] = useState(false);
 
   const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
@@ -84,10 +83,7 @@ export default function SolicitudReserva({ mostrar, onClose, auto }: SolicitudRe
               )}
             </div>
 
-            <LugarRecogida
-              lugarRecogida={selectedLocation}
-              setLugarRecogida={setSelectedLocation}
-            />
+            <LugarRecogida/>
           </div>
 
           {/* Columna Derecha */}
