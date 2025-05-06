@@ -1,13 +1,24 @@
-import TituloDescripcion from "@components/TituloDescripcion/TituloDescripcion";
+'use client';
 
+import TituloDescripcion from "@components/TituloDescripcion/TituloDescripcion";
 import GestionarVehiculos from "@components/GestionarVehiculos/GestionarVehiculos";
+
 export default function GestionarSolicitudes() {
+  const datos = {
+    titulo: "Gestionar Vehículos",
+    descripcion: "Administra el estado de tus vehículos."
+  };
+
   return (
     <div>
-      <TituloDescripcion />
-      {/* Resto del contenido de la página */}
+      <TituloDescripcion
+        titulo={datos.titulo}
+        descripcion={datos.descripcion}
+      />
       <GestionarVehiculos />
     </div>
   );
 }
+
+
 
