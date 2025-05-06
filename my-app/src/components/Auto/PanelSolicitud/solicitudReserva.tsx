@@ -91,7 +91,7 @@ export default function SolicitudReserva({ mostrar, onClose, auto }: SolicitudRe
           </div>
 
           {/* Columna Derecha */}
-          <div className="border border-black rounded-xl w-[325px] h-[655px] p-4 overflow-y-auto space-y-4">
+          <div className="border border-black rounded-xl w-[325px] h-[655px] p-4 overflow-visible space-y-4">
             <div>
               <h3 className="text-lg font-semibold text-[#002a5c] mb-2">Seleccionar fechas</h3>
               <CalendarReserva dateRange={dateRange} setDateRange={setDateRange} />
