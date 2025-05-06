@@ -2,12 +2,16 @@
 
 import React from 'react';
 
-export default function TituloDescripcion() {
+interface Props {
+  titulo: string;
+  descripcion: string;
+}
+
+export default function TituloDescripcion({ titulo, descripcion }: Props) {
   return (
     <div className="w-full bg-white shadow-sm">
       {/* Barra superior con logo y botones */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-        {/* Logo y botones de navegación */}
         <div className="flex items-center space-x-6">
           <span className="text-3xl font-extrabold text-[#FFA500] drop-shadow-md tracking-wide">
             REDIBO
@@ -28,7 +32,6 @@ export default function TituloDescripcion() {
           </div>
         </div>
 
-        {/* Botones de registro e inicio */}
         <div className="flex space-x-2">
           <button className="px-4 py-2 rounded-full bg-[#F1B24A] text-[#002E6E] font-semibold shadow hover:brightness-105">
             Registrarse
@@ -39,15 +42,14 @@ export default function TituloDescripcion() {
         </div>
       </div>
 
-      {/* Encabezado de página */}
+      {/* Encabezado dinámico */}
       <div className="px-6 py-6">
-        <h1 className="text-2xl font-bold text-[#002E6E] mb-1">Gestionar Vehiculos</h1>
-        <p className="text-base text-gray-700">
-          Administra el estado de tus vehiculos
-        </p>
+        <h1 className="text-2xl font-bold text-[#002E6E] mb-1">{titulo}</h1>
+        <p className="text-base text-gray-700">{descripcion}</p>
       </div>
     </div>
   );
 }
+
 
   
