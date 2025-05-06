@@ -10,7 +10,7 @@ import SelectorHoraAlquiler from './selectorHoraAlquiler';
 import { Auto } from '@/types/auto';
 import PanelConfirmarSolicitud from '@/components/Auto/PanelSolicitud/PanelConfirmarSolicitud';
 import PanelSolicitudEnviada from '@/components/Auto/PanelSolicitud/PanelSolicitudEnviada';
-
+import Swal from 'sweetalert2'
 interface SolicitudReservaProps {
   mostrar: boolean;
   onClose: () => void;
@@ -144,7 +144,12 @@ export default function SolicitudReserva({ mostrar, onClose, auto }: SolicitudRe
             className="bg-[#fca311] text-white px-5 py-2.5 rounded-full text-base font-semibold transition hover:bg-[#e69500] active:bg-[#cc8400] max-w-[250px] w-full"
             onClick={() => {
               if (!aceptoTerminos) {
-                alert('Debe aceptar los términos y condiciones antes de continuar.');
+                Swal.fire({
+                  icon: 'warning',
+                  title: 'Aviso',
+                  text: 'Debe aceptar los términos y condiciones antes de continuar.',
+                  confirmButtonColor: '#fca311'
+                });
                 return;
               }
               onClose(); 

@@ -27,14 +27,15 @@ export default function DetalleCocheCliente({ auto }: Props) {
 
 
   useEffect(() => {
-
-    fetch(`http://localhost:4000/api/autos/${auto.id}/comentarios`)
-      .then((res) => res.json())
-      .then((data) => setComentarios(data.data))
-      .catch((err) => {
-        console.error('Error al obtener comentarios:', err);
-        setComentarios([]);
-      });
+    import('@/libs/api').then(({ getComentariosDeAuto }) => {
+      getComentariosDeAuto(auto.id)
+        .then((data) => setComentarios(data.data))
+        .catch((err) => {
+          console.error('Error al obtener comentarios:', err);
+          setComentarios([]);
+        });
+    });
+    
   }, [auto.id]);
   const comentariosValidos = comentarios.filter(c => c.calificacion > 0 && c.contenido?.trim() !== '');
   const promedio = comentariosValidos.length > 0
