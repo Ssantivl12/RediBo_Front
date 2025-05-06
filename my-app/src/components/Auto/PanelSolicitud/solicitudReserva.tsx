@@ -18,7 +18,6 @@ interface SolicitudReservaProps {
 export default function SolicitudReserva({ mostrar, onClose, auto }: SolicitudReservaProps) {
   const [activeTab, setActiveTab] = useState<'caracteristicas' | 'precio'>('caracteristicas');
   const [aceptoTerminos, setAceptoTerminos] = useState(false);
-
   const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
     from: undefined,
     to: undefined,
@@ -42,77 +41,93 @@ export default function SolicitudReserva({ mostrar, onClose, auto }: SolicitudRe
       )}
 
       <div
-        className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white w-full max-w-[700px] h-[100%] p-4 z-[1000] border-[3px] border-black rounded-2xl shadow-lg transition-transform duration-300 ${mostrar ? 'scale-100' : 'scale-0'}`}
+        className={`fixed inset-0 flex items-center justify-center z-[1000] px-2 sm:px-4 transition-transform duration-300 ${
+          mostrar ? 'scale-100' : 'scale-0'
+        }`}
       >
-        <button
-          className="absolute top-2 right-4 bg-[#fca311] text-white text-lg px-3 py-1 rounded border border-black hover:bg-[#e69500] active:bg-[#cc8400]"
-          onClick={onClose}
-        >
-          ✕
-        </button>
-
-        <h2 className="text-2xl font-bold text-center text-[#002a5c] mb-4">Solicitud de Reserva</h2>
-
-        <div className="grid grid-cols-2 gap-2 mb-2 text-[#000000]">
-          {/* Columna Izquierda */}
-          <div className="flex flex-col gap-2">
-            <div className="flex gap-1">
-              <button
-                className={`px-3 py-1.5 rounded-full font-semibold ${activeTab === 'caracteristicas' ? 'bg-[#E4D5C1] text-white' : 'bg-[#fca311] text-white'}`}
-                onClick={() => setActiveTab('caracteristicas')}
-              >
-                Características
-              </button>
-              <button
-                className={`px-3 py-1.5 rounded-full font-semibold ${activeTab === 'precio' ? 'bg-[#E4D5C1] text-white' : 'bg-[#fca311] text-white'}`}
-                onClick={() => setActiveTab('precio')}
-              >
-                Desglose de precio
-              </button>
-            </div>
-
-            <div className="border border-black rounded-xl w-[325px] h-[450px] p-4 overflow-y-auto">
-              {activeTab === 'caracteristicas' ? (
-                <div className="grid grid-cols-2 gap-4">
-                  <Caracteristicas auto={auto} />
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <Precio precioPorDia={auto.precioRentaDiario} />
-                </div>
-              )}
-            </div>
-
-            <LugarRecogida/>
-          </div>
-
-          {/* Columna Derecha */}
-          <div className="border border-black rounded-xl w-[325px] h-[655px] p-4 overflow-visible space-y-4">
-            <div>
-              <h3 className="text-lg font-semibold text-[#002a5c] mb-2">Seleccionar fechas</h3>
-              <CalendarReserva dateRange={dateRange} setDateRange={setDateRange} />
-            </div>
-
-            <SelectorHoraAlquiler
-              pickupTime={pickupTime}
-              dropoffTime={dropoffTime}
-              setPickupTime={setPickupTime}
-              setDropoffTime={setDropoffTime}
-            />
-          </div>
-        </div>
-
-        <div className="border border-black rounded-xl w-full mb-3 p-4">
-          <TerminosCondiciones onAceptarTerminos={setAceptoTerminos} />
-        </div>
-
-        <div className="flex justify-center">
+        <div className="relative bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto p-3 sm:p-4 border-[2px] sm:border-[3px] border-black rounded-xl sm:rounded-2xl shadow-lg">
           <button
-            className="bg-[#fca311] text-white px-5 py-2.5 rounded-full text-base font-semibold transition hover:bg-[#e69500] active:bg-[#cc8400] max-w-[250px] w-full"
-            onClick={handleEnviar}
+            className="absolute top-2 right-2 sm:right-4 bg-[#fca311] text-white text-base sm:text-lg px-2 sm:px-3 py-0.5 sm:py-1 rounded border border-black hover:bg-[#e69500] active:bg-[#cc8400]"
+            onClick={onClose}
           >
-            Enviar solicitud de reserva
+            ✕
           </button>
+
+          <h2 className="text-xl sm:text-2xl font-bold text-center text-[#002a5c] mb-3 sm:mb-4 mt-2 sm:mt-0">
+            Solicitud de Reserva
+          </h2>
+
+          <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 mb-3 sm:mb-4 text-[#000000]">
+            {/* Columna Izquierda */}
+            <div className="flex-1 space-y-2 sm:space-y-3">
+              <div className="flex flex-wrap gap-1 justify-center sm:justify-start">
+                <button
+                  className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-sm sm:text-base font-semibold ${
+                    activeTab === 'caracteristicas'
+                      ? 'bg-[#E4D5C1] text-white'
+                      : 'bg-[#fca311] text-white'
+                  }`}
+                  onClick={() => setActiveTab('caracteristicas')}
+                >
+                  Características
+                </button>
+                <button
+                  className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-sm sm:text-base font-semibold ${
+                    activeTab === 'precio'
+                      ? 'bg-[#E4D5C1] text-white'
+                      : 'bg-[#fca311] text-white'
+                  }`}
+                  onClick={() => setActiveTab('precio')}
+                >
+                  Desglose de precio
+                </button>
+              </div>
+
+              <div className="border border-black rounded-lg sm:rounded-xl p-2 sm:p-4 overflow-y-auto max-h-[200px] sm:max-h-[250px] md:max-h-[300px] bg-white">
+                {activeTab === 'caracteristicas' ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
+                    <Caracteristicas auto={auto} />
+                  </div>
+                ) : (
+                  <div className="space-y-2 sm:space-y-3">
+                    <Precio precioPorDia={auto.precioRentaDiario} />
+                  </div>
+                )}
+              </div>
+
+              <LugarRecogida />
+            </div>
+
+            {/* Columna Derecha */}
+            <div className="flex-1 border border-black rounded-lg sm:rounded-xl p-2 sm:p-4 space-y-3 sm:space-y-4 bg-white max-h-[500px] sm:max-h-[600px] md:max-h-[700px] overflow-y-auto">
+              <div>
+                <h3 className="text-base sm:text-lg font-semibold text-[#002a5c] mb-1 sm:mb-2">Seleccionar fechas</h3>
+                <div className="overflow-hidden flex justify-center">
+                  <CalendarReserva dateRange={dateRange} setDateRange={setDateRange} />
+                </div>
+              </div>
+
+              <SelectorHoraAlquiler
+                pickupTime={pickupTime}
+                dropoffTime={dropoffTime}
+                setPickupTime={setPickupTime}
+                setDropoffTime={setDropoffTime}
+              />
+            </div>
+          </div>
+
+          <div className="border border-black rounded-lg sm:rounded-xl w-full mb-3 p-2 sm:p-4">
+            <TerminosCondiciones onAceptarTerminos={setAceptoTerminos} />
+          </div>
+
+          <div className="flex justify-center">
+            <button
+              className="bg-[#fca311] text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-sm sm:text-base font-semibold transition hover:bg-[#e69500] active:bg-[#cc8400] max-w-[200px] sm:max-w-[250px] w-full"
+              onClick={handleEnviar}
+            >
+              Enviar solicitud de reserva
+            </button>
+          </div>
         </div>
       </div>
     </>
