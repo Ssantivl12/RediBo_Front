@@ -9,6 +9,7 @@ import ContentArea from "../../../libs/button/content-area"
 
 export default function Home() {
   const [windowWidth, setWindowWidth] = useState<number>(typeof window !== "undefined" ? window.innerWidth : 1200)
+  const [filteredVehicles, setFilteredVehicles] = useState<any[]>([]); // 👈 Inicializa como array vacío
 
   useEffect(() => {
     const handleResize = () => {
@@ -35,8 +36,11 @@ export default function Home() {
     <div style={pageStyles}>
       <Navbar windowWidth={windowWidth} />
       <div style={{ marginTop: "60px" }}>
-        <FilterSection windowWidth={windowWidth} />
-        <ContentArea />
+      <FilterSection 
+        windowWidth={windowWidth} 
+        onFilter={(vehicles) => setFilteredVehicles(vehicles)} // <-- Recibir los resultados
+        />
+        <ContentArea vehicles={filteredVehicles} />
       </div>
     </div>
   )
