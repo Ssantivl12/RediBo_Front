@@ -1,4 +1,7 @@
-import React from 'react';
+
+import React, { useState } from 'react';
+import ModalLiberarConfirmacion from '../modal/ModalLiberarConfirmacion'; 
+import ModalExito from '../modal/ModalExito';
 
 const autos = [
   {
@@ -29,6 +32,20 @@ const autos = [
 ];
 
 export default function GestionarVehiculos() {
+
+
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
+  const [mostrarExito, setMostrarExito] = useState(false);
+
+  const handleLiberar = () => {
+    setMostrarConfirmacion(true);
+  };
+
+  const confirmarLiberacion = () => {
+    setMostrarConfirmacion(false);
+    setMostrarExito(true);
+  };
+
   return (
     <div className="space-y-6 px-4 py-6">
       {autos.map((auto, index) => (
@@ -75,6 +92,8 @@ export default function GestionarVehiculos() {
 
             {auto.boton && (
               <button
+                onClick={auto.boton === 'Liberar Auto' ? handleLiberar : undefined}
+
                 className={`${auto.colorBoton} text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors`}
               >
                 {auto.boton}
@@ -83,6 +102,16 @@ export default function GestionarVehiculos() {
           </div>
         </div>
       ))}
+
+      {mostrarConfirmacion && (
+        <ModalLiberarConfirmacion
+          onConfirm={confirmarLiberacion}
+          onCancel={() => setMostrarConfirmacion(false)}
+        />
+      )}
+
+      {mostrarExito && <ModalExito onClose={() => setMostrarExito(false)} />}
+
     </div>
   );
 }
