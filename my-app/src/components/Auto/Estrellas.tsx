@@ -1,4 +1,3 @@
-
 export default function Estrellas({ promedio }: { promedio: number }) {
   const estrellas = [];
 
@@ -7,9 +6,12 @@ export default function Estrellas({ promedio }: { promedio: number }) {
       estrellas.push(<span key={i}>★</span>);
     } else if (promedio >= i - 0.5) {
       estrellas.push(
-        <span key={i} style={{ position: 'relative', display: 'inline-block', width: '1em' }}>
-          <span style={{ color: '#fca311', position: 'absolute', width: '50%', overflow: 'hidden' }}>★</span>
-          <span style={{ color: '#e0e0e0' }}>★</span>
+        <span
+          key={i}
+          className="relative inline-block w-[1em]"
+        >
+          <span className="absolute w-[44%] overflow-hidden text-[#fca311]">★</span>
+          <span className="text-[#e0e0e0]">★</span>
         </span>
       );
     } else {
@@ -19,4 +21,3 @@ export default function Estrellas({ promedio }: { promedio: number }) {
 
   return <div className="text-[#fca311] text-2xl leading-none flex gap-1">{estrellas}</div>;
 }
-
