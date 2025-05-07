@@ -6,6 +6,7 @@ import ConfirmarMantenimientoModal from "./ConfirmarMantenimientoModal";
 import ExitoMantenimientoModal from "./ExitoMantenimientoModal";
 import ConfirmarTerminarModal from "./ConfirmarTerminarModal";
 import ExitoTerminarModal from "./ExitoTerminarModal";
+import CancelarMantenimientoModal from "./CancelarMantenimientoModal";
 
 interface MantenimientoData {
   fechaInicio: string;
@@ -16,15 +17,25 @@ interface MantenimientoData {
   kilometraje: string;
 }
 
-const MantenimientoComponent = () => {
+const MantenimientoComponent: React.FC = () => {
   const [isRegistrarModalOpen, setIsRegistrarModalOpen] = useState(false);
   const [isConfirmarModalOpen, setIsConfirmarModalOpen] = useState(false);
   const [isExitoModalOpen, setIsExitoModalOpen] = useState(false);
   const [isConfirmarTerminarModalOpen, setIsConfirmarTerminarModalOpen] = useState(false);
   const [isExitoTerminarModalOpen, setIsExitoTerminarModalOpen] = useState(false);
+  const [isCancelarModalOpen, setIsCancelarModalOpen] = useState(false);
+  
+  const [formData, setFormData] = useState<MantenimientoData>({
+    fechaInicio: "",
+    fechaFin: "",
+    descripcion: "",
+    costo: "",
+    tipoMantenimiento: "Preventivo",
+    kilometraje: ""
+  });
 
   const handleRegistrarMantenimiento = (mantenimientoData: MantenimientoData) => {
-    console.log("Datos del mantenimiento:", mantenimientoData);
+    setFormData(mantenimientoData);
     setIsRegistrarModalOpen(false);
     setIsConfirmarModalOpen(true);
   };
@@ -32,11 +43,28 @@ const MantenimientoComponent = () => {
   const handleConfirmarMantenimiento = () => {
     setIsConfirmarModalOpen(false);
     setIsExitoModalOpen(true);
+    console.log("Datos enviados:", formData);
+  };
+
+  const handleCancelarMantenimiento = () => {
+    setIsConfirmarModalOpen(false);
+    setIsCancelarModalOpen(true);
   };
 
   const handleConfirmarTerminarMantenimiento = () => {
     setIsConfirmarTerminarModalOpen(false);
     setIsExitoTerminarModalOpen(true);
+  };
+
+  const resetFormData = () => {
+    setFormData({
+      fechaInicio: "",
+      fechaFin: "",
+      descripcion: "",
+      costo: "",
+      tipoMantenimiento: "Preventivo",
+      kilometraje: ""
+    });
   };
 
   return (
@@ -59,17 +87,21 @@ const MantenimientoComponent = () => {
         isOpen={isRegistrarModalOpen}
         onClose={() => setIsRegistrarModalOpen(false)}
         onSubmit={handleRegistrarMantenimiento}
+        formData={formData}
+        setFormData={setFormData}
+        onCancel={resetFormData}
       />
 
       <ConfirmarMantenimientoModal
         isOpen={isConfirmarModalOpen}
-        onClose={() => setIsConfirmarModalOpen(false)}
+        onClose={handleCancelarMantenimiento}
         onConfirm={handleConfirmarMantenimiento}
       />
 
       <ExitoMantenimientoModal
         isOpen={isExitoModalOpen}
         onClose={() => setIsExitoModalOpen(false)}
+        onResetForm={resetFormData}
       />
 
       <ConfirmarTerminarModal
@@ -81,6 +113,18 @@ const MantenimientoComponent = () => {
       <ExitoTerminarModal
         isOpen={isExitoTerminarModalOpen}
         onClose={() => setIsExitoTerminarModalOpen(false)}
+      />
+
+      <CancelarMantenimientoModal
+        isOpen={isCancelarModalOpen}
+        onClose={() => {
+          setIsCancelarModalOpen(false);
+          setIsRegistrarModalOpen(true);
+        }}
+        onConfirmCancel={() => {
+          resetFormData();
+          setIsCancelarModalOpen(false);
+        }}
       />
     </div>
   );

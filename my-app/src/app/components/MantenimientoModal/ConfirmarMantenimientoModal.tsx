@@ -2,6 +2,7 @@
 
 import React from "react";
 
+// Verificamos que la interfaz esté correctamente definida
 interface ConfirmarMantenimientoModalProps {
   isOpen: boolean;
   onClose: () => void;
