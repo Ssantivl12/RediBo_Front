@@ -7,11 +7,11 @@ interface Props {
     // Convertir a número y calcular
     const precioBOB = parseFloat(precioPorDia);
     const precioUSD = precioBOB / 6.89;
-    const totalBOB = precioBOB * dias;
   
     // Valor estático de garantía (500 BOB ≈ 72.57 USD)
     const garantiaBOB = 500;
     const garantiaUSD = garantiaBOB / 6.89;
+    const totalBOB = precioBOB * dias + garantiaBOB;
   
     return (
       <div className="bg-[#f5f5f5] p-6 rounded-2xl shadow-md border-2 border-black">

@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { Auto } from '@/types/auto';
 
-type AutoClaveMostrable = 'capacidad' | 'kilometraje' | 'transmision' | 'combustible' | 'capacidadMaletero';
+type AutoClaveMostrable = 'asientos' | 'kilometraje' | 'transmision' | 'combustible' | 'capacidadMaletero';
 
 const caracteristicas: {
   icon: string;
@@ -9,7 +9,7 @@ const caracteristicas: {
   label: string;
   suffix: string;
 }[] = [
-  { icon: '/imagenesIconos/usuario.png', key: 'capacidad', label: 'Capacidad', suffix: ' personas' },
+  { icon: '/imagenesIconos/usuario.png', key: 'asientos', label: 'Capacidad', suffix: ' personas' },
   { icon: '/imagenesIconos/velocimetro.png', key: 'kilometraje', label: 'Kilometraje', suffix: ' km' },
   { icon: '/imagenesIconos/cajaDeCambios.png', key: 'transmision', label: 'Transmisión', suffix: '' },
   { icon: '/imagenesIconos/gasolinera.png', key: 'combustible', label: 'Combustible', suffix: '' },

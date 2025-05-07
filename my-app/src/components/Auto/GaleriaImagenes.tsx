@@ -25,7 +25,7 @@ export default function GaleriaImagenes({ imagenes, marca, modelo }: Pick<Auto, 
 
       {imagenes && (
         <Image
-          key={imagenes[imagenActual].id}
+          key={imagenes[imagenActual].idImagen}
           src={imagenes[imagenActual].direccionImagen}
           alt={`Imagen del auto ${marca} ${modelo}`}
           fill

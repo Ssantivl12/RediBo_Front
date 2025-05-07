@@ -27,9 +27,9 @@ export default function AutoCard({ auto }: { auto: Auto }) {
           {/* Promedio y estrellas */}
           <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-white/90 px-3 py-1 rounded-full shadow-md flex items-center gap-1">
             <span className="text-sm font-medium text-black">
-              {(auto.promedioCalificacion ?? 0).toFixed(1)}
+              {(auto.calificacionPromedio ?? 0).toFixed(1)}
             </span>
-            <Estrellas promedio={auto.promedioCalificacion ?? 0} />
+            <Estrellas promedio={auto.calificacionPromedio ?? 0} />
           </div>
         </div>
 
@@ -45,7 +45,7 @@ export default function AutoCard({ auto }: { auto: Auto }) {
       {/* Botón */}
       <div className="flex justify-end mt-3">
         <Link
-          href={`/detalleCoche/${auto.id}`}
+          href={`/detalleCoche/${auto.idAuto}`}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-block mt-2.5 px-4 py-2 bg-[#FCA311] text-white no-underline rounded-lg font-bold transition-colors duration-300 ease-in-out hover:bg-[#e4920b]"

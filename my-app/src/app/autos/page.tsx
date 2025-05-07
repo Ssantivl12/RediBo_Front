@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import { getAutos } from '@/libs/api';
 import { Auto } from '@/types/auto';
 import Image from 'next/image';
@@ -30,11 +30,11 @@ export default function AutosPage() {
 
     const valor = busqueda.toLowerCase().trim();
     const palabras = valor.split(/[\s-]+/);
-    
+
     if (palabras.length === 2) {
       const [marca, modelo] = palabras;
-      const filtrados = autos.filter(auto => 
-        auto.marca.toLowerCase().includes(marca) && 
+      const filtrados = autos.filter(auto =>
+        auto.marca.toLowerCase().includes(marca) &&
         auto.modelo.toLowerCase().includes(modelo)
       );
       setAutosFiltrados(ordenarResultados(filtrados));
@@ -54,23 +54,23 @@ export default function AutosPage() {
     return [...autos].sort((a, b) => {
       const aMarcaStarts = a.marca.toLowerCase().startsWith(termino);
       const bMarcaStarts = b.marca.toLowerCase().startsWith(termino);
-      
+
       if (aMarcaStarts && !bMarcaStarts) return -1;
       if (!aMarcaStarts && bMarcaStarts) return 1;
-      
+
       const marcaCompare = a.marca.localeCompare(b.marca);
       if (marcaCompare !== 0) return marcaCompare;
-      
+
       return a.modelo.localeCompare(b.modelo);
     });
   };
 
   const aplicarOrden = (opcion: string) => {
     const autosOrdenados = [...autosFiltrados];
-    
-    switch(opcion) {
+
+    switch (opcion) {
       case 'Mejor calificación':
-        autosOrdenados.sort((a, b) => (b.promedioCalificacion ?? 0) - (a.promedioCalificacion ?? 0));
+        autosOrdenados.sort((a, b) => (b.calificacionPromedio ?? 0) - (a.calificacionPromedio ?? 0));
         break;
       case 'Modelo: a - z':
         autosOrdenados.sort((a, b) => a.modelo.localeCompare(b.modelo));
@@ -93,7 +93,7 @@ export default function AutosPage() {
       default:
         break;
     }
-    
+
     setAutosFiltrados(autosOrdenados);
   };
 
@@ -102,9 +102,9 @@ export default function AutosPage() {
       <div className="max-w-4xl mx-auto px-4 py-2">
         {/* Barra de búsqueda */}
         <div className="mb-4">
-          <BarraBusqueda 
-            onBuscar={filtrarAutos} 
-            totalResultados={autosFiltrados.length} 
+          <BarraBusqueda
+            onBuscar={filtrarAutos}
+            totalResultados={autosFiltrados.length}
           />
         </div>
 
@@ -117,7 +117,7 @@ export default function AutosPage() {
           <div className="grid grid-cols-1 gap-6 max-w-4xl mx-auto">
             {autosFiltrados.map((auto: Auto) => (
               <div
-                key={auto.id}
+                key={auto.idAuto}
                 className="bg-white rounded-lg p-4 shadow-md transition-transform duration-200 ease-in-out hover:translate-y-[-5px] hover:shadow-lg"
               >
                 <div className="flex flex-col md:flex-row gap-4">
@@ -139,27 +139,24 @@ export default function AutosPage() {
                         </div>
                       )}
                     </div>
-                    
                     {/* Promedio y estrellas - Debajo de la imagen */}
                     <div className="flex items-center justify-center mt-8">
                       <div className="flex items-center gap-8">
                         <span className="bg-[#11295B] text-white text-base font-bold px-3 py-1 rounded-md min-w-[48px] text-center">
-                          {(auto.promedioCalificacion ?? 0).toFixed(1)}
+                          {(auto.calificacionPromedio ?? 0).toFixed(1)}
                         </span>
                         <div className="scale-150">
-                          <Estrellas promedio={auto.promedioCalificacion ?? 0} />
+                          <Estrellas promedio={auto.calificacionPromedio ?? 0} />
                         </div>
                       </div>
                     </div>
                   </div>
-
                   {/* Detalles + Precio y Botón */}
                   <div className="flex-1 min-w-0 flex flex-col justify-between">
                     <div className="bg-white p-5 w-full h-full flex flex-col justify-between">
                       <h2 className="text-[#11295B] text-xl font-bold mb-4">
                         {auto.marca} - {auto.modelo}
                       </h2>
-
                       {/* Características */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4">
                         {/* Columna 1 */}
@@ -168,7 +165,7 @@ export default function AutosPage() {
                             {
                               icon: '/imagenesIconos/usuario.png',
                               label: 'Capacidad',
-                              value: `${auto.capacidad} personas`,
+                              value: `${auto.asientos} personas`,
                             },
                             {
                               icon: '/imagenesIconos/cajaDeCambios.png',
@@ -199,7 +196,6 @@ export default function AutosPage() {
                             </div>
                           ))}
                         </div>
-
                         {/* Columna 2 */}
                         <div className="flex flex-col gap-5">
                           {[
@@ -245,10 +241,10 @@ export default function AutosPage() {
                             {auto.precioRentaDiario} BOB
                           </p>
                         </div>
-                        
+
                         <Link
                           className="inline-block px-4 py-2 bg-[#FCA311] text-white no-underline rounded-lg font-bold transition-colors duration-300 ease-in-out hover:bg-[#e4920b]"
-                          href={`/detalleCoche/${auto.id}`}
+                          href={`/detalleCoche/${auto.idAuto}`}
                           target="_blank"
                         >
                           Ver detalles

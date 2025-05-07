@@ -23,7 +23,7 @@ export default function DetalleCocheCliente({ auto }: Props) {
 
   useEffect(() => {
     import('@/libs/api').then(({ getComentariosDeAuto }) => {
-      getComentariosDeAuto(auto.id)
+      getComentariosDeAuto(auto.idAuto)
         .then((data) => setComentarios(data.data))
         .catch((err) => {
           console.error('Error al obtener comentarios:', err);
@@ -31,7 +31,7 @@ export default function DetalleCocheCliente({ auto }: Props) {
         });
     });
 
-  }, [auto.id]);
+  }, [auto.idAuto]);
   const comentariosValidos = comentarios.filter(c => c.calificacion > 0 && c.contenido?.trim() !== '');
   const promedio = comentariosValidos.length > 0
     ? comentariosValidos.reduce((acc, c) => acc + c.calificacion, 0) / comentariosValidos.length
@@ -119,7 +119,7 @@ export default function DetalleCocheCliente({ auto }: Props) {
 
             {/* Info host + precio */}
             <div className="flex-1 min-w-[250px] max-w-full flex flex-col gap-6">
-              <InfoHost propietario={auto.propietario} marca={auto.marca}
+              <InfoHost usuario={auto.propietario} marca={auto.marca}
                 modelo={auto.modelo} />
               <Precio precioPorDia={auto.precioRentaDiario} />
               <div className="w-full flex justify-center">

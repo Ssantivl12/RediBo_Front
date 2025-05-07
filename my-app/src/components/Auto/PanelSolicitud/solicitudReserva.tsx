@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import LugarRecogida from './lugarRecogida';
-import Caracteristicas from './caracteristicasSolicitud';
+import Caracteristicas from '../Caracteristicas';
 import Precio from './precioSolicitud';
 import TerminosCondiciones from './terminosCondiciones';
 import CalendarReserva from './calendario'; 
@@ -104,9 +104,7 @@ export default function SolicitudReserva({ mostrar, onClose, auto }: SolicitudRe
 
               <div className="border border-black rounded-lg sm:rounded-xl p-2 sm:p-4 overflow-y-auto max-h-[200px] sm:max-h-[250px] md:max-h-[300px] bg-white">
                 {activeTab === 'caracteristicas' ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
-                    <Caracteristicas auto={auto} />
-                  </div>
+                  <Caracteristicas auto={auto} />
                 ) : (
                   <div className="space-y-2 sm:space-y-3">
                     <Precio precioPorDia={auto.precioRentaDiario} />

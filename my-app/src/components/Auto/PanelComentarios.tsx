@@ -76,7 +76,7 @@ export default function PanelComentarios({ mostrar, onClose, comentarios, marca,
     useEffect(() => {
       const observers: ResizeObserver[] = [];
       comentariosValidos.forEach((comentario) => {
-        const el = refsComentarios.current[comentario.id];
+        const el = refsComentarios.current[comentario.idComentario];
         if (el) {
           const observer = new ResizeObserver(() => {
             // Estimar el alto de 3 líneas con estilo base (~1.5em x 3)
@@ -86,7 +86,7 @@ export default function PanelComentarios({ mostrar, onClose, comentarios, marca,
             const isOverflowing = el.scrollHeight > limite + 2;
             setComentariosConOverflow((prev) => ({
               ...prev,
-              [comentario.id]: isOverflowing,
+              [comentario.idComentario]: isOverflowing,
             }));
           });
     
@@ -180,13 +180,13 @@ export default function PanelComentarios({ mostrar, onClose, comentarios, marca,
             month: 'long',
             year: 'numeric',
           });
-          const estaExpandido = comentariosExpandidos[comentario.id] ?? false;
-          const mostrarBoton = comentariosConOverflow[comentario.id];
+          const estaExpandido = comentariosExpandidos[comentario.idComentario] ?? false;
+          const mostrarBoton = comentariosConOverflow[comentario.idComentario];
           const estrellasLlenas = Math.floor(comentario.calificacion);
           const estrellasVacias = 5 - estrellasLlenas;
 
           return (
-            <div key={comentario.id} className="border-b border-black pb-3">
+            <div key={comentario.idComentario} className="border-b border-black pb-3">
               <div className="flex justify-between items-center mb-2">
                 <div className="flex items-center gap-3">
                   <Image src="/imagenesIconos/usuario.png" alt="Usuario" className="w-10 h-10 rounded-full" width={50} height={50} unoptimized />
@@ -208,7 +208,7 @@ export default function PanelComentarios({ mostrar, onClose, comentarios, marca,
               </div>
               <p
                 ref={(el) => {
-                  refsComentarios.current[comentario.id] = el;
+                  refsComentarios.current[comentario.idComentario] = el;
                 }}
                 className={`${!estaExpandido ? 'line-clamp-3' : ''} text-black`}
               >
@@ -217,7 +217,7 @@ export default function PanelComentarios({ mostrar, onClose, comentarios, marca,
 
               {mostrarBoton && (
                 <button
-                  onClick={() => toggleExpansion(comentario.id)}
+                  onClick={() => toggleExpansion(comentario.idComentario)}
                   className="text-blue-800 hover:underline text-sm mt-1"
                 >
                   {estaExpandido ? 'Ver menos' : 'Ver más'}
