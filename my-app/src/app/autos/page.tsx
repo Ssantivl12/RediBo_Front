@@ -233,22 +233,22 @@ export default function AutosPage() {
                         <div className="hidden lg:block"></div>
                       </div>
 
-                      {/* Precio y botón */}
-                      <div className="flex flex-row justify-between items-center mt-2 sm:mt-4">
-                        <div className="text-left">
-                          <p className="text-sm text-gray-600">Precio por día</p>
-                          <p className="text-lg font-semibold text-[#11295B]">
-                            {auto.precioRentaDiario} BOB
-                          </p>
+                      <div className="flex justify-end mt-2 sm:mt-4">
+                        <div className="flex flex-col items-start text-left">
+                          <div className="mb-2">
+                            <p className="text-sm text-gray-600">Precio por día</p>
+                            <p className="text-lg font-semibold text-[#11295B]">
+                              {auto.precioRentaDiario} BOB
+                            </p>
+                          </div>
+                          <Link
+                            className="inline-block px-4 py-2 bg-[#FCA311] text-white no-underline rounded-lg font-bold transition-colors duration-300 ease-in-out hover:bg-[#e4920b]"
+                            href={`/detalleCoche/${auto.idAuto}`}
+                            target="_blank"
+                          >
+                            Ver detalles
+                          </Link>
                         </div>
-
-                        <Link
-                          className="inline-block px-4 py-2 bg-[#FCA311] text-white no-underline rounded-lg font-bold transition-colors duration-300 ease-in-out hover:bg-[#e4920b]"
-                          href={`/detalleCoche/${auto.idAuto}`}
-                          target="_blank"
-                        >
-                          Ver detalles
-                        </Link>
                       </div>
                     </div>
                   </div>

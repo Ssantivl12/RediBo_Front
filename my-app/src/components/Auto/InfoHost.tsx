@@ -15,7 +15,7 @@ export default function InfoHost({ usuario, marca, modelo }: Props) {
 
   const handleContactClick = () => {
     try {
-      const link = `https://wa.me/591${propietario.telefono}?text=${encodeURIComponent(
+      const link = `https://wa.me/591${usuario.telefono}?text=${encodeURIComponent(
         `Hola, estoy interesado en tu vehículo ${marca}-${modelo} publicado en REDIBO.`
       )}`;   
       window.open(link, '_blank');
