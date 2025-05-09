@@ -233,23 +233,26 @@ export default function AutosPage() {
                         <div className="hidden lg:block"></div>
                       </div>
 
-                      <div className="flex justify-end mt-2 sm:mt-4">
-                        <div className="flex flex-col items-start text-left">
-                          <div className="mb-2">
-                            <p className="text-sm text-gray-600">Precio por día</p>
-                            <p className="text-lg font-semibold text-[#11295B]">
-                              {auto.precioRentaDiario} BOB
-                            </p>
+                          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mt-4">
+                            <div className="sm:pl-50 sm:-mt-15">
+                              <div>
+                                <p className="text-sm text-gray-600">Precio por día</p>
+                                <p className="text-lg font-semibold text-[#11295B]">
+                                  {auto.precioRentaDiario} BOB
+                                </p>
+                              </div>
+
+                              {/* Botón Ver detalles */}
+                              <Link
+                                className="px-4 py-2 bg-[#FCA311] text-white no-underline rounded-lg font-bold transition-colors duration-300 ease-in-out hover:bg-[#e4920b] text-center w-full sm:w-auto"
+                                href={`/detalleCoche/${auto.idAuto}`}
+                                target="_blank"
+                              >
+                                Ver detalles
+                              </Link>
+                            </div>
                           </div>
-                          <Link
-                            className="inline-block px-4 py-2 bg-[#FCA311] text-white no-underline rounded-lg font-bold transition-colors duration-300 ease-in-out hover:bg-[#e4920b]"
-                            href={`/detalleCoche/${auto.idAuto}`}
-                            target="_blank"
-                          >
-                            Ver detalles
-                          </Link>
-                        </div>
-                      </div>
+
                     </div>
                   </div>
                 </div>

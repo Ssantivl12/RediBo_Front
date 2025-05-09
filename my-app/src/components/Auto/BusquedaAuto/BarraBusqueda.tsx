@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -13,7 +12,8 @@ interface BarraBusquedaProps {
 export default function BarraBusqueda({ onBuscar, totalResultados }: BarraBusquedaProps) {
   const [valorBusqueda, setValorBusqueda] = useState('');
   const [error, setError] = useState('');
-  const caracteresNoValidos = /[@#$%()^&*!_+?/:";',.]/; // El carácter "-" es permitido ahora
+  const [busquedaEjecutada, setBusquedaEjecutada] = useState(false); // Nueva bandera
+  const caracteresNoValidos = /[@#$%()^&*!_+?/:";',.<>{}\[\]:-]/;
 
   useEffect(() => {
     const historial = localStorage.getItem('historialBusquedas');
@@ -40,11 +40,13 @@ export default function BarraBusqueda({ onBuscar, totalResultados }: BarraBusque
     } else {
       setError('');
       setValorBusqueda(valor);
+      setBusquedaEjecutada(false); 
     }
   };
 
   const limpiarBusqueda = () => {
     setValorBusqueda('');
+    setBusquedaEjecutada(false); // Reiniciar la bandera al limpiar
     onBuscar('');
   };
 
@@ -52,16 +54,18 @@ export default function BarraBusqueda({ onBuscar, totalResultados }: BarraBusque
     const valor = valorBusqueda.trim();
 
     if (!valor) {
+      setBusquedaEjecutada(false);
       onBuscar('');
       return;
     }
 
-    if (valorBusqueda.startsWith(' ') || valorBusqueda.includes('  ')) {
+    if (valor.startsWith(' ') || valor.includes('  ')) {
       setError('Por favor corrija los espacios en la búsqueda');
       return;
     }
 
     setError('');
+    setBusquedaEjecutada(true); // Marcar búsqueda como ejecutada
     onBuscar(valor);
     guardarEnHistorial(valor);
   };
@@ -121,9 +125,9 @@ export default function BarraBusqueda({ onBuscar, totalResultados }: BarraBusque
               {totalResultados === 1 ? ' coche disponible' : ' coches disponibles'}
             </span>
           </>
-        ) : (
+        ) : busquedaEjecutada && valorBusqueda ? ( 
           <p className="text-red-500">No se encontraron resultados para su búsqueda.</p>
-        )}
+        ) : null}
       </div>
 
       {error && <p className="text-red-500 mt-2 text-sm pl-2">{error}</p>}
