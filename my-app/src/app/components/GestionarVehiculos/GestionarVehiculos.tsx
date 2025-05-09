@@ -1,7 +1,7 @@
 
+'use client';
+
 import React, { useState } from 'react';
-import ModalLiberarConfirmacion from '../modal/ModalLiberarConfirmacion'; 
-import ModalExito from '../modal/ModalExito';
 
 const autos = [
   {
@@ -32,8 +32,6 @@ const autos = [
 ];
 
 export default function GestionarVehiculos() {
-
-
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
   const [mostrarExito, setMostrarExito] = useState(false);
 
@@ -74,15 +72,9 @@ export default function GestionarVehiculos() {
             {auto.estado === 'Rentado' ? (
               <div className="bg-white p-4 rounded-md space-y-2 shadow-sm">
                 <p style={{ color: '#11295B' }} className="font-semibold">Estado Actual</p>
-                <p>
-                  <span className="font-semibold" style={{ color: '#11295B' }}>Estado:</span> Ocupado
-                </p>
-                <p>
-                  <span className="font-semibold" style={{ color: '#11295B' }}>Rentado a:</span> {auto.rentadoPor}
-                </p>
-                <p>
-                  <span className="font-semibold" style={{ color: '#11295B' }}>Fecha de término:</span> {auto.fechaTermino}
-                </p>
+                <p><span className="font-semibold" style={{ color: '#11295B' }}>Estado:</span> Ocupado</p>
+                <p><span className="font-semibold" style={{ color: '#11295B' }}>Rentado a:</span> {auto.rentadoPor}</p>
+                <p><span className="font-semibold" style={{ color: '#11295B' }}>Fecha de término:</span> {auto.fechaTermino}</p>
               </div>
             ) : (
               <span className="bg-white text-black text-base font-medium px-3 py-1 rounded-full w-fit">
@@ -93,7 +85,6 @@ export default function GestionarVehiculos() {
             {auto.boton && (
               <button
                 onClick={auto.boton === 'Liberar Auto' ? handleLiberar : undefined}
-
                 className={`${auto.colorBoton} text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors`}
               >
                 {auto.boton}
@@ -103,15 +94,68 @@ export default function GestionarVehiculos() {
         </div>
       ))}
 
+      {/* Modal de confirmación */}
       {mostrarConfirmacion && (
-        <ModalLiberarConfirmacion
-          onConfirm={confirmarLiberacion}
-          onCancel={() => setMostrarConfirmacion(false)}
-        />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+          <div className="bg-white p-6 rounded-md shadow-md max-w-sm w-full text-center">
+            <h2 className="text-lg font-semibold mb-2">¿Está seguro que desea liberar el vehículo?</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              ¿Desea liberar el vehículo? Los días especificados en la renta actual estarán disponibles para una nueva renta.
+            </p>
+            <div className="flex justify-between px-6">
+              <button
+                onClick={() => setMostrarConfirmacion(false)}
+                className="bg-[#11295B] text-white px-4 py-2 rounded-md hover:bg-blue-800"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmarLiberacion}
+                className="bg-[#FFA500] text-white px-4 py-2 rounded-md hover:bg-yellow-500"
+              >
+                Aceptar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
-      {mostrarExito && <ModalExito onClose={() => setMostrarExito(false)} />}
+      {/* Modal de éxito */}
+      {mostrarExito && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+          <div className="bg-white p-6 rounded-md shadow-md max-w-sm w-full text-center">
+            <h2 className="text-lg font-semibold mb-2 text-[#11295B]">Vehículo liberado con éxito</h2>
+      
+            {/* Ícono SVG de éxito */}
+            <div className="my-4 flex justify-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-12 h-12"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+              <circle cx="12" cy="12" r="10" stroke="#FFA500" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="60 20" />
+                <path
+                  d="M8.5 12L11 14.5L16 9.5"
+                  stroke="#FFA500"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
 
+            <p className="text-sm text-gray-600 mb-4">La acción fue exitosa.</p>
+            <button
+              onClick={() => setMostrarExito(false)}
+              className="bg-[#FFA500] text-white px-4 py-2 rounded-md hover:bg-yellow-500"
+            >
+              Aceptar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
