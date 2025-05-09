@@ -1,4 +1,3 @@
-//ExitoTerminarModal.tsx
 "use client";
 
 import React from "react";
@@ -13,7 +12,7 @@ const ExitoTerminarModal: React.FC<ExitoTerminarModalProps> = ({
   onClose 
 }) => {
   return isOpen ? (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
         <div className="bg-[var(--hueso)] w-full p-4 rounded-t-xl">
           <h2 className="text-xl font-semibold text-center text-[var(--azul-oscuro)]">

@@ -1,4 +1,3 @@
-//ConfirmarTerminarModal.tsx
 "use client";
 
 import React from "react";
@@ -15,7 +14,7 @@ const ConfirmarTerminarModal: React.FC<ConfirmarTerminarModalProps> = ({
   onConfirm 
 }) => {
   return isOpen ? (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
         <div className="w-full px-4 py-4 bg-[var(--hueso)] relative">
           <div className="absolute inset-0 bg-[var(--hueso)] z-0"></div>

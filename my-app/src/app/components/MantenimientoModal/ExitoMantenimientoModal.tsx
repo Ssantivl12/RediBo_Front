@@ -2,30 +2,21 @@
 
 import React from "react";
 
-interface ExitoMantenimientoModalProps {
+interface ExitoTerminarModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onResetForm?: () => void;
 }
 
-const ExitoMantenimientoModal: React.FC<ExitoMantenimientoModalProps> = ({ 
+const ExitoTerminarModal: React.FC<ExitoTerminarModalProps> = ({ 
   isOpen, 
-  onClose,
-  onResetForm
+  onClose 
 }) => {
-  const handleAccept = () => {
-    if (onResetForm) {
-      onResetForm();
-    }
-    onClose();
-  };
-
   return isOpen ? (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
         <div className="bg-[var(--hueso)] w-full p-4 rounded-t-xl">
           <h2 className="text-xl font-semibold text-center text-[var(--azul-oscuro)]">
-            Vehículo puesto en mantenimiento con éxito
+            Mantenimiento terminado con éxito
           </h2>
         </div>
 
@@ -36,20 +27,18 @@ const ExitoMantenimientoModal: React.FC<ExitoMantenimientoModalProps> = ({
             </svg>
           </div>
           <p className="mb-6 text-center text-gray-600 text-sm">
-            La acción se ha realizado correctamente.
+            El vehículo está ahora disponible para renta.
           </p>
-          <div className="flex justify-center">
-            <button 
-              onClick={handleAccept}
-              className="w-1/2 bg-[var(--naranja)] hover:bg-[#e69500] text-white py-2.5 px-4 rounded-md font-medium transition-colors"
-            >
-              Aceptar
-            </button>
-          </div>
+          <button 
+            onClick={onClose} 
+            className="w-full bg-[var(--naranja)] hover:bg-[#dd6b20] text-white py-2.5 px-4 rounded-md font-medium transition-colors"
+          >
+            Aceptar
+          </button>
         </div>
       </div>
     </div>
   ) : null;
 };
 
-export default ExitoMantenimientoModal;
+export default ExitoTerminarModal;

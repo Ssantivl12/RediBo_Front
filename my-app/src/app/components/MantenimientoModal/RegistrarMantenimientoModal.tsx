@@ -42,7 +42,6 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
     
     const [dd, mm, yyyy] = parts.map(Number);
     
-    // Validar día (01-31)
     if (isNaN(dd)) {
       setDateErrors(prev => ({...prev, [fieldName]: 'Día debe ser un número'}));
       return false;
@@ -52,7 +51,6 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
       return false;
     }
     
-    // Validar mes (01-12)
     if (isNaN(mm)) {
       setDateErrors(prev => ({...prev, [fieldName]: 'Mes debe ser un número'}));
       return false;
@@ -62,7 +60,6 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
       return false;
     }
     
-    // Validar año (2025-2030)
     if (isNaN(yyyy)) {
       setDateErrors(prev => ({...prev, [fieldName]: 'Año debe ser un número'}));
       return false;
@@ -72,7 +69,6 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
       return false;
     }
     
-    // Validar fecha real (ej. no 31 de abril)
     const date = new Date(yyyy, mm - 1, dd);
     if (date.getFullYear() !== yyyy || date.getMonth() + 1 !== mm || date.getDate() !== dd) {
       setDateErrors(prev => ({...prev, [fieldName]: 'Fecha inválida'}));
@@ -146,7 +142,6 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
   };
 
   const handleNumberChange = (field: 'costo' | 'kilometraje', value: string) => {
-    // Permitir solo números
     const cleanedValue = value.replace(/[^0-9]/g, '');
     
     setFormData(prev => ({
@@ -173,7 +168,7 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
   };
 
   return isOpen ? (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
         <div className="bg-[var(--hueso)] w-full p-4">
           <h2 className="text-2xl font-semibold text-center text-[var(--azul-oscuro)]">
@@ -249,26 +244,26 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
             </p>
           </div>
 
-            <div>
+          <div>
             <label className="block text-sm font-medium text-[var(--azul-oscuro)] mb-1">
               Costo (Opcional)
             </label>
             <div className="relative">
               <input
-              type="text"
-              value={formData.costo}
-              onChange={(e) => handleNumberChange("costo", e.target.value)}
-              className={`${getInputClass("costo")} pr-10`}
-              inputMode="numeric"
+                type="text"
+                value={formData.costo}
+                onChange={(e) => handleNumberChange("costo", e.target.value)}
+                className={`${getInputClass("costo")} pr-10`}
+                inputMode="numeric"
               />
               <span className="absolute inset-y-0 right-3 flex items-center text-gray-500">
-              Bs
+                Bs
               </span>
             </div>
             {errors.costo && (
               <p className="mt-1 text-sm text-red-600">Solo se permiten números</p>
             )}
-            </div>
+          </div>
 
           <div>
             <label className="block text-sm font-medium text-[var(--azul-oscuro)] mb-1">
@@ -282,7 +277,7 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
               >
                 <option value="Preventivo">Preventivo</option>
                 <option value="Correctivo">Correctivo</option>
-                <option value="Correctivo">Revision</option>
+                <option value="Revision">Revisión</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                 <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
@@ -296,31 +291,31 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
             </div>
           </div>
 
-            <div>
+          <div>
             <label className="block text-sm font-medium text-[var(--azul-oscuro)] mb-1">
               Kilometraje <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <input
-              type="text"
-              value={formData.kilometraje}
-              onChange={(e) => handleNumberChange("kilometraje", e.target.value)}
-              className={`${getInputClass("kilometraje")} pr-10`}
-              inputMode="numeric"
-              required
+                type="text"
+                value={formData.kilometraje}
+                onChange={(e) => handleNumberChange("kilometraje", e.target.value)}
+                className={`${getInputClass("kilometraje")} pr-10`}
+                inputMode="numeric"
+                required
               />
               <span className="absolute inset-y-0 right-3 flex items-center text-gray-500">
-              km
+                km
               </span>
             </div>
             {errors.kilometraje && (
               <p className="mt-1 text-sm text-red-600">
-              {isNaN(Number(formData.kilometraje)) 
-                ? "Solo se permiten números" 
-                : "Este campo es obligatorio"}
+                {isNaN(Number(formData.kilometraje)) 
+                  ? "Solo se permiten números" 
+                  : "Este campo es obligatorio"}
               </p>
             )}
-            </div>
+          </div>
 
           <div className="flex justify-between mt-6 space-x-3">
             <button
