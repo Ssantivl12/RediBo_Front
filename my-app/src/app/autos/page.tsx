@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState} from 'react';
 import { getAutos } from '@/libs/api';
 import { Auto } from '@/types/auto';
 import Image from 'next/image';
@@ -30,11 +30,11 @@ export default function AutosPage() {
 
     const valor = busqueda.toLowerCase().trim();
     const palabras = valor.split(/[\s-]+/);
-
+    
     if (palabras.length === 2) {
       const [marca, modelo] = palabras;
-      const filtrados = autos.filter(auto =>
-        auto.marca.toLowerCase().includes(marca) &&
+      const filtrados = autos.filter(auto => 
+        auto.marca.toLowerCase().includes(marca) && 
         auto.modelo.toLowerCase().includes(modelo)
       );
       setAutosFiltrados(ordenarResultados(filtrados));
@@ -54,21 +54,21 @@ export default function AutosPage() {
     return [...autos].sort((a, b) => {
       const aMarcaStarts = a.marca.toLowerCase().startsWith(termino);
       const bMarcaStarts = b.marca.toLowerCase().startsWith(termino);
-
+      
       if (aMarcaStarts && !bMarcaStarts) return -1;
       if (!aMarcaStarts && bMarcaStarts) return 1;
-
+      
       const marcaCompare = a.marca.localeCompare(b.marca);
       if (marcaCompare !== 0) return marcaCompare;
-
+      
       return a.modelo.localeCompare(b.modelo);
     });
   };
 
   const aplicarOrden = (opcion: string) => {
     const autosOrdenados = [...autosFiltrados];
-
-    switch (opcion) {
+    
+    switch(opcion) {
       case 'Mejor calificación':
         autosOrdenados.sort((a, b) => (b.calificacionPromedio ?? 0) - (a.calificacionPromedio ?? 0));
         break;
@@ -93,7 +93,7 @@ export default function AutosPage() {
       default:
         break;
     }
-
+    
     setAutosFiltrados(autosOrdenados);
   };
 
@@ -102,9 +102,9 @@ export default function AutosPage() {
       <div className="max-w-4xl mx-auto px-4 py-2">
         {/* Barra de búsqueda */}
         <div className="mb-4">
-          <BarraBusqueda
-            onBuscar={filtrarAutos}
-            totalResultados={autosFiltrados.length}
+          <BarraBusqueda 
+            onBuscar={filtrarAutos} 
+            totalResultados={autosFiltrados.length} 
           />
         </div>
 
@@ -139,6 +139,7 @@ export default function AutosPage() {
                         </div>
                       )}
                     </div>
+                    
                     {/* Promedio y estrellas - Debajo de la imagen */}
                     <div className="flex items-center justify-center mt-8">
                       <div className="flex items-center gap-8">
@@ -151,12 +152,14 @@ export default function AutosPage() {
                       </div>
                     </div>
                   </div>
+
                   {/* Detalles + Precio y Botón */}
                   <div className="flex-1 min-w-0 flex flex-col justify-between">
                     <div className="bg-white p-5 w-full h-full flex flex-col justify-between">
                       <h2 className="text-[#11295B] text-xl font-bold mb-4">
                         {auto.marca} - {auto.modelo}
                       </h2>
+
                       {/* Características */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4">
                         {/* Columna 1 */}
@@ -196,6 +199,7 @@ export default function AutosPage() {
                             </div>
                           ))}
                         </div>
+
                         {/* Columna 2 */}
                         <div className="flex flex-col gap-5">
                           {[
@@ -233,26 +237,23 @@ export default function AutosPage() {
                         <div className="hidden lg:block"></div>
                       </div>
 
-                          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mt-4">
-                            <div className="sm:pl-50 sm:-mt-15">
-                              <div>
-                                <p className="text-sm text-gray-600">Precio por día</p>
-                                <p className="text-lg font-semibold text-[#11295B]">
-                                  {auto.precioRentaDiario} BOB
-                                </p>
-                              </div>
-
-                              {/* Botón Ver detalles */}
-                              <Link
-                                className="px-4 py-2 bg-[#FCA311] text-white no-underline rounded-lg font-bold transition-colors duration-300 ease-in-out hover:bg-[#e4920b] text-center w-full sm:w-auto"
-                                href={`/detalleCoche/${auto.idAuto}`}
-                                target="_blank"
-                              >
-                                Ver detalles
-                              </Link>
-                            </div>
-                          </div>
-
+                      {/* Precio y botón */}
+                      <div className="flex flex-row justify-between items-center mt-2 sm:mt-4">
+                        <div className="text-left">
+                          <p className="text-sm text-gray-600">Precio por día</p>
+                          <p className="text-lg font-semibold text-[#11295B]">
+                            {auto.precioRentaDiario} BOB
+                          </p>
+                        </div>
+                        
+                        <Link
+                          className="inline-block px-4 py-2 bg-[#FCA311] text-white no-underline rounded-lg font-bold transition-colors duration-300 ease-in-out hover:bg-[#e4920b]"
+                          href={`/detalleCoche/${auto.idAuto}`}
+                          target="_blank"
+                        >
+                          Ver detalles
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </div>
