@@ -1,7 +1,7 @@
-
 'use client';
 
 import React, { useState } from 'react';
+import MantenimientoComponent from '../MantenimientoModal/MantenimientoComponent';
 
 const autos = [
   {
@@ -34,6 +34,8 @@ const autos = [
 export default function GestionarVehiculos() {
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
   const [mostrarExito, setMostrarExito] = useState(false);
+  const [vehiculos, setVehiculos] = useState(autos);
+  const [mantenimientoActivo, setMantenimientoActivo] = useState(false);
 
   const handleLiberar = () => {
     setMostrarConfirmacion(true);
@@ -44,9 +46,43 @@ export default function GestionarVehiculos() {
     setMostrarExito(true);
   };
 
+  const handleMantenimientoExitoso = () => {
+    setMantenimientoActivo(true);
+    // Actualizar el estado del vehículo correspondiente
+    const nuevosVehiculos = vehiculos.map(vehiculo => {
+      if (vehiculo.placa === 'DEF-456') {
+        return {
+          ...vehiculo,
+          estado: 'En Mantenimiento',
+          boton: 'Terminar Mantenimiento',
+          colorBoton: 'bg-[#FCA311] hover:bg-yellow-500'
+        };
+      }
+      return vehiculo;
+    });
+    setVehiculos(nuevosVehiculos);
+  };
+
+  const handleTerminarMantenimiento = () => {
+    setMantenimientoActivo(false);
+    // Actualizar el estado del vehículo correspondiente
+    const nuevosVehiculos = vehiculos.map(vehiculo => {
+      if (vehiculo.placa === 'DEF-456') {
+        return {
+          ...vehiculo,
+          estado: 'Disponible',
+          boton: 'Poner en Mantenimiento',
+          colorBoton: 'bg-[#11295B] hover:bg-blue-800'
+        };
+      }
+      return vehiculo;
+    });
+    setVehiculos(nuevosVehiculos);
+  };
+
   return (
     <div className="space-y-6 px-4 py-6">
-      {autos.map((auto, index) => (
+      {vehiculos.map((auto, index) => (
         <div
           key={index}
           className="flex items-start bg-[#D8C4A7] p-6 rounded-lg shadow-md space-x-6"
@@ -83,12 +119,22 @@ export default function GestionarVehiculos() {
             )}
 
             {auto.boton && (
-              <button
-                onClick={auto.boton === 'Liberar Auto' ? handleLiberar : undefined}
-                className={`${auto.colorBoton} text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors`}
-              >
-                {auto.boton}
-              </button>
+              <div>
+                {auto.placa === 'DEF-456' ? (
+                  <MantenimientoComponent 
+                    onMantenimientoExitoso={handleMantenimientoExitoso}
+                    onTerminarMantenimiento={handleTerminarMantenimiento}
+                    estadoInicial={auto.estado === 'En Mantenimiento'}
+                  />
+                ) : (
+                  <button
+                    onClick={auto.boton === 'Liberar Auto' ? handleLiberar : undefined}
+                    className={`${auto.colorBoton} text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors`}
+                  >
+                    {auto.boton}
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -158,4 +204,3 @@ export default function GestionarVehiculos() {
     </div>
   );
 }
-

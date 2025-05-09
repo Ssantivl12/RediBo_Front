@@ -17,13 +17,24 @@ interface MantenimientoData {
   kilometraje: string;
 }
 
-const MantenimientoComponent: React.FC = () => {
+interface MantenimientoComponentProps {
+  onMantenimientoExitoso: () => void;
+  onTerminarMantenimiento: () => void;
+  estadoInicial: boolean;
+}
+
+const MantenimientoComponent: React.FC<MantenimientoComponentProps> = ({
+  onMantenimientoExitoso,
+  onTerminarMantenimiento,
+  estadoInicial
+}) => {
   const [isRegistrarModalOpen, setIsRegistrarModalOpen] = useState(false);
   const [isConfirmarModalOpen, setIsConfirmarModalOpen] = useState(false);
   const [isExitoModalOpen, setIsExitoModalOpen] = useState(false);
   const [isConfirmarTerminarModalOpen, setIsConfirmarTerminarModalOpen] = useState(false);
   const [isExitoTerminarModalOpen, setIsExitoTerminarModalOpen] = useState(false);
   const [isCancelarModalOpen, setIsCancelarModalOpen] = useState(false);
+  const [enMantenimiento, setEnMantenimiento] = useState(estadoInicial);
   
   const [formData, setFormData] = useState<MantenimientoData>({
     fechaInicio: "",
@@ -43,6 +54,8 @@ const MantenimientoComponent: React.FC = () => {
   const handleConfirmarMantenimiento = () => {
     setIsConfirmarModalOpen(false);
     setIsExitoModalOpen(true);
+    setEnMantenimiento(true);
+    onMantenimientoExitoso();
     console.log("Datos enviados:", formData);
   };
 
@@ -54,6 +67,8 @@ const MantenimientoComponent: React.FC = () => {
   const handleConfirmarTerminarMantenimiento = () => {
     setIsConfirmarTerminarModalOpen(false);
     setIsExitoTerminarModalOpen(true);
+    setEnMantenimiento(false);
+    onTerminarMantenimiento();
   };
 
   const resetFormData = () => {
@@ -68,20 +83,22 @@ const MantenimientoComponent: React.FC = () => {
   };
 
   return (
-    <div className="flex gap-4">
-      <button 
-        onClick={() => setIsRegistrarModalOpen(true)} 
-        className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md transition-colors"
-      >
-        Poner en mantenimiento
-      </button>
-
-      <button 
-        onClick={() => setIsConfirmarTerminarModalOpen(true)} 
-        className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md transition-colors"
-      >
-        Terminar mantenimiento
-      </button>
+    <div>
+      {enMantenimiento ? (
+        <button 
+          onClick={() => setIsConfirmarTerminarModalOpen(true)} 
+          className="bg-[#FCA311] hover:bg-yellow-500 text-white py-2 px-4 rounded-md transition-colors"
+        >
+          Terminar mantenimiento
+        </button>
+      ) : (
+        <button 
+          onClick={() => setIsRegistrarModalOpen(true)} 
+          className="bg-[#11295B] hover:bg-blue-800 text-white py-2 px-4 rounded-md transition-colors"
+        >
+          Poner en mantenimiento
+        </button>
+      )}
 
       <RegistrarMantenimientoModal
         isOpen={isRegistrarModalOpen}
