@@ -32,7 +32,7 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
   const [dateErrors, setDateErrors] = useState<{fechaInicio?: string; fechaFin?: string}>({});
 
   const validateDate = (dateStr: string, fieldName: string) => {
-    if (!dateStr) return false;
+    if (!dateStr) return true; // Return true for empty optional fields
     
     const parts = dateStr.split('/');
     if (parts.length !== 3 || parts.some(part => !part)) {
@@ -87,7 +87,8 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
       newErrors.fechaInicio = true;
       isValid = false;
     }
-    if (!formData.fechaFin || !validateDate(formData.fechaFin, 'fechaFin')) {
+    // Fecha Fin is now optional - only validate if there's a value
+    if (formData.fechaFin && !validateDate(formData.fechaFin, 'fechaFin')) {
       newErrors.fechaFin = true;
       isValid = false;
     }
@@ -198,7 +199,7 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
 
           <div>
             <label className="block text-sm font-medium text-[var(--azul-oscuro)] mb-1">
-              Fecha de Fin (dd/mm/yyyy) <span className="text-red-500">*</span>
+              Fecha de Fin (dd/mm/yyyy)
             </label>
             <input
               type="text"
@@ -206,11 +207,10 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
               onChange={(e) => handleDateChange("fechaFin", e.target.value)}
               placeholder="dd/mm/yyyy"
               className={getInputClass("fechaFin")}
-              required
             />
             {errors.fechaFin && (
               <p className="mt-1 text-sm text-red-600">
-                {dateErrors.fechaFin || "Este campo es obligatorio"}
+                {dateErrors.fechaFin}
               </p>
             )}
           </div>
