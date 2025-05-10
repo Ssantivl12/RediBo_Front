@@ -9,11 +9,11 @@ interface ReservaBarraProps {
   onDatesChange?: (pickupDate: string, pickupTime: string, returnDate: string, returnTime: string) => void;
 }
 
-const ReservaBarra: React.FC<ReservaBarraProps> = ({ onDatesChange }) => {
+const ReservaBarra: React.FC<ReservaBarraProps> = () => {
   const [pickupDate, setPickupDate] = useState<Date | null>(null);
-  const [pickupTime, setPickupTime] = useState("10:00");
+  const [pickupTime, setPickupTime] = useState<string>(""); // Inicializado en blanco
   const [returnDate, setReturnDate] = useState<Date | null>(null);
-  const [returnTime, setReturnTime] = useState("14:00");
+  const [returnTime, setReturnTime] = useState<string>(""); // Inicializado en blanco
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const handleDatesChange = () => {
@@ -42,14 +42,6 @@ const ReservaBarra: React.FC<ReservaBarraProps> = ({ onDatesChange }) => {
 
       // Si no hay errores
       setErrorMessage(""); // Limpia los errores
-      if (onDatesChange) {
-        onDatesChange(
-          pickupDate.toISOString().split('T')[0], // Formato YYYY-MM-DD
-          pickupTime,
-          returnDate.toISOString().split('T')[0], // Formato YYYY-MM-DD
-          returnTime
-        );
-      }
     }
   };
 
@@ -70,7 +62,7 @@ const ReservaBarra: React.FC<ReservaBarraProps> = ({ onDatesChange }) => {
           <CalendarIcon className="h-[60px] w-[60px] text-gray-800" />
           <div>
             <label htmlFor="pickup-date" className="text-sm font-bold text-blue-950">
-              Fecha de recogida
+              Fecha de recogida:
             </label>
             <DatePicker
               selected={pickupDate}
@@ -90,7 +82,7 @@ const ReservaBarra: React.FC<ReservaBarraProps> = ({ onDatesChange }) => {
           <ClockIcon className="h-[60px] w-[60px] text-gray-800" />
           <div>
             <label htmlFor="pickup-time" className="text-sm font-bold text-blue-950">
-              Hora de recogida
+              Hora de recogida:
             </label>
             <select
               id="pickup-time"
@@ -101,6 +93,7 @@ const ReservaBarra: React.FC<ReservaBarraProps> = ({ onDatesChange }) => {
               }}
               className="border rounded p-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-black w-20"
             >
+              <option value=""></option> {/* Opción vacía */}
               {generateTimeOptions()}
             </select>
           </div>
@@ -111,7 +104,7 @@ const ReservaBarra: React.FC<ReservaBarraProps> = ({ onDatesChange }) => {
           <CalendarIcon className="h-[60px] w-[60px] text-gray-800" />
           <div>
             <label htmlFor="return-date" className="text-sm font-bold text-blue-950">
-              Fecha de devolución
+              Fecha de devolución:
             </label>
             <DatePicker
               selected={returnDate}
@@ -131,7 +124,7 @@ const ReservaBarra: React.FC<ReservaBarraProps> = ({ onDatesChange }) => {
           <ClockIcon className="h-[60px] w-[60px] text-gray-800" />
           <div>
             <label htmlFor="return-time" className="text-sm font-bold text-blue-950">
-              Hora de devolución
+              Hora de devolución:
             </label>
             <select
               id="return-time"
@@ -142,6 +135,7 @@ const ReservaBarra: React.FC<ReservaBarraProps> = ({ onDatesChange }) => {
               }}
               className="border rounded p-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-black w-20"
             >
+              <option value=""></option> {/* Opción vacía */}
               {generateTimeOptions()}
             </select>
           </div>

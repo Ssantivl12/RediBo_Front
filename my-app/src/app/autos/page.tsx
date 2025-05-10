@@ -97,35 +97,13 @@ export default function AutosPage() {
     
     setAutosFiltrados(autosOrdenados);
   };
-
-
-
+  
   const handleDatesChange = (pickupDate: string, pickupTime: string, returnDate: string, returnTime: string) => {
-    try {
-      const pickupDateTime = new Date(`${pickupDate}T${pickupTime}:00`);
-      const returnDateTime = new Date(`${returnDate}T${returnTime}:00`);
-  
-      if (isNaN(pickupDateTime.getTime()) || isNaN(returnDateTime.getTime())) {
-        throw new Error('Las fechas u horas proporcionadas no son válidas.');
-      }
-  
-      if (pickupDateTime >= returnDateTime) {
-        alert('La fecha y hora de devolución deben ser posteriores a la de recogida.');
-        return;
-      }
-  
-      console.log('Fecha y hora de recogida:', pickupDateTime);
-      console.log('Fecha y hora de devolución:', returnDateTime);
-    } catch (error) {
-      if (error instanceof Error) {
-        alert(error.message);
-      } else {
-        alert('Ocurrió un error desconocido.');
-      }
-    }
-  };
-  
-  
+    console.log('Fecha de recogida:', pickupDate);
+    console.log('Hora de recogida:', pickupTime);
+    console.log('Fecha de devolución:', returnDate);
+    console.log('Hora de devolución:', returnTime);
+  }
 
   return (
     <>
@@ -133,7 +111,7 @@ export default function AutosPage() {
 
         {/* Barra de reserva */}
       <div className="mb-4">
-        <BarraReserva onDatesChange={handleDatesChange} />
+        <BarraReserva onDatesChange={handleDatesChange} />
       </div>
 
         {/* Barra de búsqueda */}
