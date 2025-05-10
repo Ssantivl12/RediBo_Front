@@ -1,52 +1,69 @@
 'use client';
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { CalendarIcon, ClockIcon } from '@heroicons/react/24/outline';
 import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css"; // Estilos del calendario
-
+import "react-datepicker/dist/react-datepicker.css";
 
 const ReservaBarra: React.FC = () => {
   const [pickupDate, setPickupDate] = useState<Date | null>(null);
-  const [pickupTime, setPickupTime] = useState<string>(""); // Inicializado en blanco
+  const [pickupTime, setPickupTime] = useState<string>("");
   const [returnDate, setReturnDate] = useState<Date | null>(null);
-  const [returnTime, setReturnTime] = useState<string>(""); // Inicializado en blanco
+  const [returnTime, setReturnTime] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const handleDatesChange = () => {
+    setErrorMessage(""); // Limpiar errores anteriores
+  
+    // Validación de fecha sin importar hora
     if (pickupDate && returnDate) {
-      const pickupDateTime = new Date(
-        `${pickupDate.toISOString().split('T')[0]}T${pickupTime}`
-      );
-      const returnDateTime = new Date(
-        `${returnDate.toISOString().split('T')[0]}T${returnTime}`
-      );
-
-      // Validación 1: Fecha de devolución no debe ser antes que la de recogida
-      if (returnDateTime < pickupDateTime) {
-        setErrorMessage("La fecha de devolución no puede ser anterior a la fecha de recogida.");
+      const pickupDay = new Date(pickupDate);
+      pickupDay.setHours(0, 0, 0, 0);
+      const returnDay = new Date(returnDate);
+      returnDay.setHours(0, 0, 0, 0);
+  
+      if (returnDay < pickupDay) {
+        setErrorMessage("La fecha de devolución debe ser posterior a la fecha de recogida.");
         return;
       }
-
-      // Validación 2: Si las fechas son iguales, la hora de devolución debe ser posterior a la hora de recogida
-      if (
-        pickupDate.toISOString().split('T')[0] === returnDate.toISOString().split('T')[0] &&
-        returnTime <= pickupTime
-      ) {
+    }
+  
+    // Validación completa de fecha y hora
+    if (pickupDate && returnDate && pickupTime && returnTime) {
+      const pickupDateTime = new Date(pickupDate);
+      const [pickupHour, pickupMinute] = pickupTime.split(":").map(Number);
+      pickupDateTime.setHours(pickupHour, pickupMinute || 0, 0, 0);
+  
+      const returnDateTime = new Date(returnDate);
+      const [returnHour, returnMinute] = returnTime.split(":").map(Number);
+      returnDateTime.setHours(returnHour, returnMinute || 0, 0, 0);
+  
+      if (pickupDateTime.getTime() === returnDateTime.getTime()) {
+        setErrorMessage("La fecha y hora de recogida y devolución no pueden ser iguales.");
+        return;
+      }
+  
+      const sameDay =
+        pickupDate.toISOString().split("T")[0] === returnDate.toISOString().split("T")[0];
+  
+      if (sameDay && returnTime <= pickupTime) {
         setErrorMessage("La hora de devolución debe ser posterior a la hora de recogida.");
         return;
       }
-
-      // Si no hay errores
-      setErrorMessage(""); // Limpia los errores
-
-      console.log('Fecha de recogida:', pickupDate.toISOString().split('T')[0]);
-      console.log('Hora de recogida:', pickupTime);
-      console.log('Fecha de devolución:', returnDate.toISOString().split('T')[0]);
-      console.log('Hora de devolución:', returnTime);
-
+  
+      if (returnDateTime <= pickupDateTime) {
+        setErrorMessage("La fecha y hora de devolución deben ser posteriores a las de recogida.");
+        return;
+      }
     }
+  
+    // Todo válido
+    setErrorMessage("");
   };
+
+  useEffect(() => {
+    handleDatesChange();
+  }, [pickupDate, pickupTime, returnDate, returnTime]);
 
   const generateTimeOptions = () => {
     const times = [];
@@ -69,13 +86,11 @@ const ReservaBarra: React.FC = () => {
             </label>
             <DatePicker
               selected={pickupDate}
-              onChange={(date: Date | null) => {
-                setPickupDate(date);
-                handleDatesChange();
-              }}
+              onChange={(date: Date | null) => setPickupDate(date)}
               dateFormat="dd/MM/yyyy"
               className="border rounded p-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-black w-28"
-              popperClassName="z-50"
+              popperClassName="z-[9999]"
+              portalId="root-portal"
             />
           </div>
         </div>
@@ -90,13 +105,10 @@ const ReservaBarra: React.FC = () => {
             <select
               id="pickup-time"
               value={pickupTime}
-              onChange={(e) => {
-                setPickupTime(e.target.value);
-                handleDatesChange();
-              }}
+              onChange={(e) => setPickupTime(e.target.value)}
               className="border rounded p-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-black w-20"
             >
-              <option value=""></option> {/* Opción vacía */}
+              <option value=""></option>
               {generateTimeOptions()}
             </select>
           </div>
@@ -111,13 +123,10 @@ const ReservaBarra: React.FC = () => {
             </label>
             <DatePicker
               selected={returnDate}
-              onChange={(date: Date | null) => {
-                setReturnDate(date);
-                handleDatesChange();
-              }}
+              onChange={(date: Date | null) => setReturnDate(date)}
               dateFormat="dd/MM/yyyy"
               className="border rounded p-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-black w-28"
-              popperClassName="z-50"
+              popperClassName="z-[9999]"
             />
           </div>
         </div>
@@ -132,20 +141,17 @@ const ReservaBarra: React.FC = () => {
             <select
               id="return-time"
               value={returnTime}
-              onChange={(e) => {
-                setReturnTime(e.target.value);
-                handleDatesChange();
-              }}
+              onChange={(e) => setReturnTime(e.target.value)}
               className="border rounded p-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-black w-20"
             >
-              <option value=""></option> {/* Opción vacía */}
+              <option value=""></option>
               {generateTimeOptions()}
             </select>
           </div>
         </div>
       </div>
 
-      {/* Mostrar mensaje de error */}
+      {/* Mensaje de error */}
       {errorMessage && (
         <p className="text-red-600 mt-2 text-sm font-medium">{errorMessage}</p>
       )}
