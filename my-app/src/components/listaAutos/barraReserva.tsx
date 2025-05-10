@@ -18,9 +18,9 @@ const ReservaBarra: React.FC<ReservaBarraProps> = ({ onDatesChange }) => {
   const handleDatesChange = () => {
     if (onDatesChange && pickupDate && returnDate) {
       onDatesChange(
-        pickupDate.toISOString().split('T')[0], // Formato YYYY-MM-DD
+        pickupDate.toISOString().split('T')[0],
         pickupTime,
-        returnDate.toISOString().split('T')[0], // Formato YYYY-MM-DD
+        returnDate.toISOString().split('T')[0],
         returnTime
       );
     }
@@ -36,23 +36,23 @@ const ReservaBarra: React.FC<ReservaBarraProps> = ({ onDatesChange }) => {
   };
 
   return (
-    <div className="flex flex-wrap items-center border rounded-lg p-4 bg-white shadow-md space-x-4 z-10 relative">
+    <div className="flex items-center border rounded-lg p-4 bg-white shadow-md space-x-8">
       {/* Fecha de recogida */}
       <div className="flex items-center space-x-2">
         <CalendarIcon className="h-5 w-5 text-gray-500" />
         <div>
-          <label htmlFor="pickup-date" className="text-sm font-medium text-black">
+          <label htmlFor="pickup-date" className="text-sm font-medium text-gray-800">
             Fecha de recogida
           </label>
           <DatePicker
             selected={pickupDate}
             onChange={(date: Date | null) => {
-              setPickupDate(date); // Aquí manejamos el valor como Date o null
+              setPickupDate(date);
               handleDatesChange();
             }}
             dateFormat="yyyy-MM-dd"
-            className="border rounded p-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-black"
-            popperClassName="z-50" // Asegura que el calendario esté por encima de otros elementos
+            className="border rounded p-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-800"
+            popperClassName="z-50"
           />
         </div>
       </div>
@@ -61,7 +61,7 @@ const ReservaBarra: React.FC<ReservaBarraProps> = ({ onDatesChange }) => {
       <div className="flex items-center space-x-2">
         <ClockIcon className="h-5 w-5 text-gray-500" />
         <div>
-          <label htmlFor="pickup-time" className="text-sm font-medium text-black">
+          <label htmlFor="pickup-time" className="text-sm font-medium text-gray-800">
             Hora de recogida
           </label>
           <select
@@ -71,7 +71,7 @@ const ReservaBarra: React.FC<ReservaBarraProps> = ({ onDatesChange }) => {
               setPickupTime(e.target.value);
               handleDatesChange();
             }}
-            className="border rounded p-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-black"
+            className="border rounded p-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-800"
           >
             {generateTimeOptions()}
           </select>
@@ -82,18 +82,18 @@ const ReservaBarra: React.FC<ReservaBarraProps> = ({ onDatesChange }) => {
       <div className="flex items-center space-x-2">
         <CalendarIcon className="h-5 w-5 text-gray-500" />
         <div>
-          <label htmlFor="return-date" className="text-sm font-medium text-black">
+          <label htmlFor="return-date" className="text-sm font-medium text-gray-800">
             Fecha de devolución
           </label>
           <DatePicker
             selected={returnDate}
             onChange={(date: Date | null) => {
-              setReturnDate(date); // Aquí manejamos el valor como Date o null
+              setReturnDate(date);
               handleDatesChange();
             }}
             dateFormat="yyyy-MM-dd"
-            className="border rounded p-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-black"
-            popperClassName="z-50" // Asegura que el calendario esté por encima de otros elementos
+            className="border rounded p-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-800"
+            popperClassName="z-50"
           />
         </div>
       </div>
@@ -102,7 +102,7 @@ const ReservaBarra: React.FC<ReservaBarraProps> = ({ onDatesChange }) => {
       <div className="flex items-center space-x-2">
         <ClockIcon className="h-5 w-5 text-gray-500" />
         <div>
-          <label htmlFor="return-time" className="text-sm font-medium text-black">
+          <label htmlFor="return-time" className="text-sm font-medium text-gray-800">
             Hora de devolución
           </label>
           <select
@@ -112,7 +112,7 @@ const ReservaBarra: React.FC<ReservaBarraProps> = ({ onDatesChange }) => {
               setReturnTime(e.target.value);
               handleDatesChange();
             }}
-            className="border rounded p-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-black"
+            className="border rounded p-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-800"
           >
             {generateTimeOptions()}
           </select>
