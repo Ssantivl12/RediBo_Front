@@ -8,6 +8,7 @@ import BarraBusqueda from '@/components/Auto/BusquedaAuto/BarraBusqueda';
 import Link from 'next/link';
 import Estrellas from '@/components/Auto/Estrellas';
 import OrdenadoPor from '@/components/Auto/Ordenamiento/OrdenadoPor';
+import BarraReserva from '@/components/listaAutos/barraReserva';
 
 export default function AutosPage() {
   const [autos, setAutos] = useState<Auto[]>([]);
@@ -97,9 +98,44 @@ export default function AutosPage() {
     setAutosFiltrados(autosOrdenados);
   };
 
+
+
+  const handleDatesChange = (pickupDate: string, pickupTime: string, returnDate: string, returnTime: string) => {
+    try {
+      const pickupDateTime = new Date(`${pickupDate}T${pickupTime}:00`);
+      const returnDateTime = new Date(`${returnDate}T${returnTime}:00`);
+  
+      if (isNaN(pickupDateTime.getTime()) || isNaN(returnDateTime.getTime())) {
+        throw new Error('Las fechas u horas proporcionadas no son válidas.');
+      }
+  
+      if (pickupDateTime >= returnDateTime) {
+        alert('La fecha y hora de devolución deben ser posteriores a la de recogida.');
+        return;
+      }
+  
+      console.log('Fecha y hora de recogida:', pickupDateTime);
+      console.log('Fecha y hora de devolución:', returnDateTime);
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert('Ocurrió un error desconocido.');
+      }
+    }
+  };
+  
+  
+
   return (
     <>
       <div className="max-w-4xl mx-auto px-4 py-2">
+
+        {/* Barra de reserva */}
+      <div className="mb-4">
+        <BarraReserva onDatesChange={handleDatesChange} />
+      </div>
+
         {/* Barra de búsqueda */}
         <div className="mb-4">
           <BarraBusqueda 
