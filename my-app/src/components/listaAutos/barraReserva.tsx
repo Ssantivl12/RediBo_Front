@@ -5,11 +5,8 @@ import { CalendarIcon, ClockIcon } from '@heroicons/react/24/outline';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css"; // Estilos del calendario
 
-interface ReservaBarraProps {
-  onDatesChange?: (pickupDate: string, pickupTime: string, returnDate: string, returnTime: string) => void;
-}
 
-const ReservaBarra: React.FC<ReservaBarraProps> = () => {
+const ReservaBarra: React.FC = () => {
   const [pickupDate, setPickupDate] = useState<Date | null>(null);
   const [pickupTime, setPickupTime] = useState<string>(""); // Inicializado en blanco
   const [returnDate, setReturnDate] = useState<Date | null>(null);
@@ -42,6 +39,12 @@ const ReservaBarra: React.FC<ReservaBarraProps> = () => {
 
       // Si no hay errores
       setErrorMessage(""); // Limpia los errores
+
+      console.log('Fecha de recogida:', pickupDate.toISOString().split('T')[0]);
+      console.log('Hora de recogida:', pickupTime);
+      console.log('Fecha de devolución:', returnDate.toISOString().split('T')[0]);
+      console.log('Hora de devolución:', returnTime);
+
     }
   };
 

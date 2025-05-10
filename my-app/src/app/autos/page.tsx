@@ -97,22 +97,15 @@ export default function AutosPage() {
     
     setAutosFiltrados(autosOrdenados);
   };
-  
-  const handleDatesChange = (pickupDate: string, pickupTime: string, returnDate: string, returnTime: string) => {
-    console.log('Fecha de recogida:', pickupDate);
-    console.log('Hora de recogida:', pickupTime);
-    console.log('Fecha de devolución:', returnDate);
-    console.log('Hora de devolución:', returnTime);
-  }
 
   return (
     <>
       <div className="max-w-4xl mx-auto px-4 py-2">
 
         {/* Barra de reserva */}
-      <div className="mb-4">
-        <BarraReserva onDatesChange={handleDatesChange} />
-      </div>
+        <div className="mb-4">
+          <BarraReserva />
+        </div>
 
         {/* Barra de búsqueda */}
         <div className="mb-4">
