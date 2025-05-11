@@ -168,7 +168,7 @@ export default function AutosPage() {
                       </h2>
 
                       {/* Características */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-4 sm:gap-y-6 gap-x-4 lg:gap-x-30 mb-4">
                         {/* Columna 1 */}
                         <div className="flex flex-col gap-5">
                           {[
@@ -199,7 +199,7 @@ export default function AutosPage() {
                               />
                               <div className="flex flex-col">
                                 <span className="font-bold text-[16px] text-black whitespace-nowrap">
-                                  {value}
+                                  {value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()}
                                 </span>
                                 <span className="text-[14px] text-[#292929]">{label}</span>
                               </div>
@@ -232,7 +232,7 @@ export default function AutosPage() {
                               />
                               <div className="flex flex-col">
                                 <span className="font-bold text-[16px] text-black whitespace-nowrap">
-                                  {value}
+                                  {value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()}
                                 </span>
                                 <span className="text-[14px] text-[#292929]">{label}</span>
                               </div>

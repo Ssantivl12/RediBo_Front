@@ -24,7 +24,10 @@ export default function Caracteristicas({ auto }: { auto: Auto }) {
           <Image src={icon} alt={label} width={50} height={50} className="w-[50px] h-[50px]" unoptimized />
           <div className="flex flex-col">
             <span className="font-bold text-[16px] text-black whitespace-nowrap">
-              {String(auto[key])}{suffix}
+              {String(auto[key])
+                .charAt(0)
+                .toUpperCase() + String(auto[key]).slice(1).toLowerCase()}
+              {suffix}
             </span>
             <span className="text-[14px] text-[#292929]">{label}</span>
           </div>
