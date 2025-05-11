@@ -1,36 +1,50 @@
 'use client';
+import React from 'react';
 
-import { useState } from 'react';
+interface FiltersBarProps {
+  activeFilter: string;
+  onFilterChange: (filter: string) => void;
+}
 
-export default function FiltersBar() {
-  const filtros = ['Filtro 1', 'Filtro 2', 'Filtro 3', 'Filtro 4', 'Filtro 5', 'Filtro 6', 'Filtro 7'];
-  const [filtroActivo, setFiltroActivo] = useState(filtros[0]);
+const FiltersBar: React.FC<FiltersBarProps> = ({ activeFilter, onFilterChange }) => {
+  // Opciones de filtros disponibles
+  const botones = [
+    { id: 'todos', label: 'Todos' },
+    { id: 'solicitudes', label: 'Solicitudes pendientes' },
+    { id: 'rentados', label: 'En renta' },
+    { id: 'disponibles', label: 'Disponibles' }
+  ];
 
   return (
-    <div className="flex justify-center items-center px-4 py-2 bg-white font-[var(--fuente-principal)] border-b-[2px] border-[rgba(0,0,0,0.2)] shadow-[0_4px_10px_rgba(0,0,0,0.25)] rounded-b-[20px]">
-      <div className="flex gap-16 overflow-x-auto scrollbar-hide text-[rgba(0,0,0,0.64)]">
-        {filtros.map((filtro) => (
-          <span
-            key={filtro}
-            onClick={() => setFiltroActivo(filtro)}
-            className={`cursor-pointer whitespace-nowrap ${
-              filtro === filtroActivo
-                ? 'text-[var(--naranja)] font-bold underline'
-                : ''
-            }`}
-          >
-            {filtro}
+    <>
+      <div className="space-y-1 mb-4">
+        <h1 className="text-2xl font-bold text-[#11295B]">Solicitudes de Renta</h1>
+        <p className="text-[#11295B]">Aprueba o deniega las solicitudes de renta para tus autos</p>
+      </div>
+      
+      <div className="p-4 bg-[#e7d7c3] rounded-lg inline-block w-full">
+        <div className="flex flex-wrap items-center gap-4">
+          <span className="text-sm font-medium w-full sm:w-auto">
+            Filtrar por:
           </span>
-        ))}
+          {botones.map((btn) => (
+            <button
+              key={btn.id}
+              onClick={() => onFilterChange(btn.id)}  
+              className={`px-4 py-1 rounded-full border text-sm font-medium transition
+              ${
+                activeFilter === btn.id
+                ? "bg-blue-900 text-white shadow-sm"
+                : "bg-white text-blue-900 border-blue-900 hover:bg-blue-900 hover:text-white"
+              }`}
+            >
+              {btn.label}
+            </button>
+          ))}
+        </div>
       </div>
-      <div className="flex items-center gap-12 ml-4">
-        <button className="bg-white border-2 border-[rgba(0,0,0,0.2)] rounded px-2 py-1 cursor-pointer">
-          &gt;
-        </button>
-        <button className="bg-[var(--naranja)] text-[var(--blanco)] font-bold rounded px-8 py-2 shadow-[0px_4px_3px_rgba(1,0,0,0.165)] cursor-pointer">
-          Filtros
-        </button>
-      </div>
-    </div>
+    </>
   );
-}
+};
+
+export default FiltersBar;

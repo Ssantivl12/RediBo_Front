@@ -1,0 +1,91 @@
+.container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .headerTop {
+    width: 100%;
+  }
+  
+  .main {
+    flex: 1;
+    padding: 3rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .title {
+    margin: 0;
+    font-size: 2.5rem;
+    text-align: center;
+    color: #333;
+  }
+  
+  .description {
+    margin: 1.5rem 0 3rem;
+    text-align: center;
+    font-size: 1.2rem;
+    color: #666;
+  }
+  
+  .groupsContainer {
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+  }
+  
+  .groupSection {
+    width: 100%;
+    max-width: 350px;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .groupSection:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .groupTitle {
+    margin-top: 0;
+    padding-bottom: 0.75rem;
+    font-size: 1.5rem;
+    color: #0070f3;
+    border-bottom: 2px solid #e5e5e5;
+  }
+  
+  .groupContent {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .groupContent p {
+    text-align: center;
+  }
+  
+  .button {
+    background-color: #0070f3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    max-width: 200px;
+  }
+  
+  .button:hover {
+    background-color: #0051a8;
+  }
