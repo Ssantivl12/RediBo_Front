@@ -36,14 +36,27 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth, onFilter }) 
   const datePickerRef = useRef<HTMLDivElement>(null)
   const [mostrarMapa, setMostrarMapa] = useState(false);
   const [showDistanceSlider, setShowDistanceSlider] = useState(false);
-  const [selectedDistance, setSelectedDistance] = useState(10); // Distancia por defecto 10km
+  const [selectedDistance, setSelectedDistance] = useState(50); // Distancia por defecto 50km
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
   const [showCalendar, setShowCalendar] = useState(false);
   const [showDateError, setShowDateError] = useState(false);
   const [gpsVehicles, setGpsVehicles] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  
+  const distanceSliderRef = useRef<HTMLDivElement>(null);
+
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    return R * c;
+  };
+
   const fetchGPSVehicles = async (lat: number, lng: number, dkm: number) => {
     setIsLoading(true);
     setError("");
@@ -52,20 +65,22 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth, onFilter }) 
         `https://vercel-back-speed-code.vercel.app/vehiculosxgps/distancia/${lat}/${lng}/${dkm}`
       );
       const data = await response.json();
-      console.log("[DEBUG] Datos recibidos del backend:", data);
-
-      // Transformar datos para incluir campo ubicacion
+      
+      // Asegurar que los datos tengan la estructura correcta
       const vehiclesWithLocation = Array.isArray(data)
         ? data.map(item => ({
             ...item,
-            ubicacion: { latitud: item.latitud, longitud: item.longitud }
+            ubicacion: { 
+              latitud: item.latitud || item.ubicacion?.latitud, // Acceso seguro
+              longitud: item.longitud || item.ubicacion?.longitud 
+            },
+            distance: calculateDistance(lat, lng, item.latitud || item.ubicacion?.latitud, item.longitud || item.ubicacion?.longitud)
           }))
-        : [{
-            ...data,
-            ubicacion: { latitud: data.latitud, longitud: data.longitud }
-          }];
+          .sort((a, b) => a.distance - b.distance) // Ordenar aquí
+        : [];
 
-      onFilter(vehiclesWithLocation);
+      setGpsVehicles(vehiclesWithLocation);
+      onFilter(vehiclesWithLocation); // Enviar datos al componente padre
     } catch (error) {
       console.error("[ERROR] Fetch error:", error);
       setError("Error al cargar vehículos");
@@ -95,6 +110,11 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth, onFilter }) 
       setSearchHistory(JSON.parse(stored));
     }
   }, []);
+  useEffect(() => {
+  if (gpsVehicles.length > 0) {
+    onFilter(gpsVehicles);
+  }
+}, [gpsVehicles]);
   //estilos del slider del filtro 2 "GPS"
   const distanceSliderStyles: React.CSSProperties = {
     position: 'absolute',
@@ -154,15 +174,21 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth, onFilter }) 
   }, []);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (datePickerRef.current && !datePickerRef.current.contains(event.target as Node)) {
-        setShowDatePicker(false)
-      }
+  const handleClickOutside = (event: MouseEvent) => {
+    const distanceButton = document.querySelector('button[style*="Distancia:"]');
+    
+    if (
+      distanceSliderRef.current && 
+      !distanceSliderRef.current.contains(event.target as Node) &&
+      !(event.target === distanceButton || distanceButton?.contains(event.target as Node))
+    ) {
+      setShowDistanceSlider(false);
     }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+  };
+  
+  document.addEventListener('mousedown', handleClickOutside);
+  return () => document.removeEventListener('mousedown', handleClickOutside);
+}, []);
 
   // Add this function to handle history updates
   const updateVisibleHistory = (fullHistory: string[]) => {
@@ -774,36 +800,22 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth, onFilter }) 
         </button>
 
         {showDistanceSlider && (
-          <div style={distanceSliderStyles}>
+          <div ref={distanceSliderRef} style={distanceSliderStyles}>
             <div style={{ marginBottom: '12px' }}>
               <input
                 type="range"
-                min="1"
+                min="50"
                 max="1000"
                 value={selectedDistance}
                 onChange={(e) => setSelectedDistance(Number(e.target.value))}
                 style={{ width: '100%' }}
               />
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
-                <span>1 km</span>
+                <span>50 km</span>
                 <span>{selectedDistance} km</span>
                 <span>1000 km</span>
               </div>
             </div>
-            <button
-              onClick={() => setShowDistanceSlider(false)}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#FF6B00',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                width: '100%'
-              }}
-            >
-              Aceptar
-            </button>
           </div>
         )}
       </div>
@@ -825,7 +837,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth, onFilter }) 
   onClick={handleFilterClick}
   disabled={isLoading}
 >
-  {isLoading ? "Buscando..." : "Filtrar"}
+  {isLoading ? "Filtrar" : "Filtrar"}
 </button>
 {error && <p style={{ color: "red" }}>{error}</p>}
       {mostrarMapa && <MapaFiltro />}
