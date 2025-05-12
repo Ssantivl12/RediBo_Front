@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { CheckCircle } from "lucide-react";
 
 interface ExitoMantenimientoModalProps {
   isOpen: boolean;
@@ -30,7 +29,6 @@ const ExitoMantenimientoModal: React.FC<ExitoMantenimientoModalProps> = ({
           </h2>
         </div>
         <div className="p-6">
-          <CheckCircle className="mx-auto mb-4 text-[#FCA311]" size={48} />
           <p className="text-black mb-6">La acción se ha realizado correctamente.</p>
           <button
             className="bg-[#FCA311] hover:bg-yellow-500 text-white px-6 py-2 rounded"
