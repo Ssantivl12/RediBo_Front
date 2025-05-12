@@ -6,18 +6,8 @@ import styles from './page.module.css';
 import Navbar from './components/navbar/Navbar';
 import Footer from './components/footer/Footer';
 import LoginModal from './components/auth/LoginModal';
-import { BellIcon } from "@heroicons/react/24/outline";
-
-// Tipo de notificación
-type Notification = {
-  id: number;
-  title: string;
-  message: string;
-  date: string;
-};
 
 export default function Home() {
-  const [showNotifications, setShowNotifications] = useState(false);
   const [mostrarModal, setMostrarModal] = useState(false);
   const router = useRouter();
 
