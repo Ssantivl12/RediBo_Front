@@ -13,6 +13,7 @@ import PanelSolicitudEnviada from "@/components/Auto/PanelSolicitud/PanelSolicit
 import Swal from "sweetalert2"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
+import Drivers from './drivers'
 
 interface SolicitudReservaProps {
   mostrar: boolean
@@ -34,6 +35,7 @@ export default function SolicitudReserva({ mostrar, onClose, auto }: SolicitudRe
   const [mostrarPanelSolicitudEnviada, setMostrarPanelSolicitudEnviada] = useState(false)
   const [reservaData, setReservaData] = useState<ReservaData | null>(null)
   const [diasReserva, setDiasReserva] = useState<number>(1)
+  const [selectedDriver, setSelectedDriver] = useState('')
 
   useEffect(() => {
   const savedData = localStorage.getItem("reservaData")
@@ -143,61 +145,72 @@ export default function SolicitudReserva({ mostrar, onClose, auto }: SolicitudRe
                 <LugarRecogida />
               </div>
 
-              <div className="flex-1 border border-black rounded-lg sm:rounded-xl p-4 sm:p-5 space-y-4 bg-white max-h-[500px] sm:max-h-[350px] md:max-h-[350px] overflow-y-auto">
-                {reservaData ? (
-                  <div className="space-y-5">
-                    <div>
-                      <h3 className="text-lg font-semibold text-[#002a5c] mb-3">Periodo de alquiler</h3>
-                      <div className="border border-gray-300 rounded-lg p-4 bg-gray-50">
-                        <div className="flex items-center gap-3">
-                          <CalendarIcon className="h-8 w-8 text-[#11295B]" />
-                          <span className="text-base font-medium">
-                            {formatFechaCorta(reservaData.pickupDate)} - {formatFechaCorta(reservaData.returnDate)}
-                          </span>
+              <div className="flex-1 space-y-4">
+                <div className="border border-black rounded-lg sm:rounded-xl p-4 sm:p-5 space-y-4 bg-white">
+                  {reservaData ? (
+                    <>
+                      <div>
+                        <h3 className="text-lg font-semibold text-[#002a5c] mb-3">Periodo de alquiler</h3>
+                        <div className="border border-gray-300 rounded-lg p-4 bg-gray-50">
+                          <div className="flex items-center gap-3">
+                            <CalendarIcon className="h-8 w-8 text-[#11295B]" />
+                            <span className="text-base font-medium">
+                              {formatFechaCorta(reservaData.pickupDate)} - {formatFechaCorta(reservaData.returnDate)}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div>
-                      <h3 className="text-lg font-semibold text-[#002a5c] mb-3">Hora de recogida y devolución</h3>
-                      <div className="border border-gray-300 rounded-lg p-4 bg-gray-50">
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-2">
-                            <div className="h-2 w-2 rounded-full bg-[#11295B]"></div>
-                            <span className="font-medium">Hora de recogida:</span>
-                            <span>{reservaData.pickupTime}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="h-2 w-2 rounded-full bg-[#11295B]"></div>
-                            <span className="font-medium">Hora de devolución:</span>
-                            <span>{reservaData.returnTime}</span>
+                      <div>
+                        <h3 className="text-lg font-semibold text-[#002a5c] mb-3">Hora de recogida y devolución</h3>
+                        <div className="border border-gray-300 rounded-lg p-4 bg-gray-50">
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2">
+                              <div className="h-2 w-2 rounded-full bg-[#11295B]"></div>
+                              <span className="font-medium">Hora de recogida:</span>
+                              <span>{reservaData.pickupTime}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="h-2 w-2 rounded-full bg-[#11295B]"></div>
+                              <span className="font-medium">Hora de devolución:</span>
+                              <span>{reservaData.returnTime}</span>
+                            </div>
                           </div>
                         </div>
                       </div>
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full text-center p-4">
+                      <div className="text-red-500 mb-3">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-12 w-12 mx-auto"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                          />
+                        </svg>
+                      </div>
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">No hay fechas seleccionadas</h3>
+                      <p className="text-gray-600">
+                        Por favor, seleccione fechas y horas en la barra de reserva de la página de autos antes de continuar.
+                      </p>
                     </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-full text-center p-4">
-                    <div className="text-red-500 mb-3">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-12 w-12 mx-auto"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                        />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No hay fechas seleccionadas</h3>
-                    <p className="text-gray-600">
-                      Por favor, seleccione fechas y horas en la barra de reserva de la página de autos antes de continuar.
-                    </p>
+                  )}
+                </div>
+
+                {reservaData && (
+                  <div className="border border-black rounded-lg sm:rounded-xl p-4 sm:p-5 bg-white">
+                    <Drivers
+                      selectedDriver={selectedDriver}
+                      setSelectedDriver={setSelectedDriver}
+                    />
                   </div>
                 )}
               </div>
@@ -210,7 +223,7 @@ export default function SolicitudReserva({ mostrar, onClose, auto }: SolicitudRe
             <div className="flex justify-center">
               <button
                 className={`bg-[#fca311] text-white px-5 py-2.5 rounded-full text-base font-semibold transition max-w-[250px] w-full ${
-                  !reservaData || !aceptoTerminos
+                  !reservaData || !aceptoTerminos || !selectedDriver
                     ? "opacity-50 cursor-not-allowed"
                     : "hover:bg-[#e69500] active:bg-[#cc8400]"
                 }`}
@@ -233,6 +246,16 @@ export default function SolicitudReserva({ mostrar, onClose, auto }: SolicitudRe
                       confirmButtonColor: "#fca311",
                     })
                     return
+                  }
+
+                  if (!selectedDriver) {
+                    Swal.fire({
+                      icon: "warning",
+                      title: "Conductor no seleccionado",
+                      text: "Debe seleccionar un conductor para continuar.",
+                      confirmButtonColor: "#fca311"
+                    });
+                    return;
                   }
 
                   setMostrarPanelConfirmarSolicitud(true)
@@ -266,5 +289,3 @@ function CalendarIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
-
-
