@@ -22,30 +22,25 @@ export async function getComentariosDeAuto(autoId: number): Promise<{ data: Come
 
 export async function getAutosDisponiblesPorFecha(fechaInicio: string, fechaFin: string): Promise<{ data: Auto[] }> {
   try {
-    // Formatear las fechas en el formato YYYY-MM-DD
-    const inicio = fechaInicio.split("T")[0] // Extraer solo la parte de la fecha YYYY-MM-DD
-    const fin = fechaFin.split("T")[0] // Extraer solo la parte de la fecha YYYY-MM-DD
+    const inicio = fechaInicio.split("T")[0]
+    const fin = fechaFin.split("T")[0]
 
     console.log(`Consultando autos disponibles entre ${inicio} y ${fin}`)
 
-    // ruta definida para el backend, talvez me equivoque aqui
     const res = await fetch(`${BASE_URL}/autosDisponibles/${inicio}/${fin}`, {
       cache: "no-store",
     })
 
     if (!res.ok) {
       console.error(`Error de API: Status ${res.status} - ${res.statusText}`)
-
-      // Intentar obtener detalles del error si es posible
       let errorMessage = `${res.status} ${res.statusText}`
+      
       try {
         const errorData = await res.json()
         console.error("Detalles del error:", errorData)
-        if (errorData.message) {
-          errorMessage = errorData.message
-        }
-      } catch (e) {
-        // Si no podemos parsear el JSON, simplemente continuamos con el mensaje de error básico
+        if (errorData.message) errorMessage = errorData.message
+      } catch (error) {
+        console.log("No se pudo parsear la respuesta de error:", error)
       }
 
       throw new Error(`Error al obtener autos disponibles: ${errorMessage}`)
@@ -54,6 +49,6 @@ export async function getAutosDisponiblesPorFecha(fechaInicio: string, fechaFin:
     return res.json()
   } catch (error) {
     console.error("Error en getAutosDisponiblesPorFecha:", error)
-    throw error // Simplemente reenviar el error original para evitar mensajes duplicados
+    throw error
   }
 }

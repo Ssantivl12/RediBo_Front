@@ -15,17 +15,9 @@ export default function InfoHost({ usuario, marca, modelo }: Props) {
 
   const handleContactClick = () => {
     try {
-      if (!usuario?.telefono) {
-        console.error('Número de teléfono no disponible');
-        setError(true);
-        return;
-      }
-  
-      const numero = usuario.telefono.replace(/\D/g, ''); // Limpia el número
-      const link = `https://wa.me/591${numero}?text=${encodeURIComponent(
+      const link = `https://wa.me/591${usuario.telefono}?text=${encodeURIComponent(
         `Hola, estoy interesado en tu vehículo ${marca}-${modelo} publicado en REDIBO.`
-      )}`;
-      
+      )}`;   
       window.open(link, '_blank');
     } catch (err) {
       console.error('Error al redirigir a WhatsApp:', err);
