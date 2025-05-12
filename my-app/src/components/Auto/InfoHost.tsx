@@ -23,8 +23,8 @@ export default function InfoHost({ usuario, marca, modelo }: Props) {
       console.error('Error al redirigir a WhatsApp:', err);
       setError(true);
     }
-  };  
-  
+  };
+
   return (
     <div className="bg-[#f5f5f5] p-6 rounded-2xl shadow-md border-2 border-black">
       <h3 className="text-[#11295b] font-semibold text-center mb-4">Datos del host</h3>
