@@ -125,6 +125,13 @@
   padding: 20px;
 }
 
+.noRequestsMessage {
+  padding: 10px 16px;
+  text-align: center;
+  color: #000000;
+  font-style: italic;
+}
+
 @media (max-width: 768px) {
   .carsContainer {
     grid-template-columns: 1fr;
