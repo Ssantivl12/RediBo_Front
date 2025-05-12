@@ -27,6 +27,9 @@ export default function Home() {
   const navegarAGestionarSolicitudes = () => {
     router.push('/arrendador/gestionarSolicitudes/1');
   };
+  const navegarAGestionarAutos = () => {
+    router.push('/arrendador/gestionarAutos/1');
+  };
   const notifications: Notification[] = [
     {
       id: 1,
@@ -127,6 +130,12 @@ export default function Home() {
                 onClick={navegarAPagarRenta}
               >
                 Pagar Renta
+              </button>
+              <button 
+                className={styles.button}
+                onClick={navegarAGestionarAutos}
+              >
+                Gestionar Autos (Mantenimiento y liberar auto)
               </button>
             </div>
           </div>
