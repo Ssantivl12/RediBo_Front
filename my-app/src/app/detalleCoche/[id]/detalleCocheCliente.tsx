@@ -63,7 +63,7 @@ export default function DetalleCocheCliente({ auto }: Props) {
 
           <div className="flex flex-col lg:flex-row gap-8 w-full">
             {/* Galería + detalles */}
-            <div className="flex-1 min-w-[450px] max-w-full">
+            <div className="flex-1 min-w-0 max-w-full">
               <GaleriaImagenes imagenes={auto.imagenes} marca={auto.marca} modelo={auto.modelo} />
 
               <div className="mt-4">
