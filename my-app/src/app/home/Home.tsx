@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Navbar from '../components/navbar/Navbar';
-import FiltersBar from '../components/filters/FiltersBar';
 import Footer from '../components/footer/Footer';
 import LoginModal from '../components/auth/LoginModal';
 import styles from './Home.module.css';
@@ -14,10 +13,6 @@ export default function HomePage() {
     <div className={styles.container}>
       <header className={styles.headerTop}>
         <Navbar onLoginClick={() => setMostrarModal(true)} />
-      </header>
-
-      <header className={styles.headerFilters}>
-        <FiltersBar />
       </header>
 
       <main className={styles.body}>

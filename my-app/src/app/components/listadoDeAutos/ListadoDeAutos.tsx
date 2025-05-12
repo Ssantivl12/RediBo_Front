@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import styles from './ListadoDeAutos.module.css';
 import ModalDeConfirmacion from '@components/modal/ModalDeConfirmacion';
-import { useRouter } from 'next/router';
+import { API_URL } from '@config/api';
 
 // Interfaces para las solicitudes y autos
 interface SolicitudPendiente {
@@ -27,7 +27,6 @@ interface ListadoDeAutosProps {
 }
 
 const ListadoDeAutos: React.FC<ListadoDeAutosProps> = ({ activeFilter, autos = [] }) => {
-  const router = useRouter();
   // Estados para gestionar el modal
   const [modalAbierto, setModalAbierto] = useState(false);
   const [modalConfig, setModalConfig] = useState({
@@ -108,7 +107,7 @@ const ListadoDeAutos: React.FC<ListadoDeAutosProps> = ({ activeFilter, autos = [
       // Actualizar el estado del modal para mostrar que está procesando
       setModalConfig(prev => ({ ...prev, isProcessing: true }));
       // Realizar la petición a la API para aceptar la solicitud
-      const response = await fetch(`http://localhost:3000/api/reservas/${solicitudId}/aceptar`, {
+      const response = await fetch(`${API_URL}/reservas/${solicitudId}/aceptar`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -121,6 +120,7 @@ const ListadoDeAutos: React.FC<ListadoDeAutosProps> = ({ activeFilter, autos = [
       
       // Esperar una respuesta exitosa
       const data = await response.json();
+      console.log(data);
       
       // Cambiar el modal a variante de éxito
       setModalConfig({
@@ -156,7 +156,7 @@ const ListadoDeAutos: React.FC<ListadoDeAutosProps> = ({ activeFilter, autos = [
       setModalConfig(prev => ({ ...prev, isProcessing: true }));
       console.log(solicitudId);
       // Realizar la petición a la API para denegar la solicitud
-      const response = await fetch(`http://localhost:3000/api/reservas/${solicitudId}/denegar`, {
+      const response = await fetch(`${API_URL}/reservas/${solicitudId}/denegar`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -169,6 +169,7 @@ const ListadoDeAutos: React.FC<ListadoDeAutosProps> = ({ activeFilter, autos = [
       
       // Esperar una respuesta exitosa
       const data = await response.json();
+      console.log(data);
       
       // Cambiar el modal a variante de éxito
       setModalConfig({
@@ -214,7 +215,7 @@ const ListadoDeAutos: React.FC<ListadoDeAutosProps> = ({ activeFilter, autos = [
       // En un caso real, lo ideal sería notificar al componente padre para que recargue los datos
       console.log(`Solicitud ${solicitudSeleccionada} procesada para el auto ${autoSeleccionado}`);
     }
-    router.reload();
+    window.location.reload();
   };
 
   // Si no hay autos disponibles en absoluto
@@ -236,7 +237,7 @@ const ListadoDeAutos: React.FC<ListadoDeAutosProps> = ({ activeFilter, autos = [
           </div>
         ) : (
           autosFiltrados.map(auto => (
-            <div key={auto.id} className={styles.carContainer}>
+            <div key={auto.idAuto} className={styles.carContainer}>
               <img 
                 src={'https://cdn.motor1.com/images/mgl/6ZzvLZ/s1/2024-audi-rs7-performance-review.jpg'} 
                 alt={auto.nombre} 
@@ -263,33 +264,33 @@ const ListadoDeAutos: React.FC<ListadoDeAutosProps> = ({ activeFilter, autos = [
                 </div>
               </div>
               
-              {auto.solicitudesPendientes && auto.solicitudesPendientes.length > 0 && (
-                <>
-                  <div className={styles.requestsTitle}>Solicitudes de renta</div>
-                  
-                  {auto.solicitudesPendientes.map(solicitud => (
-                    <div key={solicitud.idReserva} className={styles.requestItem}>
-                      <div className={styles.requesterInfo}>
-                        <div className={styles.requesterName}>{solicitud.nombreSolicitante}</div>
-                        <div className={styles.requestDate}>{solicitud.fechas}</div>
-                      </div>
-                      <div className={styles.buttonContainer}>
-                        <button 
-                          className={`${styles.btn} ${styles.btnReject}`}
-                          onClick={() => mostrarModalDenegar(auto.idAuto, solicitud.idReserva, solicitud.nombreSolicitante)}
-                        >
-                          Denegar
-                        </button>
-                        <button 
-                          className={`${styles.btn} ${styles.btnAccept}`}
-                          onClick={() => mostrarModalAceptar(auto.idAuto, solicitud.idReserva, solicitud.nombreSolicitante)}
-                        >
-                          Aceptar
-                        </button>
-                      </div>
+              <div className={styles.requestsTitle}>Solicitudes de renta</div>
+              
+              {(!auto.solicitudesPendientes || auto.solicitudesPendientes.length === 0) ? (
+                <div className={styles.noRequestsMessage}>No hay solicitudes pendientes</div>
+              ) : (
+                auto.solicitudesPendientes.map(solicitud => (
+                  <div key={solicitud.idReserva} className={styles.requestItem}>
+                    <div className={styles.requesterInfo}>
+                      <div className={styles.requesterName}>{solicitud.nombreSolicitante}</div>
+                      <div className={styles.requestDate}>{solicitud.fechas}</div>
                     </div>
-                  ))}
-                </>
+                    <div className={styles.buttonContainer}>
+                      <button 
+                        className={`${styles.btn} ${styles.btnReject}`}
+                        onClick={() => mostrarModalDenegar(auto.idAuto, solicitud.idReserva, solicitud.nombreSolicitante)}
+                      >
+                        Denegar
+                      </button>
+                      <button 
+                        className={`${styles.btn} ${styles.btnAccept}`}
+                        onClick={() => mostrarModalAceptar(auto.idAuto, solicitud.idReserva, solicitud.nombreSolicitante)}
+                      >
+                        Aceptar
+                      </button>
+                    </div>
+                  </div>
+                ))
               )}
             </div>
           ))

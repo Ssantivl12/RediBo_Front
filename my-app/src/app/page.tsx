@@ -118,15 +118,15 @@ export default function Home() {
               <p>Funcionalidades del equipo de desarrollo CodeLovers:</p>
               <button 
                 className={styles.button}
-                onClick={navegarAPagarRenta}
-              >
-                Pagar Renta
-              </button>
-              <button 
-                className={styles.button}
                 onClick={navegarAGestionarSolicitudes}
               >
                 Gestionar Solicitudes de Agenda
+              </button>
+              <button 
+                className={styles.button}
+                onClick={navegarAPagarRenta}
+              >
+                Pagar Renta
               </button>
             </div>
           </div>

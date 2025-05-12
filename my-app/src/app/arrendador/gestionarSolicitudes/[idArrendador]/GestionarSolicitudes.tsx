@@ -7,6 +7,7 @@ import ListadoDeAutos from "@components/listadoDeAutos/ListadoDeAutos";
 import Navbar from "@components/navbar/Navbar";
 import LoginModal from "@components/auth/LoginModal";
 import styles from "./GestionarSolicitudes.module.css";
+import { API_URL } from '@config/api';
 
 interface SolicitudPendiente {
   idReserva: string;
@@ -52,7 +53,7 @@ export default function GestionarSolicitudes() {
         }
         
         // Realizar la petición al backend
-        const response = await fetch(`http://localhost:3000/api/reservas/propietario/${idArrendador}`);
+        const response = await fetch(`${API_URL}/reservas/propietario/${idArrendador}`);
         
         if (!response.ok) {
           throw new Error(`Error al obtener datos: ${response.status}`);
