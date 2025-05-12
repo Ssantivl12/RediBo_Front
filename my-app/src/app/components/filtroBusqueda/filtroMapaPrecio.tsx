@@ -51,6 +51,8 @@ interface DetalleVehiculo {
   nombre: string;
   descripcion: string;
   precio: number;
+  calificacion: number | null; // ← nuevo campo
+
 }
 
 const IrAUbicacion = ({ setUbicacionUsuario }: { setUbicacionUsuario: (pos: [number, number]) => void }) => {
@@ -94,6 +96,24 @@ export default function FiltroMapaPrecio() {
       }
     }
   };
+
+  const renderEstrellas = (cal: number | null) => {
+    if (cal == null) return "Sin calificación";
+  
+    const llenas = Math.floor(cal);
+    const media = cal % 1 >= 0.5;
+    const vacias = 5 - llenas - (media ? 1 : 0);
+  
+    return (
+      <div className="absolute top-2 left-2 bg-white bg-opacity-80 px-2 py-1 rounded text-xs font-semibold text-yellow-500">
+        {"★".repeat(llenas)}
+        {media ? "½" : ""}
+        {"☆".repeat(vacias)}
+      </div>
+    );
+  };
+  
+
 
   return (
     <div className="w-full mt-6 rounded-xl shadow-md overflow-hidden border border-gray-200 bg-white">
@@ -142,7 +162,10 @@ export default function FiltroMapaPrecio() {
 
               {detalles[punto.idVehiculo] && (
                 <Popup closeButton={false} autoClose={false}>
-                <div className="w-[160px] sm:w-[220px] md:w-[260px] max-w-[90vw]">
+                <div className="w-[160px] sm:w-[220px] md:w-[260px] max-w-[90vw] relative">
+                  {/* ⭐ Calificación arriba a la izquierda */}
+                  {renderEstrellas(detalles[punto.idVehiculo].calificacion)}
+
                   <img
                     src={detalles[punto.idVehiculo].imagen}
                     alt={detalles[punto.idVehiculo].nombre}
