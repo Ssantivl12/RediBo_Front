@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import {getAutosDisponiblesPorFecha } from "@/libs/api"
+import { getAutosDisponiblesPorFecha } from "@/libs/api"
 import type { Auto } from "@/types/auto"
 import Image from "next/image"
 import BarraBusqueda from "@/components/Auto/BusquedaAuto/BarraBusqueda"
@@ -10,6 +10,47 @@ import Estrellas from "@/components/Auto/Estrellas"
 import OrdenadoPor from "@/components/Auto/Ordenamiento/OrdenadoPor"
 import BarraReserva from "@/components/listaAutos/barraReserva"
 
+interface OptimizedImageProps {
+  src: string;
+  alt: string;
+  priority?: boolean;
+  className?: string;
+  sizes?: string;
+}
+
+const OptimizedImage = ({ 
+  src, 
+  alt, 
+  priority = false,
+  className = "",
+  sizes = "100vw"
+}: OptimizedImageProps) => {
+  const [isLoading, setIsLoading] = useState(true)
+  const placeholderSrc = "/placeholder.svg"
+  
+  return (
+    <div className="relative w-full h-full">
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 animate-pulse rounded-lg">
+          <span className="sr-only">Cargando...</span>
+        </div>
+      )}
+      <Image
+        src={src || placeholderSrc}
+        alt={alt}
+        fill
+        sizes={sizes}
+        quality={85}
+        priority={priority}
+        placeholder="blur"
+        blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjFmMWYxIi8+PC9zdmc+"
+        className={`rounded-lg object-cover transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'} ${className}`}
+        onLoadingComplete={() => setIsLoading(false)}
+      />
+    </div>
+  )
+}
+
 export default function AutosPage() {
   const [autos, setAutos] = useState<Auto[]>([])
   const [autosFiltrados, setAutosFiltrados] = useState<Auto[]>([])
@@ -17,26 +58,48 @@ export default function AutosPage() {
   const [fechasReserva, setFechasReserva] = useState<{ inicio: string; fin: string } | null>(null)
   const [cargando, setCargando] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
+  
+  const [imagesToLoad, setImagesToLoad] = useState(8)
 
   useEffect(() => {
+    if (!autosFiltrados.length) return
     
-  }, [])
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const lastEntry = entries[0]
+        if (lastEntry.isIntersecting && autosFiltrados.length > imagesToLoad) {
+          setImagesToLoad(prev => prev + 4)
+        }
+      },
+      { threshold: 0.1 }
+    )
+    
+    const lastCardElement = document.getElementById('last-visible-card')
+    if (lastCardElement) {
+      observer.observe(lastCardElement)
+    }
+    
+    return () => {
+      if (lastCardElement) observer.unobserve(lastCardElement)
+    }
+  }, [autosFiltrados, imagesToLoad])
 
   const buscarAutosDisponibles = async (fechaInicio: string, fechaFin: string) => {
     try {
-
       const inicio = new Date(fechaInicio).toISOString().split("T")[0]
       const fin = new Date(fechaFin).toISOString().split("T")[0]
 
       console.log(`Buscando autos disponibles entre ${inicio} y ${fin}`)
 
       setFechasReserva({ inicio: fechaInicio, fin: fechaFin })
+      setCargando(true)
 
       const { data } = await getAutosDisponiblesPorFecha(inicio, fin)
 
       setAutos(data)
       setAutosFiltrados(data)
       setBusquedaActiva(true)
+      setImagesToLoad(8)
     } catch (error) {
       console.error("Error al buscar autos disponibles:", error)
       setError("Hubo un error al buscar autos disponibles. Por favor intente nuevamente.")
@@ -72,6 +135,7 @@ export default function AutosPage() {
     })
 
     setAutosFiltrados(ordenarResultados(filtrados, valor))
+    setImagesToLoad(8)
   }
 
   const ordenarResultados = (autos: Auto[], termino = "") => {
@@ -160,26 +224,27 @@ export default function AutosPage() {
         <div className="mb-6">
           <OrdenadoPor onOrdenar={aplicarOrden} />
         </div>
+        
         {/* Lista de autos */}
         {autosFiltrados.length > 0 ? (
           <div className="grid grid-cols-1 gap-6 max-w-4xl mx-auto">
-            {autosFiltrados.map((auto: Auto) => (
+            {autosFiltrados.slice(0, imagesToLoad).map((auto: Auto, index: number) => (
               <div
                 key={auto.idAuto}
+                id={index === imagesToLoad - 1 ? 'last-visible-card' : undefined}
                 className="bg-white rounded-lg p-4 shadow-md transition-transform duration-200 ease-in-out hover:translate-y-[-5px] hover:shadow-lg"
               >
                 <div className="flex flex-col md:flex-row gap-4">
                   {/* Contenedor de imagen y estrellas */}
                   <div className="flex flex-col w-full md:w-[350px] flex-shrink-0">
                     {/* Solo la imagen */}
-                    <div className="relative w-full h-[250px] bg-[#d9d9d9] rounded-lg flex items-center justify-center">
-                      {auto.imagenes?.[0]?.direccionImagen ? (
-                        <Image
-                          src={auto.imagenes[0].direccionImagen || "/placeholder.svg"}
-                          alt="Imagen del auto"
-                          style={{ objectFit: "cover" }}
-                          className="rounded-lg"
-                          fill
+                    <div className="relative w-full h-[250px] bg-[#f1f1f1] rounded-lg">
+                      {auto.imagenes && auto.imagenes.length > 0 && auto.imagenes[0]?.direccionImagen ? (
+                        <OptimizedImage
+                          src={auto.imagenes[0].direccionImagen}
+                          alt={`${auto.marca} ${auto.modelo}`}
+                          priority={index < 2} // Priorizar solo las primeras imágenes
+                          sizes="(max-width: 768px) 100vw, 350px"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-xs text-gray-500">
@@ -241,10 +306,10 @@ export default function AutosPage() {
                             <Image
                               src={icon || "/placeholder.svg"}
                               alt={label}
-                              width={50}
-                              height={50}
+                              width={30}
+                              height={30}
                               className="w-[30px] h-[30px]"
-                              unoptimized
+                              loading="lazy"
                             />
                             <div className="flex flex-col">
                               <span className="font-bold text-[14px] text-black whitespace-nowrap">
@@ -284,7 +349,7 @@ export default function AutosPage() {
                                 width={50}
                                 height={50}
                                 className="w-[50px] h-[50px]"
-                                unoptimized
+                                loading="lazy"
                               />
                               <div className="flex flex-col">
                                 <span className="font-bold text-[16px] text-black whitespace-nowrap">
@@ -317,7 +382,7 @@ export default function AutosPage() {
                                 width={50}
                                 height={50}
                                 className="w-[50px] h-[50px]"
-                                unoptimized
+                                loading="lazy"
                               />
                               <div className="flex flex-col">
                                 <span className="font-bold text-[16px] text-black whitespace-nowrap">
@@ -353,6 +418,7 @@ export default function AutosPage() {
                 </div>
               </div>
             ))}
+            
           </div>
         ) : (
           <p className="text-center text-gray-600 mt-10">
@@ -364,4 +430,3 @@ export default function AutosPage() {
     </>
   )
 }
-

@@ -160,6 +160,23 @@ const BarraReserva: React.FC<BarraReservaProps> = ({ onBuscarDisponibilidad }) =
     onBuscarDisponibilidad(fechaInicio.toISOString(), fechaFin.toISOString())
   }
 
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.innerHTML = `
+      .react-datepicker-popper {
+        z-index: 9999 !important;
+      }
+      .react-datepicker-wrapper {
+        position: relative;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   return (
     <div className="w-full">
       <div className="flex flex-col border rounded-lg p-3 bg-white shadow-md gap-3">
@@ -175,9 +192,12 @@ const BarraReserva: React.FC<BarraReservaProps> = ({ onBuscarDisponibilidad }) =
                 onChange={handlePickupDateChange}
                 dateFormat="dd/MM/yyyy"
                 className="border rounded p-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-black w-28"
-                popperClassName="z-[9999]"
+                calendarClassName="shadow-lg"
+                popperClassName="z-50"
                 portalId="root-portal"
+                popperPlacement="bottom-start"
                 minDate={new Date()}
+                wrapperClassName="z-50"
               />
             </div>
           </div>
@@ -208,8 +228,12 @@ const BarraReserva: React.FC<BarraReservaProps> = ({ onBuscarDisponibilidad }) =
                 onChange={handleReturnDateChange}
                 dateFormat="dd/MM/yyyy"
                 className="border rounded p-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-black w-28"
-                popperClassName="z-[9999]"
+                calendarClassName="shadow-lg"
+                popperClassName="z-40"
+                portalId="root-portal"
+                popperPlacement="bottom-start"
                 minDate={pickupDate || new Date()}
+                wrapperClassName="z-40"
               />
             </div>
           </div>

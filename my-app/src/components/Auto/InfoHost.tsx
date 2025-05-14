@@ -15,15 +15,22 @@ export default function InfoHost({ usuario, marca, modelo }: Props) {
 
   const handleContactClick = () => {
     try {
-      const link = `https://wa.me/591${usuario.telefono}?text=${encodeURIComponent(
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  
+      const baseUrl = isMobile
+        ? 'https://wa.me'
+        : 'https://web.whatsapp.com/send';
+  
+      const link = `${baseUrl}?phone=591${usuario.telefono}&text=${encodeURIComponent(
         `Hola, estoy interesado en tu vehículo ${marca}-${modelo} publicado en REDIBO.`
-      )}`;   
+      )}`;
+  
       window.open(link, '_blank');
     } catch (err) {
       console.error('Error al redirigir a WhatsApp:', err);
       setError(true);
     }
-  };
+  };  
 
   return (
     <div className="bg-[#f5f5f5] p-6 rounded-2xl shadow-md border-2 border-black">
