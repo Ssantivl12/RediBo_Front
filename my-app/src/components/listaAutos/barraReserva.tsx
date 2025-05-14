@@ -6,14 +6,12 @@ import { useState, useEffect, useCallback } from "react"
 import { CalendarIcon, ClockIcon } from "@heroicons/react/24/outline"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
-import { es } from "date-fns/locale"
 
-// Función para obtener la próxima hora completa
-const getNextHour = (currentTime: Date) => {
-  const nextHour = new Date(currentTime)
-  nextHour.setMinutes(0, 0, 0)
-  nextHour.setHours(nextHour.getHours() + 1)
-  return nextHour
+const getSiguienteHora = (currentTime: Date) => {
+  const siguienteHora = new Date(currentTime)
+  siguienteHora.setMinutes(0, 0, 0)
+  siguienteHora.setHours(siguienteHora.getHours() + 1)
+  return siguienteHora
 }
 
 interface BarraReservaProps {
@@ -28,23 +26,6 @@ const BarraReserva: React.FC<BarraReservaProps> = ({ onBuscarDisponibilidad }) =
   const [errorMessage, setErrorMessage] = useState<string>("")
   const [formValid, setFormValid] = useState<boolean>(false)
 
-  // Cargar datos guardados al iniciar
-  useEffect(() => {
-    const savedData = localStorage.getItem("reservaData")
-    if (savedData) {
-      try {
-        const data = JSON.parse(savedData)
-        if (data.pickupDate) setPickupDate(new Date(data.pickupDate))
-        if (data.pickupTime) setPickupTime(data.pickupTime)
-        if (data.returnDate) setReturnDate(new Date(data.returnDate))
-        if (data.returnTime) setReturnTime(data.returnTime)
-      } catch (error) {
-        console.error("Error al cargar datos guardados:", error)
-      }
-    }
-  }, [])
-
-  // Guardar datos cuando cambian
   useEffect(() => {
     if (pickupDate && pickupTime && returnDate && returnTime) {
       const dataToSave = {
@@ -111,7 +92,6 @@ const BarraReserva: React.FC<BarraReservaProps> = ({ onBuscarDisponibilidad }) =
     handleDatesChange()
   }, [handleDatesChange])
 
-  // Limpiar todos los campos cuando se selecciona una nueva fecha de recogida
   const handlePickupDateChange = (date: Date | null) => {
     setPickupDate(date)
 
@@ -122,41 +102,41 @@ const BarraReserva: React.FC<BarraReservaProps> = ({ onBuscarDisponibilidad }) =
     }
 
     if (date && new Date(date).toDateString() === new Date().toDateString()) {
-      const nextHour = getNextHour(new Date())
-      const nextHourStr = `${nextHour.getHours() < 10 ? "0" + nextHour.getHours() : nextHour.getHours()}:00`
-      setPickupTime(nextHourStr)
+      const siguienteHora = getSiguienteHora(new Date())
+      const siguienteHoraStr = `${siguienteHora.getHours() < 10 ? "0" + siguienteHora.getHours() : siguienteHora.getHours()}:00`
+      setPickupTime(siguienteHoraStr)
     }
   }
 
   const handleReturnDateChange = (date: Date | null) => {
     setReturnDate(date)
     if (pickupDate && date && pickupDate.toDateString() === date.toDateString()) {
-      const nextReturnHour = new Date(pickupDate)
-      nextReturnHour.setHours(nextReturnHour.getHours() + 1)
+      const siguienteHoraRetornar = new Date(pickupDate)
+      siguienteHoraRetornar.setHours(siguienteHoraRetornar.getHours() + 1)
       setReturnTime(
-        `${nextReturnHour.getHours() < 10 ? "0" + nextReturnHour.getHours() : nextReturnHour.getHours()}:00`,
+        `${siguienteHoraRetornar.getHours() < 10 ? "0" + siguienteHoraRetornar.getHours() : siguienteHoraRetornar.getHours()}:00`,
       )
     } else {
       setReturnTime("")
     }
   }
 
-  const generateTimeOptions = (pickupDate: Date | null) => {
+  const generarHoraOpciones = (pickupDate: Date | null) => {
     const times = []
-    let startHour = 0
+    let horaInicial = 0
     const currentHour = new Date().getHours()
 
     if (pickupDate && new Date(pickupDate).toDateString() === new Date().toDateString()) {
-      startHour = currentHour + 1
+      horaInicial = currentHour + 1
     } else {
-      startHour = 0
+      horaInicial = 0
     }
 
-    for (let i = startHour; i < 24; i++) {
-      const hour = i < 10 ? `0${i}:00` : `${i}:00`
+    for (let i = horaInicial; i < 24; i++) {
+      const hora = i < 10 ? `0${i}:00` : `${i}:00`
       times.push(
-        <option key={hour} value={hour}>
-          {hour}
+        <option key={hora} value={hora}>
+          {hora}
         </option>,
       )
     }
@@ -198,7 +178,6 @@ const BarraReserva: React.FC<BarraReservaProps> = ({ onBuscarDisponibilidad }) =
                 popperClassName="z-[9999]"
                 portalId="root-portal"
                 minDate={new Date()}
-                locale={es}
               />
             </div>
           </div>
@@ -214,7 +193,7 @@ const BarraReserva: React.FC<BarraReservaProps> = ({ onBuscarDisponibilidad }) =
                 className="border rounded p-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-black w-20"
               >
                 <option value=""></option>
-                {generateTimeOptions(pickupDate)}
+                {generarHoraOpciones(pickupDate)}
               </select>
             </div>
           </div>
@@ -231,7 +210,6 @@ const BarraReserva: React.FC<BarraReservaProps> = ({ onBuscarDisponibilidad }) =
                 className="border rounded p-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-black w-28"
                 popperClassName="z-[9999]"
                 minDate={pickupDate || new Date()}
-                locale={es}
               />
             </div>
           </div>
@@ -247,7 +225,7 @@ const BarraReserva: React.FC<BarraReservaProps> = ({ onBuscarDisponibilidad }) =
                 className="border rounded p-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-black w-20"
               >
                 <option value=""></option>
-                {generateTimeOptions(pickupDate)}
+                {generarHoraOpciones(pickupDate)}
               </select>
             </div>
           </div>
