@@ -83,27 +83,76 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
     const newErrors: Record<string, boolean> = {};
     let isValid = true;
 
+    const parseDate = (fecha: string) => {
+      const [d, m, y] = fecha.split('/').map(Number);
+      return new Date(y, m - 1, d);
+    };
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // ✅ Eliminar la hora para comparación precisa
+
     if (!formData.fechaInicio || !validateDate(formData.fechaInicio, 'fechaInicio')) {
       newErrors.fechaInicio = true;
+      setDateErrors(prev => ({
+        ...prev,
+        fechaInicio: 'Este campo es obligatorio',
+      }));
       isValid = false;
-    }
-    // Fecha Fin is now optional - only validate if there's a value
-    if (formData.fechaFin && !validateDate(formData.fechaFin, 'fechaFin')) {
-      newErrors.fechaFin = true;
-      isValid = false;
-    }
-    if (!formData.descripcion || formData.descripcion.length < 20) {
-      newErrors.descripcion = true;
-      isValid = false;
-    }
-    if (!formData.kilometraje || isNaN(Number(formData.kilometraje))) {
-      newErrors.kilometraje = true;
-      isValid = false;
+    } else {
+      const fechaInicioDate = parseDate(formData.fechaInicio);
+      if (fechaInicioDate < today) {
+        newErrors.fechaInicio = true;
+        setDateErrors(prev => ({
+          ...prev,
+          fechaInicio: 'La fecha de inicio no puede ser anterior a hoy',
+        }));
+        isValid = false;
+      } else {
+        setDateErrors(prev => ({ ...prev, fechaInicio: '' })); // Limpia el error si está todo ok
+      }
     }
 
-    setErrors(newErrors);
-    return isValid;
-  };
+
+  if (formData.fechaFin && !validateDate(formData.fechaFin, 'fechaFin')) {
+    newErrors.fechaFin = true;
+    isValid = false;
+  }
+
+  // ✅ Validar que fechaFin no sea anterior a fechaInicio
+  if (
+    formData.fechaInicio &&
+    formData.fechaFin &&
+    validateDate(formData.fechaInicio, 'fechaInicio') &&
+    validateDate(formData.fechaFin, 'fechaFin')
+  ) {
+    const fechaInicioDate = parseDate(formData.fechaInicio);
+    const fechaFinDate = parseDate(formData.fechaFin);
+
+    if (fechaFinDate < fechaInicioDate) {
+      newErrors.fechaFin = true;
+      setDateErrors(prev => ({
+        ...prev,
+        fechaFin: 'La fecha de fin no puede ser anterior a la de inicio',
+      }));
+      isValid = false;
+    }
+  }
+
+  if (!formData.descripcion || formData.descripcion.length < 20) {
+    newErrors.descripcion = true;
+    isValid = false;
+  }
+
+  if (!formData.kilometraje || isNaN(Number(formData.kilometraje))) {
+    newErrors.kilometraje = true;
+    isValid = false;
+  }
+
+  setErrors(newErrors);
+  return isValid;
+};
+
+
 
   const handleSubmit = () => {
     if (validateFields()) {
@@ -192,7 +241,7 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
             />
             {errors.fechaInicio && (
               <p className="mt-1 text-sm text-red-600">
-                {dateErrors.fechaInicio || "Este campo es obligatorio"}
+                {dateErrors.fechaInicio || "*La fecha de inicio no puede ser anterior a hoy"}
               </p>
             )}
           </div>
