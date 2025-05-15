@@ -165,12 +165,22 @@ export default function GestionarVehiculos() {
     setMostrarModalMantenimiento(true);
   };
 
-  const parseFecha = (fechaStr: string): string | null => {
+  const parseFechaInicio = (fechaStr: string): string | null => {
     const partes = fechaStr.split('/');
     if (partes.length !== 3) return null;
     const [dia, mes, anio] = partes;
     // formato YYYY-MM-DDTHH:mm:ss.sssZ
     const fecha = new Date(`${anio}-${mes}-${dia}T00:00:00.000Z`);
+  
+    return isNaN(fecha.getTime()) ? null : fecha.toISOString();
+  };
+
+  const parseFechaFin = (fechaStr: string): string | null => {
+    const partes = fechaStr.split('/');
+    if (partes.length !== 3) return null;
+    const [dia, mes, anio] = partes;
+    // formato YYYY-MM-DDTHH:mm:ss.sssZ
+    const fecha = new Date(`${anio}-${mes}-${dia}T23:59:59.999Z`);
   
     return isNaN(fecha.getTime()) ? null : fecha.toISOString();
   };
@@ -184,8 +194,8 @@ export default function GestionarVehiculos() {
     
     try {
       console.log("Datos de mantenimiento:", data);
-      const fechaInicio = parseFecha(data.fechaInicio);
-      const fechaFin = parseFecha(data.fechaFin);
+      const fechaInicio = parseFechaInicio(data.fechaInicio);
+      const fechaFin = parseFechaFin(data.fechaFin);
       const kilometraje = Number(data.kilometraje);
       console.log("Kilometraje:", kilometraje);
       const response = await fetch(`${API_URL}/autos/${vehiculoSeleccionado}/mantenimiento`, {
