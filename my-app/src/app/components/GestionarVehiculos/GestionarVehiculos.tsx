@@ -123,12 +123,12 @@ export default function GestionarVehiculos() {
       } else if (accionActual === "CANCELAR_RESERVA" && vehiculo.estadoActual.datos.idReserva) {
         endpoint = `${API_URL}/reservas/cancelar/${vehiculo.estadoActual.datos.idReserva}`;
       } else if (accionActual === "FINALIZAR_MANTENIMIENTO" && vehiculo.estadoActual.datos.idHistorial) {
-        endpoint = `${API_URL}/mantenimiento/finalizar/${vehiculo.estadoActual.datos.idHistorial}`;
+        endpoint = `${API_URL}/mantenimiento/${vehiculo.estadoActual.datos.idHistorial}/finalizar`;
       }
       
       if (endpoint) {
         const response = await fetch(endpoint, {
-          method: 'PUT',
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           }
