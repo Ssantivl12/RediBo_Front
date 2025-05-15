@@ -52,11 +52,15 @@ export default function GestionarVehiculos() {
   const [mostrarExito, setMostrarExito] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [mostrarModalMantenimiento, setMostrarModalMantenimiento] = useState(false);
+  // Nueva estado para el modal de confirmación de mantenimiento
+  const [mostrarConfirmacionMantenimiento, setMostrarConfirmacionMantenimiento] = useState(false);
   const [vehiculoSeleccionado, setVehiculoSeleccionado] = useState<number | null>(null);
   const [mantenimientoExitoso, setMantenimientoExitoso] = useState(false);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
   const [accionActual, setAccionActual] = useState("");
+  // Estado para almacenar los datos del formulario temporalmente
+  const [datosMantenimientoTemp, setDatosMantenimientoTemp] = useState<MantenimientoData | null>(null);
   const [formData, setFormData] = useState({
     fechaInicio: "",
     fechaFin: "",
@@ -188,19 +192,26 @@ export default function GestionarVehiculos() {
     return isNaN(fecha.getTime()) ? null : fecha.toISOString();
   };
   
+  // Función para preparar datos de mantenimiento y mostrar confirmación
+  const handlePreRegistrarMantenimiento = (data: MantenimientoData) => {
+    setDatosMantenimientoTemp(data);
+    setMostrarModalMantenimiento(false);
+    setMostrarConfirmacionMantenimiento(true);
+  };
   
-  
-  const handleRegistrarMantenimiento = async (data: MantenimientoData) => {
-    if (!vehiculoSeleccionado) return;
+  // Función para confirmar y registrar el mantenimiento
+  const confirmarRegistroMantenimiento = async () => {
+    if (!datosMantenimientoTemp || !vehiculoSeleccionado) return;
     
     setIsProcessing(true);
     
     try {
+      const data = datosMantenimientoTemp;
       console.log("Datos de mantenimiento:", data);
       const fechaInicio = parseFechaInicio(data.fechaInicio);
       const fechaFin = parseFechaFin(data.fechaFin);
       const kilometraje = Number(data.kilometraje);
-      console.log("Kilometraje:", kilometraje);
+      
       const response = await fetch(`${API_URL}/autos/${vehiculoSeleccionado}/mantenimiento`, {
         method: 'POST',
         headers: {
@@ -215,11 +226,13 @@ export default function GestionarVehiculos() {
           fechaFin: fechaFin
         })
       });
+      
       if (!response.ok) {
         throw new Error(`Error al registrar mantenimiento: ${response.status}`);
       }
-      data= await response.json();
-      console.log("Respuesta del servidor:", data);
+      
+      const responseData = await response.json();
+      console.log("Respuesta del servidor:", responseData);
       await cargarVehiculos();
       setMantenimientoExitoso(true);
     } catch (err) {
@@ -227,8 +240,9 @@ export default function GestionarVehiculos() {
       setError("No se pudo registrar el mantenimiento. Por favor, intente nuevamente.");
     } finally {
       setIsProcessing(false);
-      setMostrarModalMantenimiento(false);
+      setMostrarConfirmacionMantenimiento(false);
       setVehiculoSeleccionado(null);
+      setDatosMantenimientoTemp(null);
     }
   };
 
@@ -413,9 +427,10 @@ export default function GestionarVehiculos() {
         vehiculos.map((vehiculo) => (
           <div
             key={vehiculo.idAuto}
-            className="flex items-start bg-[#D8C4A7] p-6 rounded-lg shadow-md space-x-6"
+            className="bg-[#D8C4A7] rounded-lg shadow-md overflow-hidden"
           >
-            <div className="w-[400px] h-[300px] bg-gray-300 flex items-center justify-center text-gray-600 text-2xl overflow-hidden rounded-md">
+            <div className="flex flex-col md:flex-row">
+            <div className="w-full md:w-1/3 lg:w-2/5 h-[250px] md:h-[300px] lg:h-[350px] bg-gray-300 flex items-center justify-center text-gray-600 text-2xl overflow-hidden">
               {vehiculo.imagen ? (
                 <img
                   src={vehiculo.imagen}
@@ -423,22 +438,31 @@ export default function GestionarVehiculos() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                "400 × 300"
+                "Sin imagen disponible"
               )}
             </div>
 
-            <div className="flex flex-col space-y-4">
-              <div className="flex items-center space-x-3">
-                <h2 className="text-xl font-bold" style={{ color: "#11295B" }}>
-                  {vehiculo.marca} {vehiculo.modelo} {vehiculo.anio}
-                </h2>
-                <span className="bg-white text-black text-sm px-2 py-1 rounded-full">
-                  {vehiculo.placa}
-                </span>
+              {/* Información - Debajo de la imagen en móvil, al lado en desktop */}
+              <div className="p-6 flex flex-col justify-between w-full md:w-2/3 lg:w-3/5">
+                <div className="space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <h2 className="text-xl font-bold" style={{ color: "#11295B" }}>
+                      {vehiculo.marca} {vehiculo.modelo} {vehiculo.anio}
+                    </h2>
+                    <span className="bg-white text-black text-sm px-2 py-1 rounded-full w-fit">
+                      {vehiculo.placa}
+                    </span>
+                  </div>
+                  
+                  <div>
+                    {renderEstadoVehiculo(vehiculo)}
+                  </div>
+                </div>
+                
+                <div className="mt-4 w-full">
+                  {renderBotonAccion(vehiculo)}
+                </div>
               </div>
-
-              {renderEstadoVehiculo(vehiculo)}
-              {renderBotonAccion(vehiculo)}
             </div>
           </div>
         ))
@@ -502,11 +526,33 @@ export default function GestionarVehiculos() {
         successIcon={<FiCheckCircle className="text-5xl text-[#FFA500]" />}
       />
 
-      {/* Modal de registro de mantenimiento */}
+      {/* Nuevo Modal de confirmación de datos de mantenimiento */}
+      <ModalDeConfirmacion
+        isOpen={mostrarConfirmacionMantenimiento}
+        onClose={() => setMostrarConfirmacionMantenimiento(false)}
+        onConfirm={confirmarRegistroMantenimiento}
+        title="¿Confirma los datos del mantenimiento?"
+        message={
+          datosMantenimientoTemp ? 
+          `Tipo: ${datosMantenimientoTemp.tipoMantenimiento}
+           Fecha inicio: ${datosMantenimientoTemp.fechaInicio}
+           Fecha fin: ${datosMantenimientoTemp.fechaFin}
+           Costo: $${datosMantenimientoTemp.costo}
+           Descripción: ${datosMantenimientoTemp.descripcion}` : 
+          "¿Está seguro de registrar este mantenimiento?"
+        }
+        confirmText="CONFIRMAR"
+        cancelText="CANCELAR"
+        isProcessing={isProcessing}
+        variant="confirmation"
+        showSuccess={false}
+      />
+
+      {/* Modal de registro de mantenimiento - cambiado el onSubmit */}
       <RegistrarMantenimientoModal
         isOpen={mostrarModalMantenimiento}
         onClose={() => setMostrarModalMantenimiento(false)}
-        onSubmit={handleRegistrarMantenimiento}
+        onSubmit={handlePreRegistrarMantenimiento}
         formData={formData}
         setFormData={setFormData}
         onCancel={() => setMostrarModalMantenimiento(false)}
