@@ -275,9 +275,9 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
                 onChange={(e) => handleChange("tipoMantenimiento", e.target.value)}
                 className="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] appearance-none bg-white text-gray-700"
               >
-                <option value="Preventivo">Preventivo</option>
-                <option value="Correctivo">Correctivo</option>
-                <option value="Revision">Revisión</option>
+                <option value="PREVENTIVO">Preventivo</option>
+                <option value="CORRECTIVO">Correctivo</option>
+                <option value="REVISION">Revisión</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                 <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">

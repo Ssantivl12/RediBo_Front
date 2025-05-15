@@ -18,6 +18,7 @@ interface Vehiculo {
   estadoActual: {
     tipo: string;
     datos: {
+      estado: string;
       accionPosible: string;
       idReserva?: number;
       fechaInicio?: Date;
@@ -67,7 +68,7 @@ export default function GestionarVehiculos() {
 
   useEffect(() => {
     cargarVehiculos();
-  }, [params.idArrendador]);
+  }, []);
 
   const cargarVehiculos = async () => {
     setCargando(true);
@@ -92,18 +93,18 @@ export default function GestionarVehiculos() {
     }
   };
 
-  const handleLiberarRenta = (idAuto: number, idReserva: number) => {
+  const handleLiberarRenta = (idAuto: number) => {
     setVehiculoSeleccionado(idAuto);
     setAccionActual("FINALIZAR_RENTA");
     setMostrarConfirmacion(true);
   };
-
+{/** 
   const handleCancelarReserva = (idAuto: number, idReserva: number) => {
     setVehiculoSeleccionado(idAuto);
     setAccionActual("CANCELAR_RESERVA");
     setMostrarConfirmacion(true);
   };
-
+  */}
   const confirmarAccion = async () => {
     if (!vehiculoSeleccionado) return;
     
@@ -115,7 +116,6 @@ export default function GestionarVehiculos() {
       if (!vehiculo) throw new Error("Vehículo no encontrado");
       
       let endpoint = "";
-      let body = {};
       
       // Determinar qué acción realizar
       if (accionActual === "FINALIZAR_RENTA" && vehiculo.estadoActual.datos.idReserva) {
@@ -131,8 +131,7 @@ export default function GestionarVehiculos() {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(body)
+          }
         });
         
         if (!response.ok) {
@@ -156,43 +155,58 @@ export default function GestionarVehiculos() {
   const handleMostrarModalMantenimiento = (idAuto: number) => {
     setVehiculoSeleccionado(idAuto);
     setFormData({
-      fechaInicio: new Date().toISOString().split('T')[0],
+      fechaInicio: "",
       fechaFin: "",
       descripcion: "",
       costo: "",
-      tipoMantenimiento: "Preventivo",
+      tipoMantenimiento: "PREVENTIVO",
       kilometraje: "",
     });
     setMostrarModalMantenimiento(true);
   };
 
+  const parseFecha = (fechaStr: string): string | null => {
+    const partes = fechaStr.split('/');
+    if (partes.length !== 3) return null;
+    const [dia, mes, anio] = partes;
+    // formato YYYY-MM-DDTHH:mm:ss.sssZ
+    const fecha = new Date(`${anio}-${mes}-${dia}T00:00:00.000Z`);
+  
+    return isNaN(fecha.getTime()) ? null : fecha.toISOString();
+  };
+  
+  
+  
   const handleRegistrarMantenimiento = async (data: MantenimientoData) => {
     if (!vehiculoSeleccionado) return;
     
     setIsProcessing(true);
     
     try {
-      const response = await fetch(`${API_URL}/mantenimiento/registrar`, {
+      console.log("Datos de mantenimiento:", data);
+      const fechaInicio = parseFecha(data.fechaInicio);
+      const fechaFin = parseFecha(data.fechaFin);
+      const kilometraje = Number(data.kilometraje);
+      console.log("Kilometraje:", kilometraje);
+      const response = await fetch(`${API_URL}/autos/${vehiculoSeleccionado}/mantenimiento`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          idAuto: vehiculoSeleccionado,
-          fechaInicio: data.fechaInicio,
-          fechaFin: data.fechaFin,
           descripcion: data.descripcion,
-          costo: parseFloat(data.costo),
           tipoMantenimiento: data.tipoMantenimiento,
-          kilometraje: parseInt(data.kilometraje)
+          kilometraje: kilometraje,
+          costo: parseFloat(data.costo),
+          fechaInicio: fechaInicio,
+          fechaFin: fechaFin
         })
       });
-      
       if (!response.ok) {
         throw new Error(`Error al registrar mantenimiento: ${response.status}`);
       }
-      
-      // Recargar vehículos para ver los cambios
+      data= await response.json();
+      console.log("Respuesta del servidor:", data);
       await cargarVehiculos();
       setMantenimientoExitoso(true);
     } catch (err) {
@@ -287,7 +301,7 @@ export default function GestionarVehiculos() {
       case 'FINALIZAR_RENTA':
         return (
           <button
-            onClick={() => handleLiberarRenta(vehiculo.idAuto, estadoActual.datos.idReserva || 0)}
+            onClick={() => handleLiberarRenta(vehiculo.idAuto)}
             className="bg-[#FCA311] hover:bg-yellow-500 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
           >
             Liberar Auto
