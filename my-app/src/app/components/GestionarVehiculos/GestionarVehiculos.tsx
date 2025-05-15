@@ -263,7 +263,7 @@ export default function GestionarVehiculos() {
         onClose={() => setMostrarConfirmacion(false)}
         onConfirm={confirmarLiberacion}
         title="¿Está seguro que desea liberar el vehículo?"
-        message="¿Desea liberar el vehículo? Los días especificados en la renta actual estarán disponibles para una nueva renta."
+        message="Está a punto de liberar el vehículo. Los días especificados en la renta actual estarán disponibles para una nueva renta."
         confirmText="ACEPTAR"
         cancelText="CANCELAR"
         isProcessing={isProcessing}
@@ -290,7 +290,7 @@ export default function GestionarVehiculos() {
         onClose={() => setMantenimientoExitoso(false)}
         onConfirm={() => setMantenimientoExitoso(false)}
         title="Mantenimiento actualizado con éxito"
-        message="La operación de mantenimiento se ha registrado correctamente."
+        message="Vehículo puesto en mantenimiento con exito."
         confirmText="ACEPTAR"
         variant="success"
         showSuccess={true}
