@@ -116,19 +116,22 @@ export default function GestionarVehiculos() {
       if (!vehiculo) throw new Error("Vehículo no encontrado");
       
       let endpoint = "";
+      let metodo = "";
       
       // Determinar qué acción realizar
       if (accionActual === "FINALIZAR_RENTA" && vehiculo.estadoActual.datos.idReserva) {
-        endpoint = `${API_URL}/reservas/finalizar/${vehiculo.estadoActual.datos.idReserva}`;
+        endpoint = `${API_URL}/reservas/${vehiculo.estadoActual.datos.idReserva}/liberar`;
+        metodo = "PUT";
       } else if (accionActual === "CANCELAR_RESERVA" && vehiculo.estadoActual.datos.idReserva) {
         endpoint = `${API_URL}/reservas/cancelar/${vehiculo.estadoActual.datos.idReserva}`;
       } else if (accionActual === "FINALIZAR_MANTENIMIENTO" && vehiculo.estadoActual.datos.idHistorial) {
         endpoint = `${API_URL}/mantenimiento/${vehiculo.estadoActual.datos.idHistorial}/finalizar`;
+        metodo = "POST";
       }
       
       if (endpoint) {
         const response = await fetch(endpoint, {
-          method: 'POST',
+          method: metodo,
           headers: {
             'Content-Type': 'application/json',
           }
@@ -285,6 +288,29 @@ export default function GestionarVehiculos() {
             </p>
           </div>
         );
+        case 'RENTA_FINALIZADA_POR_LIBERAR':
+          return (
+            <div className="bg-white p-4 rounded-md space-y-2 shadow-sm">
+              <p>
+                <span className="font-semibold" style={{ color: "#11295B" }}>
+                  Estado:
+                </span>{" "}
+                Renta Finalizada, por liberar
+              </p>
+              <p>
+              <span className="font-semibold" style={{ color: "#11295B" }}>
+                Rentado a:
+              </span>{" "}
+              {estadoActual.datos.cliente?.nombre} {estadoActual.datos.cliente?.apellido}
+            </p>
+              <p>
+                <span className="font-semibold" style={{ color: "#11295B" }}>
+                  Fecha fin:
+                </span>{" "}
+                {estadoActual.datos.fechaFin ? new Date(estadoActual.datos.fechaFin).toLocaleDateString() : 'No especificada'}
+              </p>
+            </div>
+          );
       case 'NO_DISPONIBLE':
         return (
           <span className="bg-white text-black text-base font-medium px-3 py-1 rounded-full w-fit">
@@ -432,7 +458,7 @@ export default function GestionarVehiculos() {
         }
         message={
           accionActual === "FINALIZAR_RENTA"
-            ? "Los días especificados en la renta actual estarán disponibles para una nueva renta."
+            ? "Esta acción marcará el vehículo como disponible para nuevas rentas, ya que la renta actual ha finalizado por completo."
             : accionActual === "CANCELAR_RESERVA" 
             ? "Al cancelar esta reserva, el vehículo estará disponible para otras reservas en este período."
             : "El vehículo pasará a estar disponible para nuevas rentas."
