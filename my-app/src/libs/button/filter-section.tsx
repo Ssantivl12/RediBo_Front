@@ -8,7 +8,13 @@ import dayjs from 'dayjs'
 import 'dayjs/locale/es' // Import Spanish locale
 import { fetchVehiculosPorFechas } from '../filtroFechas';
 import FiltroAeropuerto from "@/app/components/filtroBusqueda/filtroAeropuerto";
+import updateLocale from 'dayjs/plugin/updateLocale'
+import weekday from 'dayjs/plugin/weekday'
 
+// Configure dayjs to use Monday as start of week
+dayjs.extend(updateLocale)
+dayjs.extend(weekday)
+dayjs.updateLocale('es', { weekStart: 1 })
 
 dayjs.locale('es') // Use Spanish locale
 
@@ -32,7 +38,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth, onFilter }) 
   const [showDatePicker, setShowDatePicker] = useState(false)
   const [startDate, setStartDate] = useState<Date | null>(null)
   const [endDate, setEndDate] = useState<Date | null>(null)
-  const [currentMonth, setCurrentMonth] = useState(dayjs())
+  const [currentMonth, setCurrentMonth] = useState(dayjs());
   const datePickerRef = useRef<HTMLDivElement>(null)
   const [mostrarMapa, setMostrarMapa] = useState(false);
   const [showDistanceSlider, setShowDistanceSlider] = useState(false);
@@ -44,6 +50,9 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth, onFilter }) 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const distanceSliderRef = useRef<HTMLDivElement>(null);
+  const [isSelectingStart, setIsSelectingStart] = useState(true);
+  const [activeButton, setActiveButton] = useState<'start' | 'end' | null>(null);
+  const [calendarField, setCalendarField] = useState<"desde" | "hasta" | null>(null);
 
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
     const R = 6371;
@@ -103,6 +112,41 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth, onFilter }) 
       }
     );
   };
+  // Guardar y cargar estado del filtro
+useEffect(() => {
+  // Cargar estado al montar
+  const savedState = localStorage.getItem('filterState');
+  if (savedState) {
+    const { savedDistance, savedStartDate, savedEndDate } = JSON.parse(savedState);
+    setSelectedDistance(savedDistance || 50);
+    setStartDate(savedStartDate ? new Date(savedStartDate) : null);
+    setEndDate(savedEndDate ? new Date(savedEndDate) : null);
+  }
+}, []);
+
+useEffect(() => {
+  // Guardar estado cuando cambia
+  const stateToSave = {
+    savedDistance: selectedDistance,
+    savedStartDate: startDate?.toISOString(),
+    savedEndDate: endDate?.toISOString()
+  };
+  localStorage.setItem('filterState', JSON.stringify(stateToSave));
+}, [selectedDistance, startDate, endDate]);
+
+// Efecto para aplicar filtros guardados al cargar
+useEffect(() => {
+  const applySavedFilters = async () => {
+    if (startDate && endDate) {
+      await fetchVehiclesByDateRange(startDate, endDate);
+    }
+    if (selectedDistance !== 50) {
+      handleFilterClick();
+    }
+  };
+
+  applySavedFilters();
+}, []); // Solo se ejecuta al montar
   // Load initial visible history
   useEffect(() => {
     const stored = localStorage.getItem("searchHistory");
@@ -248,7 +292,8 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth, onFilter }) 
     let day = start
 
     while (day.isBefore(end)) {
-      days.push(day)
+      // Only add the day if it's in the current month, otherwise add null
+      days.push(day.month() === month.month() ? day : null)
       day = day.add(1, 'day')
     }
 
@@ -273,43 +318,41 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth, onFilter }) 
 
   // Update handleDateClick to trigger the fetch when both dates are selected
   const handleDateClick = (date: dayjs.Dayjs) => {
-    if (date.isBefore(dayjs().startOf('day'))) {
-      return;
-    }
+    const today = dayjs().startOf('day');
+    if (date.isBefore(today)) return;
 
-    if (!startDate || (startDate && endDate)) {
-      setStartDate(date.toDate());
+    if (isSelectingStart) {
+      setStartDate(date.startOf('day').toDate());
       setEndDate(null);
-      setShowDateError(false);
+      setIsSelectingStart(false);
     } else {
-      const maxEndDate = dayjs(startDate).add(12, 'months');
+      if (date.isBefore(dayjs(startDate).startOf('day'))) {
+        setError("La fecha final debe ser posterior a la inicial");
+        return;
+      }
+      
+      const maxEndDate = dayjs(startDate).startOf('day').add(12, 'months');
       if (date.isAfter(maxEndDate)) {
         setShowDateError(true);
         setTimeout(() => setShowDateError(false), 3000);
         return;
       }
-      
-      if (date.isBefore(startDate)) {
-        setStartDate(date.toDate());
-        setEndDate(null);
-      } else {
-        setEndDate(date.toDate());
-        setShowDateError(false);
-        // Fetch vehicles when both dates are set
-        fetchVehiclesByDateRange(startDate, date.toDate());
-      }
+
+      setEndDate(date.startOf('day').toDate());
     }
   };
 
   const isDateDisabled = (date: dayjs.Dayjs) => {
+    const today = dayjs().startOf('day');
+    
     // Disable past dates
-    if (date.isBefore(dayjs().startOf('day'))) {
+    if (date.isBefore(today)) {
       return true;
     }
 
     // If start date is selected, disable dates more than 12 months ahead
-    if (startDate && !endDate) {
-      const maxDate = dayjs(startDate).add(12, 'months');
+    if (startDate) {
+      const maxDate = dayjs(startDate).startOf('day').add(12, 'months');
       return date.isAfter(maxDate);
     }
 
@@ -317,17 +360,18 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth, onFilter }) 
   };
 
   const isDateInRange = (date: dayjs.Dayjs) => {
-    if (!startDate || !endDate) return false
+    if (!startDate || !endDate) return false;
     return date.isAfter(dayjs(startDate).startOf('day')) &&
-      date.isBefore(dayjs(endDate).endOf('day'))
-  }
+      date.isBefore(dayjs(endDate).endOf('day'));
+  };
 
   const clearDateRange = (e: React.MouseEvent) => {
-    e.stopPropagation() // Prevent opening the calendar
-    setStartDate(null)
-    setEndDate(null)
-    setShowDatePicker(false)
-  }
+  e.stopPropagation();
+  setStartDate(null);
+  setEndDate(null);
+  setShowDatePicker(false);
+  localStorage.removeItem('filterState');
+};
 
   // Estilos
   const containerStyles: React.CSSProperties = {
@@ -476,32 +520,42 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth, onFilter }) 
     width: windowWidth < 768 ? '100%' : '600px',
   }
 
-  const dateButtonStyles: React.CSSProperties = {
-    ...selectStyles,
-    cursor: 'pointer',
-    backgroundColor: startDate ? '#FF6B00' : showDatePicker ? '#f3f4f6' : 'white',
-    color: startDate ? 'white' : 'black',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '10px 15px',
+  const dateButtonContainerStyles: React.CSSProperties = {
     position: 'relative',
+    flex: 1,
+    minWidth: windowWidth < 1024 ? '45%' : '0',
+    display: 'flex',
     border: '1px solid #d1d5db',
     borderRadius: '0.375rem',
-    width: '100%',
-  }
+    overflow: 'hidden',
+    backgroundColor: '#d1d5db'
+  };
 
-  const clearButtonStyles: React.CSSProperties = {
-    marginLeft: '8px',
-    cursor: 'pointer',
-    backgroundColor: 'transparent',
-    border: 'none',
-    padding: '0 4px',
-    fontSize: '16px',
-    color: startDate ? 'white' : '#666',
+  const dateButtonSectionStyles: React.CSSProperties = {
+    flex: 1,
+    height: '44px',
     display: 'flex',
     alignItems: 'center',
-  }
+    justifyContent: 'center',
+    cursor: 'pointer',
+    backgroundColor: 'white',
+    border: 'none',
+    fontSize: '14px',
+    color: '#374151',
+    fontWeight: 500,
+    transition: 'all 0.2s ease'
+  };
+
+  const dateLabelStyles: React.CSSProperties = {
+    fontSize: '12px',
+    color: '#6B7280',
+    marginBottom: '4px'
+  };
+
+  const dateValueStyles: React.CSSProperties = {
+    fontSize: '14px',
+    color: '#111827'
+  };
 
   const handleKeyNavigation = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!showHistory || searchHistory.length === 0) return;
@@ -538,6 +592,69 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth, onFilter }) 
   const toggleCalendar = (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowCalendar(prev => !prev);
+  };
+
+  // Update the click outside handler to also reset activeButton
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (datePickerRef.current && !datePickerRef.current.contains(event.target as Node)) {
+        setShowCalendar(false);
+        setActiveButton(null); // Reset active button when clicking outside
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Add this function near the other handlers
+  const handleAcceptDateClick = async () => {
+    if (!startDate || !endDate) return;
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const startStr = dayjs(startDate).format("YYYY-MM-DD");
+      const endStr = dayjs(endDate).format("YYYY-MM-DD");
+      
+      const response = await fetchVehiculosPorFechas(startStr, endStr);
+      const mappedVehicles = Array.isArray(response) ? response : [];
+      
+      onFilter(mappedVehicles);
+    } catch (error) {
+      console.error("[ERROR] Error al filtrar por fechas:", error);
+      setError("No hay vehículos disponibles para estas fechas");
+      onFilter([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Add this helper function to check if a day is truly selected
+  const isDateSelected = (day: dayjs.Dayjs, selectedDate: Date | null) => {
+    return selectedDate && day.isSame(dayjs(selectedDate), 'day');
+  };
+
+  // Add this helper to check if a day is truly in range
+  const isDateInSelectedRange = (day: dayjs.Dayjs, start: Date | null, end: Date | null) => {
+    if (!start || !end) return false;
+    
+    const startDay = dayjs(start).startOf('day');
+    const endDay = dayjs(end).startOf('day');
+    
+    return day.isSame(startDay, 'day') || 
+           day.isSame(endDay, 'day') || 
+           (day.isAfter(startDay) && day.isBefore(endDay));
+  };
+
+  // Update the Accept button click handler
+  const handleAcceptClick = () => {
+    if (startDate && endDate) {
+      handleAcceptDateClick();
+    }
+    setShowCalendar(false);
+    setCalendarField(null);
   };
 
   return (
@@ -642,28 +759,48 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth, onFilter }) 
 
       <div style={filtersContainerStyles}>
         <div style={{ position: 'relative', flex: 1, minWidth: windowWidth < 1024 ? '45%' : '0' }}>
-          <button
-            onClick={toggleCalendar}
-            style={dateButtonStyles}
-          >
-            <span style={{ flex: 1, textAlign: 'left' }}>{getFormattedDateRange()}</span>
-            {(startDate || endDate) && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setStartDate(null);
-                  setEndDate(null);
-                  setShowCalendar(false);
-                }}
-                style={clearButtonStyles}
-                title="Limpiar fechas"
-              >
-                ✕
-              </button>
-            )}
-          </button>
+          <div style={dateButtonContainerStyles}>
+            <button
+              onClick={() => {
+                if (!startDate && calendarField === "hasta") {
+                  setError("Selecciona primero la fecha inicial");
+                  return;
+                }
+                setCalendarField(prev => prev === "desde" ? null : "desde");
+                setIsSelectingStart(true);
+                setShowCalendar(true);
+                setError("");
+              }}
+              style={{
+                ...dateButtonSectionStyles,
+                backgroundColor: startDate ? '#FFE4D6' : 'white',
+                borderRight: '1px solid #d1d5db'
+              }}
+            >
+              {startDate ? `Desde: ${dayjs(startDate).format('D MMM')}` : 'Desde'}
+            </button>
+            
+            <button
+              onClick={() => {
+                if (!startDate) {
+                  setError("Selecciona primero la fecha inicial");
+                  return;
+                }
+                setCalendarField(prev => prev === "hasta" ? null : "hasta");
+                setIsSelectingStart(false);
+                setShowCalendar(true);
+                setError("");
+              }}
+              style={{
+                ...dateButtonSectionStyles,
+                backgroundColor: endDate ? '#FFE4D6' : 'white'
+              }}
+            >
+              {endDate ? `Hasta: ${dayjs(endDate).format('D MMM')}` : 'Hasta'}
+            </button>
+          </div>
 
-          {showCalendar && (
+          {calendarField && showCalendar && (
             <div ref={datePickerRef} style={datePickerStyles}>
               <div 
                 translate="no" 
@@ -689,16 +826,25 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth, onFilter }) 
                         padding: '0 8px'
                       }}>
                         <button
-                          onClick={() => setCurrentMonth(prev => prev.subtract(1, 'month'))}
+                          onClick={() => {
+                            const prevMonth = currentMonth.subtract(1, 'month');
+                            if (!prevMonth.isBefore(dayjs().startOf('month'))) {
+                              setCurrentMonth(prevMonth);
+                            }
+                          }}
                           style={{ 
                             visibility: i === 0 ? 'visible' : 'hidden',
                             padding: '4px 8px',
-                            cursor: 'pointer'
+                            cursor: currentMonth.isSame(dayjs().startOf('month'), 'month') ? 'not-allowed' : 'pointer',
+                            opacity: currentMonth.isSame(dayjs().startOf('month'), 'month') ? 0.5 : 1
                           }}
+                          disabled={currentMonth.isSame(dayjs().startOf('month'), 'month')}
                         >
                           ←
                         </button>
-                        <span style={{ fontWeight: 500 }}>{month.format('MMMM YYYY')}</span>
+                        <span style={{ fontWeight: 500 }}>
+                          {month.format('MMMM YYYY').replace(/^\w/, c => c.toUpperCase())}
+                        </span>
                         <button
                           onClick={() => setCurrentMonth(prev => prev.add(1, 'month'))}
                           style={{ 
@@ -717,20 +863,22 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth, onFilter }) 
                         gap: '4px',
                         textAlign: 'center'
                       }}>
-                        {['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'].map(day => (
+                        {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map(day => (
                           <div key={day} style={{ padding: '4px', color: '#666' }}>{day}</div>
                         ))}
 
                         {generateCalendarDays(month).map((day, index) => {
-                          const isStartDate = startDate && day.isSame(startDate, 'day')
-                          const isEndDate = endDate && day.isSame(endDate, 'day')
-                          const isSelected = isStartDate || isEndDate
-                          const isInRange = startDate && endDate &&
-                            day.isAfter(dayjs(startDate).startOf('day')) &&
-                            day.isBefore(dayjs(endDate).endOf('day'))
-                          const isCurrentMonth = day.month() === month.month()
-                          const isPastDate = day.isBefore(dayjs().startOf('day'))
-                          const isDisabled = isDateDisabled(day)
+                          if (!day) {
+                            // Render empty slot for days outside current month
+                            return <div key={index} style={{ padding: '8px' }} />;
+                          }
+
+                          const isStartDate = isDateSelected(day, startDate);
+                          const isEndDate = isDateSelected(day, endDate);
+                          const isSelected = isStartDate || isEndDate;
+                          const isInRange = isDateInSelectedRange(day, startDate, endDate);
+                          const isPastDate = day.isBefore(dayjs().startOf('day'));
+                          const isDisabled = isDateDisabled(day);
 
                           return (
                             <button
@@ -742,8 +890,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth, onFilter }) 
                                 backgroundColor: isSelected ? '#FF6B00' :
                                   isInRange ? '#FFE4D6' : 'transparent',
                                 color: (isPastDate || isDisabled) ? '#ccc' :
-                                  isSelected ? 'white' :
-                                    !isCurrentMonth ? '#ccc' : 'black',
+                                  isSelected ? 'white' : 'black',
                                 borderRadius: '4px',
                                 cursor: (isPastDate || isDisabled) ? 'not-allowed' : 'pointer',
                                 border: 'none',
@@ -754,7 +901,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth, onFilter }) 
                             >
                               {day.format('D')}
                             </button>
-                          )
+                          );
                         })}
                       </div>
                     </div>
@@ -772,7 +919,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth, onFilter }) 
                     Limpiar
                   </button>
                   <button
-                    onClick={() => setShowCalendar(false)}
+                    onClick={handleAcceptClick}
                     className="w-full sm:w-1/2 py-3 px-4 bg-[#FF6B00] text-white rounded-md hover:bg-[#e55d00] transition-colors duration-200"
                   >
                     Aceptar
@@ -840,7 +987,15 @@ const FilterSection: React.FC<FilterSectionProps> = ({ windowWidth, onFilter }) 
   {isLoading ? "Filtrar" : "Filtrar"}
 </button>
 {error && <p style={{ color: "red" }}>{error}</p>}
-      {mostrarMapa && <MapaFiltro />}
+      {mostrarMapa && (
+  <MapaFiltro
+    texto={searchTerm}
+    distancia={selectedDistance.toString()}
+    fechaInicio={startDate ? dayjs(startDate).format("YYYY-MM-DD") : ""}
+    fechaFin={endDate ? dayjs(endDate).format("YYYY-MM-DD") : ""}
+  />
+)}
+
       {showDateError && (
         <div style={{
           position: 'absolute',
