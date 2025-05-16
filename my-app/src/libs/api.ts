@@ -1,4 +1,5 @@
 import type { Auto, Comentario } from "@/types/auto"
+import type { Usuario } from "@/types/auto"
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"
 
@@ -51,4 +52,10 @@ export async function getAutosDisponiblesPorFecha(fechaInicio: string, fechaFin:
     console.error("Error en getAutosDisponiblesPorFecha:", error)
     throw error
   }
+}
+
+export async function getUsuarios(): Promise<{ data: Usuario[] }> {
+  const res = await fetch(`${BASE_URL}/usuarios`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Error al obtener usuarios");
+  return res.json();
 }
