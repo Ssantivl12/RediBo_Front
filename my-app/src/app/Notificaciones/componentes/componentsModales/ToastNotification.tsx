@@ -7,7 +7,7 @@ interface ToastNotificationProps {
   onClose: () => void;
 }
 
-const ToastNotification = ({ notificacion, onClose }: ToastNotificationProps) => {
+const ToastNotification = ({ notificacion}: ToastNotificationProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 50, scale: 0.3 }}

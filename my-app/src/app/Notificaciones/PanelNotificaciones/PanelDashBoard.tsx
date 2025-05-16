@@ -8,7 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Notificacion } from "../../types/notification";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, Bell, Menu } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 
 interface PanelDashBoardProps {
   usuarioId: string;
@@ -20,7 +20,7 @@ export default function PanelDashBoard({ usuarioId }: PanelDashBoardProps) {
   const [loading, setLoading] = useState(true);
   const [mensajeExito, setMensajeExito] = useState("");
   const [toastNotification, setToastNotification] = useState<Notificacion | null>(null);
-  const { isConnected, notifications: sseNotifications, refreshNotifications } = useNotifications();
+  const {notifications: sseNotifications, refreshNotifications } = useNotifications();
 
   const transformarNotificaciones = (data: any[]): Notificacion[] => {
     return data.map((item) => ({

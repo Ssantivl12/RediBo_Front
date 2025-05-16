@@ -10,14 +10,6 @@ import ToastNotification from '../componentsModales/ToastNotification';
 import type { Notificacion } from '@/app/types/notification';
 import { motion, AnimatePresence } from 'framer-motion';
 
-type ModalNotificacion = {
-  titulo: string;
-  descripcion: string;
-  fecha: string;
-  tipo: string;
-  tipoEntidad: string;
-  imagenURL?: string;
-};
 
 export function NotificacionesCampana() {
   const [mostrarPanel, setMostrarPanel] = useState(false);
@@ -29,7 +21,6 @@ export function NotificacionesCampana() {
     loading: cargando,
     isConnected,
     refreshNotifications: cargarNotificaciones,
-    setNotifications,
     markAsRead,
   } = useNotifications();
 
@@ -146,8 +137,8 @@ export function NotificacionesCampana() {
       fecha: item.creadoEn,
       tipo: item.tipo || "No especificado",
       tipoEntidad: item.tipoEntidad || "No especificado",
-      imagenURL: item.imagenAuto || undefined,
-      leida: item.leido,
+      imagenURL: item.imagenURL || undefined,
+      leida: item.leida,
       creadoEn: item.creadoEn,
     };
   };

@@ -11,7 +11,6 @@ export function useNotifications() {
   const [loading, setLoading] = useState<boolean>(false);
   const notificationServiceRef = useRef<NotificationService | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
-
   const userId = getUserId();
 
   const fetchUnreadCount = useCallback(async () => {
@@ -49,13 +48,21 @@ export function useNotifications() {
       console.log("Respuesta API notificaciones:", data);
       
       if (response.ok) {
-        const notificacionesMapped = data.notificaciones.map((n: any) => ({
-          ...n,
-          leida: n.leido !== undefined ? n.leido : n.leida,
+        type APINotificacion = Notificacion & { leido?: boolean };
+
+        const notificacionesMapped = data.notificaciones.map((n: APINotificacion) => ({
+        ...n,
+        leida: n.leido !== undefined ? n.leido : n.leida,
         }));
         
-        console.log("Actualizando notificaciones en estado local", notificacionesMapped.map((n: { id: any; leida: any; }) => ({id: n.id, leida: n.leida})));
-        setNotifications(notificacionesMapped);
+        console.log(
+          "Actualizando notificaciones en estado local",
+          notificacionesMapped.map((n: Pick<Notificacion, 'id' | 'leida'>) => ({
+          id: n.id,
+          leida: n.leida,
+        }))
+        );
+          setNotifications(notificacionesMapped);
         
         /* const noLeidas = notificacionesMapped.filter((n: { leida: boolean }) => !n.leida).length;
         console.log("Contador de no leídas calculado:", noLeidas);
