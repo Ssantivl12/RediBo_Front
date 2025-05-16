@@ -177,7 +177,11 @@ export interface Notification {
 
         // Verificar la conexión después de un breve retraso
         setTimeout(checkConnection, 1000);
-      } catch (err) {}
+      } catch (err) {
+        if (this.isActive) {
+          this.reconnect(1000);
+        }
+      }
   
       return this;
     }

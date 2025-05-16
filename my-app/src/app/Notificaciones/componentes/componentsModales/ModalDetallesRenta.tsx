@@ -4,7 +4,6 @@ import { useState } from 'react';
 import ModalConfirmacionEliminar from './ModalConfirmacionEliminar';
 import { motion, AnimatePresence } from "framer-motion";
 import { ImageIcon } from 'lucide-react';
-import Image from 'next/image';
 
 interface ModalProps {
   isOpen: boolean;
@@ -32,10 +31,9 @@ function formatDate(dateString: Date | string) {
 }
 
 const ModalDetallesRenta = ({ isOpen, notification, onClose, onDelete }: ModalProps) => {
+  if (!isOpen) return null;
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
   const [mostrarFallback, setMostrarFallback] = useState(false);
-
-  if (!isOpen) return null;
 
 
   return (
@@ -59,7 +57,7 @@ const ModalDetallesRenta = ({ isOpen, notification, onClose, onDelete }: ModalPr
         <div className="p-6 flex flex-col gap-4">
           <div className="flex flex-col lg:flex-row-reverse gap-4">
             {notification.imagenURL && !mostrarFallback ? (
-              <Image
+              <img
                 src={notification.imagenURL}
                 alt="Imagen"
                 className="w-full h-auto max-w-xs object-contain rounded-lg"
