@@ -45,9 +45,10 @@ export default function Navbar() {
     }
   };
 
-  // Función para seleccionar un usuario
+  // Función para seleccionar un usuario y guardar su informacion en localStorage
   const handleUserSelect = (usuario: Usuario) => {
     console.log(`Logueado como: ${usuario.nombre} (${usuario.esAdmin ? "Host" : "Renter"})`);
+    localStorage.setItem("idUsuario", usuario.idUsuario.toString()); // <-- Guarda el id del usuario aquí
     setShowDropdown(false);
   };
 
