@@ -23,15 +23,15 @@ import { useEffect, useState } from 'react';
            break;
          case 'VEHICULO_CALIFICADO':
            Icon = module.Star;
-           color = 'text-green-500';
+           color = 'text-emerald-500';
            break;
          case 'RESERVA_CONFIRMADA':
            Icon = module.CheckCircle;
-           color = 'text-green-500';
+           color = 'text-emerald-500';
            break;
          case 'DEPOSITO_CONFIRMADO':
-           Icon = module.DollarSign;
-           color = 'text-green-500';
+           Icon = module.CircleDollarSign;
+           color = 'text-emerald-500';
            break;
          case 'DEPOSITO_RECIBIDO':
            Icon = module.CreditCard;
