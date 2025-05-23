@@ -1,6 +1,6 @@
-"use client";
-
+'use client';
 import React, { useState } from "react";
+import ModalDeConfirmacion from "../modal/ModalDeConfirmacion";
 
 interface RegistrarMantenimientoModalProps {
   isOpen: boolean;
@@ -26,56 +26,58 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
   onSubmit,
   formData,
   setFormData,
-  onCancel
+  onCancel,
 }) => {
   const [errors, setErrors] = useState<Record<string, boolean>>({});
-  const [dateErrors, setDateErrors] = useState<{fechaInicio?: string; fechaFin?: string}>({});
+  const [dateErrors, setDateErrors] = useState<{ fechaInicio?: string; fechaFin?: string }>({});
+  const [showConfirmation, setShowConfirmation] = useState(false); // State for confirmation modal
+  const [isProcessing, setIsProcessing] = useState(false); // State for processing
 
   const validateDate = (dateStr: string, fieldName: string) => {
-    if (!dateStr) return true; // Return true for empty optional fields
-    
+    if (!dateStr) return true;
+
     const parts = dateStr.split('/');
-    if (parts.length !== 3 || parts.some(part => !part)) {
-      setDateErrors(prev => ({...prev, [fieldName]: 'Formato inválido (dd/mm/yyyy)'}));
+    if (parts.length !== 3 || parts.some((part) => !part)) {
+      setDateErrors((prev) => ({ ...prev, [fieldName]: 'Formato inválido (dd/mm/yyyy)' }));
       return false;
     }
-    
+
     const [dd, mm, yyyy] = parts.map(Number);
-    
+
     if (isNaN(dd)) {
-      setDateErrors(prev => ({...prev, [fieldName]: 'Día debe ser un número'}));
+      setDateErrors((prev) => ({ ...prev, [fieldName]: 'Día debe ser un número' }));
       return false;
     }
     if (dd < 1 || dd > 31) {
-      setDateErrors(prev => ({...prev, [fieldName]: 'Día inválido (01-31)'}));
+      setDateErrors((prev) => ({ ...prev, [fieldName]: 'Día inválido (01-31)' }));
       return false;
     }
-    
+
     if (isNaN(mm)) {
-      setDateErrors(prev => ({...prev, [fieldName]: 'Mes debe ser un número'}));
+      setDateErrors((prev) => ({ ...prev, [fieldName]: 'Mes debe ser un número' }));
       return false;
     }
     if (mm < 1 || mm > 12) {
-      setDateErrors(prev => ({...prev, [fieldName]: 'Mes inválido (01-12)'}));
+      setDateErrors((prev) => ({ ...prev, [fieldName]: 'Mes inválido (01-12)' }));
       return false;
     }
-    
+
     if (isNaN(yyyy)) {
-      setDateErrors(prev => ({...prev, [fieldName]: 'Año debe ser un número'}));
+      setDateErrors((prev) => ({ ...prev, [fieldName]: 'Año debe ser un número' }));
       return false;
     }
     if (yyyy < 2025 || yyyy > 2030) {
-      setDateErrors(prev => ({...prev, [fieldName]: 'Año inválido (2025-2030)'}));
+      setDateErrors((prev) => ({ ...prev, [fieldName]: 'Año inválido (2025-2030)' }));
       return false;
     }
-    
+
     const date = new Date(yyyy, mm - 1, dd);
     if (date.getFullYear() !== yyyy || date.getMonth() + 1 !== mm || date.getDate() !== dd) {
-      setDateErrors(prev => ({...prev, [fieldName]: 'Fecha inválida'}));
+      setDateErrors((prev) => ({ ...prev, [fieldName]: 'Fecha inválida' }));
       return false;
     }
-    
-    setDateErrors(prev => ({...prev, [fieldName]: undefined}));
+
+    setDateErrors((prev) => ({ ...prev, [fieldName]: undefined }));
     return true;
   };
 
@@ -111,7 +113,6 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
         setDateErrors(prev => ({ ...prev, fechaInicio: '' })); // Limpia el error si está todo ok
       }
     }
-
 
   if (formData.fechaFin && !validateDate(formData.fechaFin, 'fechaFin')) {
     newErrors.fechaFin = true;
@@ -156,8 +157,15 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
 
   const handleSubmit = () => {
     if (validateFields()) {
-      onSubmit(formData);
+      setShowConfirmation(true); // Show confirmation modal instead of submitting directly
     }
+  };
+
+  const handleConfirmSubmit = () => {
+    setIsProcessing(true);
+    setShowConfirmation(false);
+    onSubmit(formData); // Call the onSubmit function passed from the parent
+    setIsProcessing(false);
   };
 
   const handleCancel = () => {
@@ -169,51 +177,52 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
 
   const handleDateChange = (field: 'fechaInicio' | 'fechaFin', value: string) => {
     let cleanedValue = value.replace(/[^0-9/]/g, '');
-    
+
     if (cleanedValue.length > 10) {
       cleanedValue = cleanedValue.slice(0, 10);
     }
-    
+
     let formattedValue = cleanedValue;
     if (cleanedValue.length > 2 && cleanedValue.indexOf('/') === -1) {
-      formattedValue = `${cleanedValue.slice(0,2)}/${cleanedValue.slice(2)}`;
+      formattedValue = `${cleanedValue.slice(0, 2)}/${cleanedValue.slice(2)}`;
     }
     if (formattedValue.length > 5 && formattedValue.split('/').length < 3) {
-      formattedValue = `${formattedValue.slice(0,5)}/${formattedValue.slice(5)}`;
+      formattedValue = `${formattedValue.slice(0, 5)}/${formattedValue.slice(5)}`;
     }
-    
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
-      [field]: formattedValue
+      [field]: formattedValue,
     }));
-    
-    setErrors(prev => ({...prev, [field]: false}));
+
+    setErrors((prev) => ({ ...prev, [field]: false }));
     validateDate(formattedValue, field);
   };
 
   const handleNumberChange = (field: 'costo' | 'kilometraje', value: string) => {
     const cleanedValue = value.replace(/[^0-9]/g, '');
-    
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
-      [field]: cleanedValue
+      [field]: cleanedValue,
     }));
-    
-    setErrors(prev => ({...prev, [field]: false}));
+
+    setErrors((prev) => ({ ...prev, [field]: false }));
   };
 
   const handleChange = (field: keyof MantenimientoData, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
-    setErrors(prev => ({...prev, [field]: false}));
+    setErrors((prev) => ({ ...prev, [field]: false }));
   };
 
   const getInputClass = (fieldName: string) => {
-    const baseClass = "w-full p-2.5 border rounded-md focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)]";
-    return errors[fieldName] 
-      ? `${baseClass} border-red-500 bg-red-50` 
+    const baseClass =
+      'w-full p-2.5 border rounded-md focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)]';
+    return errors[fieldName]
+      ? `${baseClass} border-red-500 bg-red-50`
       : `${baseClass} border-gray-300`;
   };
 
@@ -234,9 +243,9 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
             <input
               type="text"
               value={formData.fechaInicio}
-              onChange={(e) => handleDateChange("fechaInicio", e.target.value)}
+              onChange={(e) => handleDateChange('fechaInicio', e.target.value)}
               placeholder="dd/mm/yyyy"
-              className={getInputClass("fechaInicio")}
+              className={getInputClass('fechaInicio')}
               required
             />
             {errors.fechaInicio && (
@@ -253,14 +262,12 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
             <input
               type="text"
               value={formData.fechaFin}
-              onChange={(e) => handleDateChange("fechaFin", e.target.value)}
+              onChange={(e) => handleDateChange('fechaFin', e.target.value)}
               placeholder="dd/mm/yyyy"
-              className={getInputClass("fechaFin")}
+              className={getInputClass('fechaFin')}
             />
             {errors.fechaFin && (
-              <p className="mt-1 text-sm text-red-600">
-                {dateErrors.fechaFin}
-              </p>
+              <p className="mt-1 text-sm text-red-600">{dateErrors.fechaFin}</p>
             )}
           </div>
 
@@ -271,12 +278,12 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
             <textarea
               value={formData.descripcion}
               onChange={(e) => {
-                const textOnlyValue = e.target.value.replace(/[^a-zA-Z\s]/g, "");
+                const textOnlyValue = e.target.value.replace(/[^a-zA-Z\s]/g, '');
                 if (textOnlyValue.length <= 150) {
-                  handleChange("descripcion", textOnlyValue);
+                  handleChange('descripcion', textOnlyValue);
                 }
               }}
-              className={getInputClass("descripcion")}
+              className={getInputClass('descripcion')}
               rows={3}
               maxLength={150}
               required
@@ -284,8 +291,8 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
             {errors.descripcion && (
               <p className="mt-1 text-sm text-red-600">
                 {formData.descripcion.length < 20
-                  ? "La descripción debe tener al menos 20 caracteres"
-                  : "Este campo es obligatorio"}
+                  ? 'La descripción debe tener al menos 20 caracteres'
+                  : 'Este campo es obligatorio'}
               </p>
             )}
             <p className="mt-1 text-sm text-gray-500">
@@ -301,8 +308,8 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
               <input
                 type="text"
                 value={formData.costo}
-                onChange={(e) => handleNumberChange("costo", e.target.value)}
-                className={`${getInputClass("costo")} pr-10`}
+                onChange={(e) => handleNumberChange('costo', e.target.value)}
+                className={`${getInputClass('costo')} pr-10`}
                 inputMode="numeric"
               />
               <span className="absolute inset-y-0 right-3 flex items-center text-gray-500">
@@ -321,7 +328,7 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
             <div className="relative">
               <select
                 value={formData.tipoMantenimiento}
-                onChange={(e) => handleChange("tipoMantenimiento", e.target.value)}
+                onChange={(e) => handleChange('tipoMantenimiento', e.target.value)}
                 className="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] appearance-none bg-white text-gray-700"
               >
                 <option value="PREVENTIVO">Preventivo</option>
@@ -348,8 +355,8 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
               <input
                 type="text"
                 value={formData.kilometraje}
-                onChange={(e) => handleNumberChange("kilometraje", e.target.value)}
-                className={`${getInputClass("kilometraje")} pr-10`}
+                onChange={(e) => handleNumberChange('kilometraje', e.target.value)}
+                className={`${getInputClass('kilometraje')} pr-10`}
                 inputMode="numeric"
                 required
               />
@@ -359,9 +366,9 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
             </div>
             {errors.kilometraje && (
               <p className="mt-1 text-sm text-red-600">
-                {isNaN(Number(formData.kilometraje)) 
-                  ? "Solo se permiten números" 
-                  : "Este campo es obligatorio"}
+                {isNaN(Number(formData.kilometraje))
+                  ? 'Solo se permiten números'
+                  : 'Este campo es obligatorio'}
               </p>
             )}
           </div>
@@ -384,6 +391,20 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
           </div>
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      <ModalDeConfirmacion
+        isOpen={showConfirmation}
+        onClose={() => setShowConfirmation(false)}
+        onConfirm={handleConfirmSubmit}
+        title="Confirmar Mantenimiento"
+        message="¿Está seguro que desea registrar el mantenimiento? Una vez registrado, los datos no podrán modificarse."
+        confirmText="ACEPTAR"
+        cancelText="CANCELAR"
+        isProcessing={isProcessing}
+        variant="confirmation"
+        showSuccess={false}
+      />
     </div>
   ) : null;
 };

@@ -537,7 +537,7 @@ export default function GestionarVehiculos() {
         }
         message={
           accionActual === "FINALIZAR_RENTA"
-            ? "Esta acción marcará el vehículo como disponible para nuevas rentas, ya que la renta actual ha finalizado por completo."
+            ? "Está a punto de liberar el vehículo. Los días especificados en la renta actual estarán disponibles para una nueva renta."
             : accionActual === "CANCELAR_RESERVA" 
             ? "Al cancelar esta reserva, el vehículo estará disponible para otras reservas en este período."
             : "El vehículo pasará a estar disponible para nuevas rentas."
@@ -573,8 +573,8 @@ export default function GestionarVehiculos() {
         isOpen={mantenimientoExitoso}
         onClose={() => setMantenimientoExitoso(false)}
         onConfirm={() => setMantenimientoExitoso(false)}
-        title="Mantenimiento registrado con éxito"
-        message="La operación de mantenimiento se ha registrado correctamente."
+        title="Mantenimiento actualizado con éxito"
+        message="Vehículo puesto en mantenimiento con exito."
         confirmText="ACEPTAR"
         variant="success"
         showSuccess={true}
