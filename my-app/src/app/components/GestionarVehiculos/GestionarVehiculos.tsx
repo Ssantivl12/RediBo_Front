@@ -7,6 +7,8 @@ import RegistrarMantenimientoModal from "@components/MantenimientoModal/Registra
 import { FiCheckCircle } from "react-icons/fi";
 import { API_URL } from '@config/api';
 import { VerKilometraje } from "../auto/VerKilometraje";
+import VehiculoFilter from "@components/filters/VehiculoFilter";
+
 
 interface Kilometraje {
   id: string;
@@ -79,6 +81,7 @@ export default function GestionarVehiculos() {
     tipoMantenimiento: "Preventivo",
     kilometraje: "",
   });
+  const [search, setSearch] = useState("");
 
   const kilometrajeActual = 45280;
   const historialKilometraje: Kilometraje[] = [
@@ -489,21 +492,35 @@ export default function GestionarVehiculos() {
     );
   }
 
+
+
   return (
     
     <div className="space-y-6 px-4 py-6">
+      <VehiculoFilter search={search} setSearch={setSearch} />
             <button
         onClick={() => setModalKilometraje(true)}
         className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
       >
         Mostrar Historial de Kilometraje
       </button>
-      {vehiculos.length === 0 ? (
+
+      {vehiculos
+        .filter((v) =>
+          v.placa.toLowerCase().includes(search.toLowerCase()) ||
+          `${v.marca} ${v.modelo}`.toLowerCase().includes(search.toLowerCase())
+        )
+      .length === 0 ? (
         <div className="flex justify-center items-center h-64">
-          <p className="text-lg font-medium">No hay vehículos registrados</p>
+          <p className="text-lg font-medium">No se encontraron autos...</p>
         </div>
       ) : (
-        vehiculos.map((vehiculo) => (
+        vehiculos
+          .filter((v) =>
+            v.placa.toLowerCase().includes(search.toLowerCase()) ||
+            `${v.marca} ${v.modelo}`.toLowerCase().includes(search.toLowerCase())
+        )
+        .map((vehiculo) => (
           <div
             key={vehiculo.idAuto}
             className="bg-[#D8C4A7] rounded-lg shadow-md overflow-hidden"

@@ -2,46 +2,37 @@
 
 import React from 'react';
 
-const VehiculoFilter = () => {
-  return (
-    <div className="flex justify-between items-center mt-6">
-      {/* Select: Todos los estados */}
-      <div className="relative">
-        <select
-          disabled
-          className="appearance-none px-4 py-2 pr-8 border rounded-md bg-[#FCA311] text-white font-semibold cursor-not-allowed"
-        >
-          <option>Todos los estados</option>
-        </select>
-        <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
-          <svg
-            className="w-4 h-4 text-black"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path d="M10 12l-5-5h10l-5 5z" />
-          </svg>
-        </div>
-      </div>
+interface Props {
+  search: string;
+  setSearch: (value: string) => void;
+}
 
-      {/* Select: Más antiguos */}
-      <div className="relative">
-        <select
-          disabled
-          className="appearance-none px-4 py-2 pr-8 border rounded-md bg-[#FCA311] text-white font-semibold cursor-not-allowed"
-        >
-          <option>Más antiguos</option>
-        </select>
-        <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
-          <svg
-            className="w-4 h-4 text-black"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path d="M10 12l-5-5h10l-5 5z" />
-          </svg>
-        </div>
-      </div>
+const VehiculoFilter = ({ search, setSearch }: Props) => {
+  return (
+    <div className="flex flex-wrap gap-4 items-center mt-6">
+      {/* Input de búsqueda */}
+      <input
+        type="text"
+        placeholder="Buscar por nombre o placa"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="px-4 py-2 border border-gray-300 rounded-md w-64"
+      />
+
+      {/* Selects (aún deshabilitados) */}
+      <select
+        disabled
+        className="appearance-none px-4 py-2 pr-8 border rounded-md bg-[#FCA311] text-white font-semibold cursor-not-allowed"
+      >
+        <option>Todos los estados</option>
+      </select>
+
+      <select
+        disabled
+        className="appearance-none px-4 py-2 pr-8 border rounded-md bg-[#FCA311] text-white font-semibold cursor-not-allowed"
+      >
+        <option>Más antiguos</option>
+      </select>
     </div>
   );
 };
