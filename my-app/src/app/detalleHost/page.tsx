@@ -1,0 +1,40 @@
+'use client';
+
+import Image from 'next/image';
+
+function NavbarDetalle() {
+  return (
+    <div className="px-6 py-4 border-b border-[rgba(0,0,0,0.05)] bg-white flex justify-between items-center">
+      <h1 className="text-3xl text-[var(--naranja)] font-[var(--tamaño-black)] drop-shadow-lg">REDIBO</h1>
+      <button
+        onClick={() => {
+          console.log('Botón de perfil presionado');
+        }}
+        className="p-1 rounded-full hover:opacity-80 transition"
+      >
+        <Image
+          src="/imagenesIconos/image.png"
+          width={50}
+          height={50}
+          alt="Icono de perfil"
+          unoptimized
+          className="w-7 h-7 cursor-pointer"
+        />
+      </button>
+    </div>
+  );
+}
+
+export default function DetalleHostPage() {
+  return (
+    <div>
+      <NavbarDetalle />
+
+      <main className="p-6">
+        <h2 className="text-xl font-semibold text-[#11295b] mb-4">Perfil del Host</h2>
+        <p>JSJSJJS</p>
+      </main>
+    </div>
+  );
+}
+

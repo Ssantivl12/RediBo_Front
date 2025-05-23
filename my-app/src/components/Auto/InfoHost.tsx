@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Usuario } from '@/types/auto';
+import { useRouter } from 'next/navigation';
 
 interface Props {
   usuario: Usuario;
@@ -12,25 +13,30 @@ interface Props {
 
 export default function InfoHost({ usuario, marca, modelo }: Props) {
   const [error, setError] = useState(false);
+  const router = useRouter();
 
   const handleContactClick = () => {
     try {
       const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  
+
       const baseUrl = isMobile
         ? 'https://wa.me'
         : 'https://web.whatsapp.com/send';
-  
+
       const link = `${baseUrl}?phone=591${usuario.telefono}&text=${encodeURIComponent(
         `Hola, estoy interesado en tu vehículo ${marca}-${modelo} publicado en REDIBO.`
       )}`;
-  
+
       window.open(link, '_blank');
     } catch (err) {
       console.error('Error al redirigir a WhatsApp:', err);
       setError(true);
     }
-  };  
+  };
+
+  const handleViewProfile = () => {
+    window.open('/detalleHost', '_blank');
+  };
 
   return (
     <div className="bg-[#f5f5f5] p-6 rounded-2xl shadow-md border-2 border-black">
@@ -78,14 +84,14 @@ export default function InfoHost({ usuario, marca, modelo }: Props) {
         </div>
       )}
 
+      <div className="flex justify-center mt-4">
+        <button
+          onClick={handleViewProfile}
+          className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded-full shadow-md transition"
+        >
+          Ver perfil
+        </button>
+      </div>
     </div>
   );
 }
-
-
-
-
-
-
-
-
