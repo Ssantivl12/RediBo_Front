@@ -8,6 +8,14 @@ import { FiCheckCircle } from "react-icons/fi";
 import { API_URL } from '@config/api';
 import { VerKilometraje } from "../auto/VerKilometraje";
 
+interface Kilometraje {
+  id: string;
+  nombre: string;
+  fechaInicio: string;
+  fechaFin: string;
+  kilometraje: number;
+}
+
 interface Vehiculo {
   idAuto: number;
   marca: string;
@@ -73,7 +81,7 @@ export default function GestionarVehiculos() {
   });
 
   const kilometrajeActual = 45280;
-  const historialKilometraje: MileageRecord[] = [
+  const historialKilometraje: Kilometraje[] = [
     {
       id: '1',
       nombre: 'Carlos Rodríguez',
