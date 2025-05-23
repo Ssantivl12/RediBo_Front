@@ -6,6 +6,7 @@ import ModalDeConfirmacion from "@components/modal/ModalDeConfirmacion";
 import RegistrarMantenimientoModal from "@components/MantenimientoModal/RegistrarMantenimientoModal";
 import { FiCheckCircle } from "react-icons/fi";
 import { API_URL } from '@config/api';
+import { VerKilometraje } from "../auto/VerKilometraje";
 
 interface Vehiculo {
   idAuto: number;
@@ -47,6 +48,7 @@ interface MantenimientoData {
 
 export default function GestionarVehiculos() {
   const params = useParams();
+  const [mostrarModalKilometraje, setModalKilometraje] = useState(false);
   const [vehiculos, setVehiculos] = useState<Vehiculo[]>([]);
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
   const [mostrarExito, setMostrarExito] = useState(false);
@@ -69,6 +71,52 @@ export default function GestionarVehiculos() {
     tipoMantenimiento: "Preventivo",
     kilometraje: "",
   });
+
+  const kilometrajeActual = 45280;
+  const historialKilometraje: MileageRecord[] = [
+    {
+      id: '1',
+      nombre: 'Carlos Rodríguez',
+      fechaInicio: '2024-02-01',
+      fechaFin: '2024-02-15',
+      kilometraje: 45280
+    },
+    {
+      id: '2',
+      nombre: 'María González',
+      fechaInicio: '2024-01-15',
+      fechaFin: '2024-01-30',
+      kilometraje: 44800
+    },
+    {
+      id: '3',
+      nombre: 'Juan Pérez',
+      fechaInicio: '2024-01-01',
+      fechaFin: '2024-01-14',
+      kilometraje: 44100
+    },
+    {
+      id: '4',
+      nombre: 'Ana Martínez',
+      fechaInicio: '2023-12-15',
+      fechaFin: '2023-12-31',
+      kilometraje: 43500
+    },
+    {
+      id: '5',
+      nombre: 'Roberto Sánchez',
+      fechaInicio: '2023-12-01',
+      fechaFin: '2023-12-14',
+      kilometraje: 42800
+    },
+    {
+      id: '6',
+      nombre: 'Laura Torres',
+      fechaInicio: '2023-11-15',
+      fechaFin: '2023-11-30',
+      kilometraje: 42000
+    }
+  ];
 
   useEffect(() => {
     cargarVehiculos();
@@ -418,7 +466,14 @@ export default function GestionarVehiculos() {
   }
 
   return (
+    
     <div className="space-y-6 px-4 py-6">
+            <button
+        onClick={() => setModalKilometraje(true)}
+        className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+      >
+        Mostrar Historial de Kilometraje
+      </button>
       {vehiculos.length === 0 ? (
         <div className="flex justify-center items-center h-64">
           <p className="text-lg font-medium">No hay vehículos registrados</p>
@@ -557,6 +612,12 @@ export default function GestionarVehiculos() {
         setFormData={setFormData}
         onCancel={() => setMostrarModalMantenimiento(false)}
       />
+      <VerKilometraje
+              isOpen={mostrarModalKilometraje}
+              onClose={() => setModalKilometraje(false)}
+              kilometrajeActual={kilometrajeActual}
+              mileageHistory={historialKilometraje}
+              />
     </div>
   );
 }
