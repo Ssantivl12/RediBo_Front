@@ -85,26 +85,75 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
     const newErrors: Record<string, boolean> = {};
     let isValid = true;
 
+    const parseDate = (fecha: string) => {
+      const [d, m, y] = fecha.split('/').map(Number);
+      return new Date(y, m - 1, d);
+    };
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // ✅ Eliminar la hora para comparación precisa
+
     if (!formData.fechaInicio || !validateDate(formData.fechaInicio, 'fechaInicio')) {
       newErrors.fechaInicio = true;
+      setDateErrors(prev => ({
+        ...prev,
+        fechaInicio: 'Este campo es obligatorio',
+      }));
       isValid = false;
-    }
-    if (formData.fechaFin && !validateDate(formData.fechaFin, 'fechaFin')) {
-      newErrors.fechaFin = true;
-      isValid = false;
-    }
-    if (!formData.descripcion || formData.descripcion.length < 20) {
-      newErrors.descripcion = true;
-      isValid = false;
-    }
-    if (!formData.kilometraje || isNaN(Number(formData.kilometraje))) {
-      newErrors.kilometraje = true;
-      isValid = false;
+    } else {
+      const fechaInicioDate = parseDate(formData.fechaInicio);
+      if (fechaInicioDate < today) {
+        newErrors.fechaInicio = true;
+        setDateErrors(prev => ({
+          ...prev,
+          fechaInicio: 'La fecha de inicio no puede ser anterior a hoy',
+        }));
+        isValid = false;
+      } else {
+        setDateErrors(prev => ({ ...prev, fechaInicio: '' })); // Limpia el error si está todo ok
+      }
     }
 
-    setErrors(newErrors);
-    return isValid;
-  };
+  if (formData.fechaFin && !validateDate(formData.fechaFin, 'fechaFin')) {
+    newErrors.fechaFin = true;
+    isValid = false;
+  }
+
+  // ✅ Validar que fechaFin no sea anterior a fechaInicio
+  if (
+    formData.fechaInicio &&
+    formData.fechaFin &&
+    validateDate(formData.fechaInicio, 'fechaInicio') &&
+    validateDate(formData.fechaFin, 'fechaFin')
+  ) {
+    const fechaInicioDate = parseDate(formData.fechaInicio);
+    const fechaFinDate = parseDate(formData.fechaFin);
+
+    if (fechaFinDate < fechaInicioDate) {
+      newErrors.fechaFin = true;
+      setDateErrors(prev => ({
+        ...prev,
+        fechaFin: 'La fecha de fin no puede ser anterior a la de inicio',
+      }));
+      isValid = false;
+    }
+  }
+
+  if (!formData.descripcion || formData.descripcion.length < 20) {
+    newErrors.descripcion = true;
+    isValid = false;
+  }
+
+  if (!formData.kilometraje || isNaN(Number(formData.kilometraje))) {
+    newErrors.kilometraje = true;
+    isValid = false;
+  }
+
+  setErrors(newErrors);
+  return isValid;
+};
+
+
 
   const handleSubmit = () => {
     if (validateFields()) {
@@ -201,7 +250,7 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
             />
             {errors.fechaInicio && (
               <p className="mt-1 text-sm text-red-600">
-                {dateErrors.fechaInicio || 'Este campo es obligatorio'}
+                {dateErrors.fechaInicio || "*La fecha de inicio no puede ser anterior a hoy"}
               </p>
             )}
           </div>
@@ -282,9 +331,9 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
                 onChange={(e) => handleChange('tipoMantenimiento', e.target.value)}
                 className="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] appearance-none bg-white text-gray-700"
               >
-                <option value="Preventivo">Preventivo</option>
-                <option value="Correctivo">Correctivo</option>
-                <option value="Revision">Revisión</option>
+                <option value="PREVENTIVO">Preventivo</option>
+                <option value="CORRECTIVO">Correctivo</option>
+                <option value="REVISION">Revisión</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                 <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">

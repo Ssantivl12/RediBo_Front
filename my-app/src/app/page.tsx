@@ -12,6 +12,7 @@ export default function Home() {
   const router = useRouter();
 
   const navegarAPagarRenta = () => {
+    
     router.push('/rentador/pagarRenta/1');
   };
   const navegarAGestionarSolicitudes = () => {
