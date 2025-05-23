@@ -426,22 +426,38 @@ export default function GestionarVehiculos() {
     */}
       case 'FINALIZAR_MANTENIMIENTO':
         return (
+        <div className="flex items-center w-full">
           <button
             onClick={() => handleTerminarMantenimiento(vehiculo.idAuto)}
             className="bg-[#FCA311] hover:bg-yellow-500 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
           >
             Terminar Mantenimiento
           </button>
+          <button
+            onClick={() => console.log(`Ver comentarios de: ${vehiculo.idAuto}`)}
+            className="ml-auto bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
+          > 
+             Ver comentarios
+          </button>
+        </div>  
         );
       case 'MARCAR_NO_DISPONIBLE':
       case 'MARCAR_DISPONIBLE':
         return (
+        <div className="flex items-center w-full">
           <button
             onClick={() => handleMostrarModalMantenimiento(vehiculo.idAuto)}
             className="bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
           >
             Poner en Mantenimiento
           </button>
+          <button
+            onClick={() => console.log(`Ver comentarios de: ${vehiculo.idAuto}`)}
+            className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
+          >
+            Ver comentarios
+          </button>
+        </div>
         );
       default:
         return null;
