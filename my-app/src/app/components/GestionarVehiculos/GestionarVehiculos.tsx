@@ -9,7 +9,6 @@ import { API_URL } from '@config/api';
 import { VerKilometraje } from "../auto/VerKilometraje";
 import VehiculoFilter from "@components/filters/VehiculoFilter";
 
-
 interface Kilometraje {
   id: string;
   nombre: string;
@@ -26,6 +25,7 @@ interface Vehiculo {
   placa: string;
   imagen?: string;
   estado?: string;
+  fechaCreacion?: string;
   estadoActual: {
     tipo: string;
     datos: {
@@ -64,14 +64,12 @@ export default function GestionarVehiculos() {
   const [mostrarExito, setMostrarExito] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [mostrarModalMantenimiento, setMostrarModalMantenimiento] = useState(false);
-  // Nueva estado para el modal de confirmación de mantenimiento
   const [mostrarConfirmacionMantenimiento, setMostrarConfirmacionMantenimiento] = useState(false);
   const [vehiculoSeleccionado, setVehiculoSeleccionado] = useState<number | null>(null);
   const [mantenimientoExitoso, setMantenimientoExitoso] = useState(false);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
   const [accionActual, setAccionActual] = useState("");
-  // Estado para almacenar los datos del formulario temporalmente
   const [datosMantenimientoTemp, setDatosMantenimientoTemp] = useState<MantenimientoData | null>(null);
   const [formData, setFormData] = useState({
     fechaInicio: "",
@@ -82,6 +80,8 @@ export default function GestionarVehiculos() {
     kilometraje: "",
   });
   const [search, setSearch] = useState("");
+  const [estadoFilter, setEstadoFilter] = useState('Todos los estados');
+  const [ordenamiento, setOrdenamiento] = useState('Más antiguos');
 
   const kilometrajeActual = 45280;
   const historialKilometraje: Kilometraje[] = [
@@ -147,7 +147,6 @@ export default function GestionarVehiculos() {
       
       const data = await response.json();
       setVehiculos(data.autos);
-      console.log(data);
     } catch (err) {
       console.error("Error al cargar los vehículos:", err);
       setError("No se pudieron cargar los vehículos. Por favor, intente nuevamente.");
@@ -156,32 +155,69 @@ export default function GestionarVehiculos() {
     }
   };
 
+  const getFilteredVehiculos = () => {
+    let filtered = vehiculos.filter((v) =>
+      v.placa.toLowerCase().includes(search.toLowerCase()) ||
+      `${v.marca} ${v.modelo}`.toLowerCase().includes(search.toLowerCase())
+    );
+
+    if (estadoFilter !== 'Todos los estados') {
+      filtered = filtered.filter((v) => {
+        switch (estadoFilter) {
+          case 'En renta':
+            return v.estadoActual.tipo === 'RENTA_ACTIVA' || 
+                   v.estadoActual.tipo === 'RENTA_FINALIZADA_POR_LIBERAR';
+          case 'Disponible':
+            return v.estadoActual.tipo === 'DISPONIBLE';
+          case 'Reservado':
+            return v.estadoActual.tipo === 'RENTA_ACTIVA' && 
+                   v.estadoActual.datos.estado === 'RESERVADO';
+          case 'No disponible':
+            return v.estadoActual.tipo === 'NO_DISPONIBLE' || 
+                   v.estadoActual.tipo === 'EN_MANTENIMIENTO';
+          default:
+            return true;
+        }
+      });
+    }
+
+    filtered = [...filtered].sort((a, b) => {
+      switch (ordenamiento) {
+        case 'Ordenar por nombre':
+          return `${a.marca} ${a.modelo}`.localeCompare(`${b.marca} ${b.modelo}`);
+        case 'Ordenar por placa':
+          return a.placa.localeCompare(b.placa);
+        case 'Ordenar por estado':
+          return a.estadoActual.tipo.localeCompare(b.estadoActual.tipo);
+        case 'Más recientes':
+          return new Date(b.fechaCreacion || 0).getTime() - new Date(a.fechaCreacion || 0).getTime();
+        case 'Más antiguos':
+        default:
+          return new Date(a.fechaCreacion || 0).getTime() - new Date(b.fechaCreacion || 0).getTime();
+      }
+    });
+
+    return filtered;
+  };
+
   const handleLiberarRenta = (idAuto: number) => {
     setVehiculoSeleccionado(idAuto);
     setAccionActual("FINALIZAR_RENTA");
     setMostrarConfirmacion(true);
   };
-{/** 
-  const handleCancelarReserva = (idAuto: number, idReserva: number) => {
-    setVehiculoSeleccionado(idAuto);
-    setAccionActual("CANCELAR_RESERVA");
-    setMostrarConfirmacion(true);
-  };
-  */}
+
   const confirmarAccion = async () => {
     if (!vehiculoSeleccionado) return;
     
     setIsProcessing(true);
     
     try {
-      // Encontrar el vehículo seleccionado
       const vehiculo = vehiculos.find(v => v.idAuto === vehiculoSeleccionado);
       if (!vehiculo) throw new Error("Vehículo no encontrado");
       
       let endpoint = "";
       let metodo = "";
       
-      // Determinar qué acción realizar
       if (accionActual === "FINALIZAR_RENTA" && vehiculo.estadoActual.datos.idReserva) {
         endpoint = `${API_URL}/reservas/${vehiculo.estadoActual.datos.idReserva}/liberar`;
         metodo = "PUT";
@@ -204,7 +240,6 @@ export default function GestionarVehiculos() {
           throw new Error(`Error al procesar la acción: ${response.status}`);
         }
         
-        // Recargar vehículos para ver los cambios
         await cargarVehiculos();
         setMostrarExito(true);
       }
@@ -235,9 +270,7 @@ export default function GestionarVehiculos() {
     const partes = fechaStr.split('/');
     if (partes.length !== 3) return null;
     const [dia, mes, anio] = partes;
-    // formato YYYY-MM-DDTHH:mm:ss.sssZ
     const fecha = new Date(`${anio}-${mes}-${dia}T00:00:00.000Z`);
-  
     return isNaN(fecha.getTime()) ? null : fecha.toISOString();
   };
 
@@ -245,20 +278,16 @@ export default function GestionarVehiculos() {
     const partes = fechaStr.split('/');
     if (partes.length !== 3) return null;
     const [dia, mes, anio] = partes;
-    // formato YYYY-MM-DDTHH:mm:ss.sssZ
     const fecha = new Date(`${anio}-${mes}-${dia}T23:59:59.999Z`);
-  
     return isNaN(fecha.getTime()) ? null : fecha.toISOString();
   };
   
-  // Función para preparar datos de mantenimiento y mostrar confirmación
   const handlePreRegistrarMantenimiento = (data: MantenimientoData) => {
     setDatosMantenimientoTemp(data);
     setMostrarModalMantenimiento(false);
     setMostrarConfirmacionMantenimiento(true);
   };
   
-  // Función para confirmar y registrar el mantenimiento
   const confirmarRegistroMantenimiento = async () => {
     if (!datosMantenimientoTemp || !vehiculoSeleccionado) return;
     
@@ -266,7 +295,6 @@ export default function GestionarVehiculos() {
     
     try {
       const data = datosMantenimientoTemp;
-      console.log("Datos de mantenimiento:", data);
       const fechaInicio = parseFechaInicio(data.fechaInicio);
       const fechaFin = parseFechaFin(data.fechaFin);
       const kilometraje = Number(data.kilometraje);
@@ -290,8 +318,7 @@ export default function GestionarVehiculos() {
         throw new Error(`Error al registrar mantenimiento: ${response.status}`);
       }
       
-      const responseData = await response.json();
-      console.log("Respuesta del servidor:", responseData);
+      await response.json();
       await cargarVehiculos();
       setMantenimientoExitoso(true);
     } catch (err) {
@@ -361,29 +388,29 @@ export default function GestionarVehiculos() {
             </p>
           </div>
         );
-        case 'RENTA_FINALIZADA_POR_LIBERAR':
-          return (
-            <div className="bg-white p-4 rounded-md space-y-2 shadow-sm">
-              <p>
-                <span className="font-semibold" style={{ color: "#11295B" }}>
-                  Estado:
-                </span>{" "}
-                Renta Finalizada, por liberar
-              </p>
-              <p>
+      case 'RENTA_FINALIZADA_POR_LIBERAR':
+        return (
+          <div className="bg-white p-4 rounded-md space-y-2 shadow-sm">
+            <p>
+              <span className="font-semibold" style={{ color: "#11295B" }}>
+                Estado:
+              </span>{" "}
+              Renta Finalizada, por liberar
+            </p>
+            <p>
               <span className="font-semibold" style={{ color: "#11295B" }}>
                 Rentado a:
               </span>{" "}
               {estadoActual.datos.cliente?.nombre} {estadoActual.datos.cliente?.apellido}
             </p>
-              <p>
-                <span className="font-semibold" style={{ color: "#11295B" }}>
-                  Fecha fin:
-                </span>{" "}
-                {estadoActual.datos.fechaFin ? new Date(estadoActual.datos.fechaFin).toLocaleDateString() : 'No especificada'}
-              </p>
-            </div>
-          );
+            <p>
+              <span className="font-semibold" style={{ color: "#11295B" }}>
+                Fecha fin:
+              </span>{" "}
+              {estadoActual.datos.fechaFin ? new Date(estadoActual.datos.fechaFin).toLocaleDateString() : 'No especificada'}
+            </p>
+          </div>
+        );
       case 'NO_DISPONIBLE':
         return (
           <span className="bg-white text-black text-base font-medium px-3 py-1 rounded-full w-fit">
@@ -416,51 +443,40 @@ export default function GestionarVehiculos() {
             Liberar Auto
           </button>
         );
-    {/** 
-      case 'CANCELAR_RESERVA':
-        return (
-          <button
-            onClick={() => handleCancelarReserva(vehiculo.idAuto, estadoActual.datos.idReserva || 0)}
-            className="bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-          >
-            Cancelar Reserva
-          </button>
-        );
-    */}
       case 'FINALIZAR_MANTENIMIENTO':
         return (
-        <div className="flex items-center w-full">
-          <button
-            onClick={() => handleTerminarMantenimiento(vehiculo.idAuto)}
-            className="bg-[#FCA311] hover:bg-yellow-500 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-          >
-            Terminar Mantenimiento
-          </button>
-          <button
-            onClick={() => console.log(`Ver comentarios de: ${vehiculo.idAuto}`)}
-            className="ml-auto bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-          > 
-             Ver comentarios
-          </button>
-        </div>  
+          <div className="flex items-center w-full">
+            <button
+              onClick={() => handleTerminarMantenimiento(vehiculo.idAuto)}
+              className="bg-[#FCA311] hover:bg-yellow-500 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
+            >
+              Terminar Mantenimiento
+            </button>
+            <button
+              onClick={() => console.log(`Ver comentarios de: ${vehiculo.idAuto}`)}
+              className="ml-auto bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
+            > 
+              Ver comentarios
+            </button>
+          </div>  
         );
       case 'MARCAR_NO_DISPONIBLE':
       case 'MARCAR_DISPONIBLE':
         return (
-        <div className="flex items-center w-full">
-          <button
-            onClick={() => handleMostrarModalMantenimiento(vehiculo.idAuto)}
-            className="bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-          >
-            Poner en Mantenimiento
-          </button>
-          <button
-            onClick={() => console.log(`Ver comentarios de: ${vehiculo.idAuto}`)}
-            className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-          >
-            Ver comentarios
-          </button>
-        </div>
+          <div className="flex items-center w-full">
+            <button
+              onClick={() => handleMostrarModalMantenimiento(vehiculo.idAuto)}
+              className="bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
+            >
+              Poner en Mantenimiento
+            </button>
+            <button
+              onClick={() => console.log(`Ver comentarios de: ${vehiculo.idAuto}`)}
+              className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
+            >
+              Ver comentarios
+            </button>
+          </div>
         );
       default:
         return null;
@@ -492,53 +508,45 @@ export default function GestionarVehiculos() {
     );
   }
 
-
-
   return (
-    
     <div className="space-y-6 px-4 py-6">
-      <VehiculoFilter search={search} setSearch={setSearch} />
-            <button
+      <VehiculoFilter 
+        search={search}
+        setSearch={setSearch}
+        setEstadoFilter={setEstadoFilter}
+        setOrdenamiento={setOrdenamiento}
+      />
+      
+      <button
         onClick={() => setModalKilometraje(true)}
         className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
       >
         Mostrar Historial de Kilometraje
       </button>
 
-      {vehiculos
-        .filter((v) =>
-          v.placa.toLowerCase().includes(search.toLowerCase()) ||
-          `${v.marca} ${v.modelo}`.toLowerCase().includes(search.toLowerCase())
-        )
-      .length === 0 ? (
+      {getFilteredVehiculos().length === 0 ? (
         <div className="flex justify-center items-center h-64">
           <p className="text-lg font-medium">No se encontraron autos...</p>
         </div>
       ) : (
-        vehiculos
-          .filter((v) =>
-            v.placa.toLowerCase().includes(search.toLowerCase()) ||
-            `${v.marca} ${v.modelo}`.toLowerCase().includes(search.toLowerCase())
-        )
-        .map((vehiculo) => (
+        getFilteredVehiculos().map((vehiculo) => (
           <div
             key={vehiculo.idAuto}
             className="bg-[#D8C4A7] rounded-lg shadow-md overflow-hidden"
           >
             <div className="flex flex-col md:flex-row">
-            <div className="w-full md:w-1/3 lg:w-2/5 h-[250px] md:h-[300px] lg:h-[350px] bg-gray-300 flex items-center justify-center text-gray-600 text-2xl overflow-hidden">
-              {vehiculo.imagen ? (
-                <img
-                  src={vehiculo.imagen}
-                  alt={`${vehiculo.marca} ${vehiculo.modelo}`}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                "Sin imagen disponible"
-              )}
-            </div>
+              <div className="w-full md:w-1/3 lg:w-2/5 h-[250px] md:h-[300px] lg:h-[350px] bg-gray-300 flex items-center justify-center text-gray-600 text-2xl overflow-hidden">
+                {vehiculo.imagen ? (
+                  <img
+                    src={vehiculo.imagen}
+                    alt={`${vehiculo.marca} ${vehiculo.modelo}`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  "Sin imagen disponible"
+                )}
+              </div>
 
-              {/* Información - Debajo de la imagen en móvil, al lado en desktop */}
               <div className="p-6 flex flex-col justify-between w-full md:w-2/3 lg:w-3/5">
                 <div className="space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -564,7 +572,6 @@ export default function GestionarVehiculos() {
         ))
       )}
 
-      {/* Modal de confirmación para acciones */}
       <ModalDeConfirmacion
         isOpen={mostrarConfirmacion}
         onClose={() => setMostrarConfirmacion(false)}
@@ -590,7 +597,6 @@ export default function GestionarVehiculos() {
         showSuccess={false}
       />
 
-      {/* Modal de éxito general */}
       <ModalDeConfirmacion
         isOpen={mostrarExito}
         onClose={() => setMostrarExito(false)}
@@ -609,7 +615,6 @@ export default function GestionarVehiculos() {
         successIcon={<FiCheckCircle className="text-5xl text-[#FFA500]" />}
       />
 
-      {/* Modal de éxito para mantenimiento */}
       <ModalDeConfirmacion
         isOpen={mantenimientoExitoso}
         onClose={() => setMantenimientoExitoso(false)}
@@ -622,7 +627,6 @@ export default function GestionarVehiculos() {
         successIcon={<FiCheckCircle className="text-5xl text-[#FFA500]" />}
       />
 
-      {/* Nuevo Modal de confirmación de datos de mantenimiento */}
       <ModalDeConfirmacion
         isOpen={mostrarConfirmacionMantenimiento}
         onClose={() => setMostrarConfirmacionMantenimiento(false)}
@@ -644,7 +648,6 @@ export default function GestionarVehiculos() {
         showSuccess={false}
       />
 
-      {/* Modal de registro de mantenimiento - cambiado el onSubmit */}
       <RegistrarMantenimientoModal
         isOpen={mostrarModalMantenimiento}
         onClose={() => setMostrarModalMantenimiento(false)}
@@ -653,12 +656,13 @@ export default function GestionarVehiculos() {
         setFormData={setFormData}
         onCancel={() => setMostrarModalMantenimiento(false)}
       />
+      
       <VerKilometraje
-              isOpen={mostrarModalKilometraje}
-              onClose={() => setModalKilometraje(false)}
-              kilometrajeActual={kilometrajeActual}
-              mileageHistory={historialKilometraje}
-              />
+        isOpen={mostrarModalKilometraje}
+        onClose={() => setModalKilometraje(false)}
+        kilometrajeActual={kilometrajeActual}
+        mileageHistory={historialKilometraje}
+      />
     </div>
   );
 }
