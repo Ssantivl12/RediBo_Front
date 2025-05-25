@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Usuario } from '@/types/auto';
-import { useRouter } from 'next/navigation';
 
 interface Props {
   usuario: Usuario;
@@ -13,7 +12,6 @@ interface Props {
 
 export default function InfoHost({ usuario, marca, modelo }: Props) {
   const [error, setError] = useState(false);
-  const router = useRouter();
 
   const handleContactClick = () => {
     try {

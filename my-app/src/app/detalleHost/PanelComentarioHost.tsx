@@ -1,0 +1,303 @@
+'use client';
+import { Comentario } from '@/types/auto';
+import Image from 'next/image';
+import { useEffect, useRef, useState } from 'react';
+
+interface PanelComentariosHostProps {
+    mostrar: boolean;
+    onClose: () => void;
+    comentariosHost: Comentario[];
+    nombre: string;
+    apellido: string;
+}
+
+export default function PanelComentariosHost({
+    mostrar,
+    onClose,
+    comentariosHost,
+    nombre,
+    apellido
+}: PanelComentariosHostProps) {
+
+    console.log('comentariosHost:', comentariosHost);
+    console.log('mostrar:', mostrar);
+
+    const comentariosValidos = comentariosHost
+        .map(c => ({
+            ...c,
+            calificacion: c.puntuacion || c.calificacion,
+            contenido: c.comentario || c.contenido,
+            idComentario: c.idCalificador || c.idComentario
+        }))
+        .filter(
+            c => c.calificacion >= 1 && 
+                c.calificacion <= 5 && 
+                (c.contenido?.trim() !== '' || c.comentario?.trim() !== '')
+        );
+
+    console.log('comentariosValidos:', comentariosValidos);
+
+    const promedioCalificacion = comentariosValidos.length > 0
+        ? parseFloat((comentariosValidos.reduce((acc, c) => acc + c.calificacion, 0) / comentariosValidos.length).toFixed(1))
+        : 0;
+
+    const [comentariosExpandidos, setComentariosExpandidos] = useState<Record<number, boolean>>({});
+    const [comentariosConOverflow, setComentariosConOverflow] = useState<Record<number, boolean>>({});
+    const refsComentarios = useRef<Record<number, HTMLParagraphElement | null>>({});
+
+    const distribucionEstrellas = (() => {
+        const conteo = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+        comentariosValidos.forEach(
+            (c) => (conteo[c.calificacion as 1 | 2 | 3 | 4 | 5] += 1)
+        );
+        const total = comentariosValidos.length;
+        const porcentajes = Object.fromEntries(
+            Object.entries(conteo).map(([estrella, cantidad]) => [
+                estrella,
+                total ? Math.round((cantidad / total) * 100) : 0,
+            ])
+        );
+        return { conteo, porcentajes };
+    })();
+
+    const criterioTexto =
+        promedioCalificacion >= 4.5 ? 'Excelente' :
+        promedioCalificacion >= 3.5 ? 'Bueno' :
+        promedioCalificacion >= 2.5 ? 'Regular' :
+        promedioCalificacion >= 1.5 ? 'Malo' : 'Sin calificación';
+
+    useEffect(() => {
+        let mounted = false;
+        if (typeof window !== 'undefined') mounted = true;
+
+        if (!mounted) return;
+
+        if (mostrar) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [mostrar]);
+
+    useEffect(() => {
+        const observers: ResizeObserver[] = [];
+        comentariosValidos.forEach((comentario) => {
+            const el = refsComentarios.current[comentario.idComentario];
+            if (el) {
+                const observer = new ResizeObserver(() => {
+                    const lineaEstimada = parseFloat(getComputedStyle(el).lineHeight || '20');
+                    const limite = lineaEstimada * 3;
+                    const isOverflowing = el.scrollHeight > limite + 2;
+                    setComentariosConOverflow((prev) => ({
+                        ...prev,
+                        [comentario.idComentario]: isOverflowing,
+                    }));
+                });
+                observer.observe(el);
+                observers.push(observer);
+            }
+        });
+        return () => {
+            observers.forEach((o) => o.disconnect());
+        };
+    }, [comentariosValidos]);
+
+    const toggleExpansion = (id: number) => {
+        setComentariosExpandidos((prev) => ({ ...prev, [id]: !prev[id] }));
+    };
+
+    const renderEstrellasConMedia = (promedio: number) => {
+        const estrellas = [];
+        for (let i = 1; i <= 5; i++) {
+            if (promedio >= i) {
+                estrellas.push(<span key={i}>★</span>);
+            } else if (promedio >= i - 0.5) {
+                estrellas.push(
+                    <span key={i} className="relative inline-block w-[1em]">
+                        <span className="absolute w-[44%] overflow-hidden text-[#fca311]">★</span>
+                        <span className="text-[#e0e0e0]">★</span>
+                    </span>
+                );
+            } else {
+                estrellas.push(<span key={i}>☆</span>);
+            }
+        }
+        return estrellas;
+    };
+
+    return (
+        <>
+            {mostrar && <div className="fixed inset-0 bg-black/50 z-[999]" onClick={onClose} />}
+            <div className={`fixed top-0 left-1/2 transform -translate-x-1/2 h-screen w-full sm:w-[90%] md:w-[600px] bg-[#f5f5f5] p-6 z-[1000] overflow-y-auto border-2 border-black rounded-2xl shadow-md transition-transform duration-300 ${
+                mostrar ? 'translate-y-0' : '-translate-y-full'
+            }`}>
+                <button
+                    className="absolute top-2 right-4 bg-[#fca311] text-white text-lg px-3 py-1 rounded border border-black hover:bg-[#e69500] active:bg-[#cc8400]"
+                    onClick={onClose}
+                >
+                    ✕
+                </button>
+
+                <h2 className="text-2xl font-bold text-black mb-2">
+                    {nombre} {apellido}
+                </h2>
+                <hr className="border-t-4 border-black mb-3" />
+
+                <div className="flex gap-4 items-center mb-4">
+                    <div className="bg-[#002a5c] text-white text-xl p-2 rounded w-12 text-center">
+                        {promedioCalificacion.toFixed(1)}
+                    </div>
+                    <div className="flex flex-col">
+                        <div className="flex items-center gap-3">
+                            <div className="text-[#fca311] text-2xl leading-none flex gap-1">
+                                {renderEstrellasConMedia(promedioCalificacion)}
+                            </div>
+                            <div className="flex flex-col leading-tight">
+                                <span className="font-bold text-black">{criterioTexto}</span>
+                                <span className="text-sm text-gray-500">{comentariosValidos.length} reseñas</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {([5, 4, 3, 2, 1] as const).map((estrella) => (
+                    <div key={estrella} className="flex items-center gap-2 mb-1">
+                        <div className="bg-[#002a5c] text-white w-8 h-8 flex items-center justify-center rounded">
+                            {estrella}
+                        </div>
+                        <div className="flex-1 h-3 bg-gray-200 rounded">
+                            <div
+                                className="h-3 bg-[#002a5c] rounded"
+                                style={{ width: `${distribucionEstrellas.porcentajes[estrella]}%` }}
+                            />
+                        </div>
+                        <span className="text-sm text-black">
+                            {distribucionEstrellas.porcentajes[estrella]}% ({distribucionEstrellas.conteo[estrella]})
+                        </span>
+                    </div>
+                ))}
+
+                <h3 className="text-xl mt-4 mb-2 text-black font-semibold">Comentarios</h3>
+
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
+                    <div className="flex items-center w-full sm:w-auto border border-gray-400 rounded-full px-3 py-1 bg-white">
+                        <input
+                            type="text"
+                            placeholder="Buscar comentarios..."
+                            className="outline-none flex-grow px-2 py-1 text-black bg-transparent"
+                            readOnly
+                        />
+                        <button className="text-[#002a5c] hover:text-[#fca311]" type="button">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-5 w-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"
+                                />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div className="relative">
+                        <select
+                            className="bg-[#fca311] text-white font-semibold px-4 py-1 rounded cursor-pointer border border-black"
+                            disabled
+                        >
+                            <option>Los más recientes</option>
+                            <option>Los más antiguos</option>
+                            <option>Mayor calificación</option>
+                            <option>Menor calificación</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div className="space-y-4">
+                    {comentariosValidos.length > 0 ? (
+                        comentariosValidos.map((comentario) => {
+                            const fecha = new Date(comentario.fechaCreacion).toLocaleDateString('es-ES', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                            });
+                            const estaExpandido = comentariosExpandidos[comentario.idComentario] ?? false;
+                            const mostrarBoton = comentariosConOverflow[comentario.idComentario];
+                            const estrellasLlenas = Math.floor(comentario.calificacion);
+                            const estrellasVacias = 5 - estrellasLlenas;
+
+                            const nombreMostrar = comentario.nombre || comentario.usuario?.nombre || 'Anónimo';
+                            const apellidoMostrar = comentario.apellido || comentario.usuario?.apellido || '';
+
+                            return (
+                                <div key={comentario.idComentario} className="border-b border-black pb-3">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <div className="flex items-center gap-3">
+                                            <Image
+                                                src="/imagenesIconos/usuario.png"
+                                                alt="Usuario"
+                                                className="w-10 h-10 rounded-full"
+                                                width={50}
+                                                height={50}
+                                                unoptimized
+                                            />
+                                            <div>
+                                                <strong className="text-black font-semibold">
+                                                    {nombreMostrar} {apellidoMostrar}
+                                                </strong>
+                                                <div className="text-sm text-gray-500">{fecha}</div>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col items-center">
+                                            <div className="text-[#fca311] text-2xl leading-none flex gap-1">
+                                                {[...Array(estrellasLlenas)].map((_, i) => (
+                                                    <span key={i}>★</span>
+                                                ))}
+                                                {[...Array(estrellasVacias)].map((_, i) => (
+                                                    <span key={i + estrellasLlenas}>☆</span>
+                                                ))}
+                                            </div>
+                                            <div className="bg-[#002a5c] text-white text-sm px-2 py-1 rounded font-semibold mt-1">
+                                                {comentario.calificacion}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p
+                                        ref={(el) => {
+                                            refsComentarios.current[comentario.idComentario] = el;
+                                        }}
+                                        className={`${!estaExpandido ? 'line-clamp-3' : ''} text-black`}
+                                    >
+                                        {comentario.contenido || comentario.comentario}
+                                    </p>
+
+                                    {mostrarBoton && (
+                                        <button
+                                            onClick={() => toggleExpansion(comentario.idComentario)}
+                                            className="text-blue-800 hover:underline text-sm mt-1"
+                                        >
+                                            {estaExpandido ? 'Ver menos' : 'Ver más'}
+                                        </button>
+                                    )}
+                                </div>
+                            );
+                        })
+                    ) : (
+                        <div className="text-center py-8">
+                            <p className="text-gray-500">No hay reseñas disponibles</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </>
+    );
+}

@@ -32,15 +32,20 @@ export default function Navbar() {
 
   // Función para manejar el clic del botón de inicio de sesión
   const handleLoginClick = async () => {
-    setShowDropdown((prev) => !prev); // Alternar el estado del dropdown
+  setShowDropdown((prev) => !prev);
     if (!showDropdown) {
       try {
         const response = await getUsuarios();
         setUsuarios(response.data);
         setError(null);
-      } catch (err: any) {
-        console.error('Error al obtener usuarios:', err);
-        setError("Error al cargar usuarios.");
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          console.error('Error al obtener usuarios:', err.message);
+          setError("Error al cargar usuarios.");
+        } else {
+          console.error('Error desconocido al obtener usuarios:', err);
+          setError("Error desconocido al cargar usuarios.");
+        }
       }
     }
   };

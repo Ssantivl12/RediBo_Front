@@ -168,16 +168,20 @@ export interface HistorialMantenimiento {
 
 export interface Comentario {
   idComentario: number;
-  idAuto: number;
-  auto: Auto;
-  idUsuario: number;
-  usuario: Usuario;
-  contenido?: string | null;
+  idCalificador: number;
+  nombre: string;
+  apellido: string;
+  contenido: string;
+  comentario: string;
   calificacion: number;
-  fechaCreacion: Date | string;
-  idReserva?: number | null;
-  reserva?: Reserva | null;
+  puntuacion: number;
+  fechaCreacion: string;
+  usuario: {
+  nombre: string;
+  apellido: string;
+};
 }
+
 
 export interface CalificacionUsuario {
   idCalificacion: number;

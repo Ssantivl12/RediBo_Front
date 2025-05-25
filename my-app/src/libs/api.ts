@@ -59,3 +59,33 @@ export async function getUsuarios(): Promise<{ data: Usuario[] }> {
   if (!res.ok) throw new Error("Error al obtener usuarios");
   return res.json();
 }
+
+export async function getComentariosDeHost(id: number): Promise<{ data: Comentario[] }> {
+  console.log("BASE_URL:", BASE_URL);
+
+  try {
+    const res = await fetch(`${BASE_URL}/host/${id}/comentarios`, { cache: "no-store" });
+
+    if (!res.ok) {
+      const errorDetails = await res.text();
+      console.error(`Error al obtener comentarios del host. Status: ${res.status}, Detalles: ${errorDetails}`);
+      throw new Error(`Error al obtener comentarios del host: ${res.statusText}`);
+    }
+
+    const responseData = await res.json();
+    
+    if (Array.isArray(responseData)) {
+      return { data: responseData };
+    }
+    
+    if (responseData.data) {
+      return responseData;
+    }
+
+    throw new Error("Formato de respuesta inesperado de la API");
+    
+  } catch (error) {
+    console.error("Error inesperado en getComentariosDeHost:", error);
+    throw new Error("No se pudieron cargar los comentarios del host.");
+  }
+}
