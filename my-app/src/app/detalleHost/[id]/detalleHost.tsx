@@ -119,15 +119,19 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales }: P
                         {nombre} {apellido}
                       </p>
                       <p className="text-sm text-gray-500">
-                        {new Date(comentario.fechaCreacion).toLocaleDateString()}
+                        {new Date(comentario.fechaCreacion).toLocaleDateString('es-ES', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric'
+                        })}
                       </p>
                     </div>
                   </div>
                   <p className="text-sm text-gray-600 mb-3">{comentario.comentario}</p>
                   <div className="flex items-center text-yellow-400 text-xl">
-  {'★'.repeat(comentario.puntuacion)}
-  {'☆'.repeat(5 - comentario.puntuacion)}
-</div>
+                    {'★'.repeat(comentario.puntuacion)}
+                    {'☆'.repeat(5 - comentario.puntuacion)}
+                  </div>
                 </div>
               ))}
             </div>
