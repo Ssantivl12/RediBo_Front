@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Usuario } from '@/types/auto';
+import Link from "next/link";
 
 interface Props {
   usuario: Usuario;
@@ -10,9 +11,8 @@ interface Props {
   modelo: string;
 }
 
-export default function InfoHost({ usuario, marca, modelo }: Props) {
+export default function InfoHost({ usuario, marca, modelo}: Props) {
   const [error, setError] = useState(false);
-
   const handleContactClick = () => {
     try {
       const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -30,10 +30,6 @@ export default function InfoHost({ usuario, marca, modelo }: Props) {
       console.error('Error al redirigir a WhatsApp:', err);
       setError(true);
     }
-  };
-
-  const handleViewProfile = () => {
-    window.open('/detalleHost', '_blank');
   };
 
   return (
@@ -83,12 +79,13 @@ export default function InfoHost({ usuario, marca, modelo }: Props) {
       )}
 
       <div className="flex justify-center mt-4">
-        <button
-          onClick={handleViewProfile}
+        <Link
           className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded-full shadow-md transition"
+          href={`/detalleHost/${usuario.idUsuario}`}
+          target="_blank"
         >
           Ver perfil
-        </button>
+        </Link>
       </div>
     </div>
   );

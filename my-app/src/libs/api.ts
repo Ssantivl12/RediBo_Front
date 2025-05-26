@@ -1,4 +1,4 @@
-import type { Auto, Comentario } from "@/types/auto"
+import type { Auto, CalificacionUsuario, Comentario } from "@/types/auto"
 import type { Usuario } from "@/types/auto"
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"
@@ -60,32 +60,51 @@ export async function getUsuarios(): Promise<{ data: Usuario[] }> {
   return res.json();
 }
 
-export async function getComentariosDeHost(id: number): Promise<{ data: Comentario[] }> {
-  console.log("BASE_URL:", BASE_URL);
+export async function getComentariosDeHost(id: string): Promise<{ data: CalificacionUsuario[] }> {
+  const res = await fetch(`${BASE_URL}/host/${id}`, { cache: "no-store" });
+  if (!res.ok) return { data: [] }; // devuelve array vacío en vez de null
+  return res.json();
+}
 
-  try {
-    const res = await fetch(`${BASE_URL}/host/${id}/comentarios`, { cache: "no-store" });
 
-    if (!res.ok) {
-      const errorDetails = await res.text();
-      console.error(`Error al obtener comentarios del host. Status: ${res.status}, Detalles: ${errorDetails}`);
-      throw new Error(`Error al obtener comentarios del host: ${res.statusText}`);
-    }
+export async function getHost(id: number, inicio: string, fin: string): Promise<{
+  success: boolean;
+  host: {
+    idUsuario: number;
+    nombre: string;
+    apellido:string;
+    correo:string;
+    autos: {
+      idAuto: number;
+      modelo: string;
+      marca: string;
+      precio: number;
+      calificacionPromedio: number | null;
+      disponible: boolean;
+    }[];
+  };
+}> {
+  const res = await fetch(`${BASE_URL}/hosts/${id}/${inicio}/${fin}`, {
+    cache: "no-store",
+  });
 
-    const responseData = await res.json();
-    
-    if (Array.isArray(responseData)) {
-      return { data: responseData };
-    }
-    
-    if (responseData.data) {
-      return responseData;
-    }
-
-    throw new Error("Formato de respuesta inesperado de la API");
-    
-  } catch (error) {
-    console.error("Error inesperado en getComentariosDeHost:", error);
-    throw new Error("No se pudieron cargar los comentarios del host.");
+  if (!res.ok) {
+    const errorDetails = await res.text();
+    console.error(`Error al obtener el host. Status: ${res.status}. Detalles: ${errorDetails}`);
+    throw new Error(`Error al obtener el host: ${res.statusText}`);
   }
+
+  const data = await res.json();
+
+  if (!data.success || !data.host) {
+    throw new Error("La respuesta del servidor no contiene un host válido.");
+  }
+
+  return data;
+}
+
+export async function getUsuarioPorId(id: string): Promise<{ data: Usuario }> {
+  const res = await fetch(`${BASE_URL}/usuario/${id}`, { cache: "no-store" })
+  if (!res.ok) throw new Error("Usuario no encontrado")
+  return res.json()
 }

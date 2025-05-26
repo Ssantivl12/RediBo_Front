@@ -1,11 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { CalificacionUsuario } from '@/types/auto';
 import Image from 'next/image';
-import PanelComentariosHost from '@/app/detalleHost/PanelComentarioHost';
-import { Comentario } from '@/types/auto';
-import { getComentariosDeHost } from '@/libs/api';
+import PanelComentariosHost from './PanelComentarioHost';
+import { getUsuarioPorId, getComentariosDeHost } from '@/libs/api';
 
 function NavbarDetalle() {
   return (
@@ -28,43 +27,57 @@ function NavbarDetalle() {
   );
 }
 
-export default function DetalleHostPage() {
-  const params = useParams();
-  const id = Number(params?.id);
+interface Props {
+  id:string;
+  comentarios: CalificacionUsuario[];
+}
 
-  const [nombre] = useState('');
-  const [apellido] = useState('');
-  const [comentarios, setComentarios] = useState<Comentario[]>([]);
+export default function DetalleHost({ id, comentarios: comentariosIniciales }: Props) {
+  const [nombre, setNombre] = useState('');
+  const [apellido, setApellido] = useState('');
+  const [comentarios, setComentarios] = useState<CalificacionUsuario[]>(comentariosIniciales);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [mostrarPanel, setMostrarPanel] = useState(false);
 
-  useEffect(() => {
-    const cargarDatos = async () => {
-      setCargando(true);
-      setError(null);
+useEffect(() => {
+  const cargarDatos = async () => {
+    setCargando(true);
+    setError(null);
 
-      try {
-        const { data } = await getComentariosDeHost(id);
+    if (!Array.isArray(comentariosIniciales) || comentariosIniciales.length === 0) {
+      setError('No hay comentarios disponibles.');
+      setCargando(false);
+      return;
+    }
 
-        setComentarios(data);
+    if (!comentariosIniciales || comentariosIniciales.length === 0) {
+      setError('No hay comentarios disponibles o falta el ID del calificado');
+      setCargando(false);
+      return;
+    }
 
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-        setError(err.message);
-        } else {
-          setError('Error desconocido');
-        }
-}
-    };
 
-    if (!isNaN(id)) {
-      cargarDatos();
-    } else {
-      setError('ID de host inválido');
+    try {
+      const [nuevosComentariosRes, usuario] = await Promise.all([
+        getComentariosDeHost(id),
+        getUsuarioPorId(id.toString())
+      ]);
+
+      setComentarios(nuevosComentariosRes.data);
+      setNombre(usuario.data.nombre);
+      setApellido(usuario.data.apellido);
+    } catch (err) {
+      console.error('Error al cargar los datos del host:', err);
+      setError('Error al cargar los datos del host');
+    } finally {
       setCargando(false);
     }
-  }, [id]);
+  };
+
+  cargarDatos();
+}, []);
+
 
   const handleMostrarPanel = () => setMostrarPanel(true);
   const handleCerrarPanel = () => setMostrarPanel(false);
@@ -112,14 +125,14 @@ export default function DetalleHostPage() {
             text-white
           `}
         >
-          {cargando ? 'Cargando...' : `Mostrar todas las reseñas`}
+          {cargando ? 'Cargando...' : 'Mostrar todas las reseñas'}
         </button>
 
         {mostrarPanel && !cargando && (
           <PanelComentariosHost
             mostrar={mostrarPanel}
             onClose={handleCerrarPanel}
-            comentariosHost={comentarios}
+            comentarios={comentarios}
             nombre={nombre}
             apellido={apellido}
           />

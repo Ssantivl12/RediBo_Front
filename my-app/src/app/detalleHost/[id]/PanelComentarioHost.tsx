@@ -1,39 +1,37 @@
 'use client';
-import { Comentario } from '@/types/auto';
+import { CalificacionUsuario} from '@/types/auto';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
-
+import { useEffect, useRef, useState, useMemo } from 'react';
+import { getUsuarioPorId } from '@/libs/api';
 interface PanelComentariosHostProps {
-    mostrar: boolean;
-    onClose: () => void;
-    comentariosHost: Comentario[];
-    nombre: string;
-    apellido: string;
+  mostrar: boolean;
+  onClose: () => void;
+  comentarios: CalificacionUsuario[];
+  nombre: string;
+  apellido: string;
 }
 
 export default function PanelComentariosHost({
-    mostrar,
-    onClose,
-    comentariosHost,
-    nombre,
-    apellido
+  mostrar,
+  onClose,
+  comentarios,
+  nombre,
+  apellido,
 }: PanelComentariosHostProps) {
-
-    console.log('comentariosHost:', comentariosHost);
-    console.log('mostrar:', mostrar);
-
-    const comentariosValidos = comentariosHost
-        .map(c => ({
-            ...c,
-            calificacion: c.puntuacion || c.calificacion,
-            contenido: c.comentario || c.contenido,
-            idComentario: c.idCalificador || c.idComentario
-        }))
-        .filter(
-            c => c.calificacion >= 1 && 
-                c.calificacion <= 5 && 
-                (c.contenido?.trim() !== '' || c.comentario?.trim() !== '')
-        );
+  const comentariosValidos = useMemo(() => {
+    return comentarios
+      .map(c => ({
+        ...c,
+        calificacion: c.puntuacion ?? 0,
+        contenido: c.comentario ?? '',
+        idComentario: c.idCalificador ?? 0
+      }))
+      .filter(c =>
+        c.calificacion >= 1 &&
+        c.calificacion <= 5 &&
+        (c.contenido.trim() !== '' || c.comentario?.trim() !== '')
+      );
+  }, [comentarios]);
 
     console.log('comentariosValidos:', comentariosValidos);
 
@@ -60,7 +58,33 @@ export default function PanelComentariosHost({
         return { conteo, porcentajes };
     })();
 
+    const [nombresUsuarios, setNombresUsuarios] = useState<Record<number, { nombre: string; apellido: string }>>({});
+
+useEffect(() => {
+    const cargarNombres = async () => {
+    const idsUnicos = [...new Set(comentariosValidos.map(c => c.idCalificador))];
+    const nuevosNombres: Record<number, { nombre: string; apellido: string }> = {};
     
+    await Promise.all(idsUnicos.map(async (id) => {
+        if (!nombresUsuarios[id]) {
+        try {
+            const usuario = await getUsuarioPorId(id.toString());
+            nuevosNombres[id] = {
+            nombre: usuario.data.nombre || 'Anónimo',
+            apellido: usuario.data.apellido || '',
+            };
+        } catch {
+            nuevosNombres[id] = { nombre: 'Anónimo', apellido: '' };
+        }
+        }
+    }));
+    
+    setNombresUsuarios(prev => ({ ...prev, ...nuevosNombres }));
+    };
+  cargarNombres();
+}, []);
+
+
 
     useEffect(() => {
         let mounted = false;
@@ -232,12 +256,10 @@ export default function PanelComentariosHost({
                             const mostrarBoton = comentariosConOverflow[comentario.idComentario];
                             const estrellasLlenas = Math.floor(comentario.calificacion);
                             const estrellasVacias = 5 - estrellasLlenas;
-
-                            const nombreMostrar = comentario.nombre || comentario.usuario?.nombre || 'Anónimo';
-                            const apellidoMostrar = comentario.apellido || comentario.usuario?.apellido || '';
+                            
 
                             return (
-                                <div key={comentario.idComentario} className="border-b border-black pb-3">
+                                <div key={comentario.idCalificacion} className="border-b border-black pb-3">
                                     <div className="flex justify-between items-center mb-2">
                                         <div className="flex items-center gap-3">
                                             <Image
@@ -249,8 +271,9 @@ export default function PanelComentariosHost({
                                                 unoptimized
                                             />
                                             <div>
-                                                <strong className="text-black font-semibold">
-                                                    {nombreMostrar} {apellidoMostrar}
+                                                 <strong className="text-black font-semibold">
+                                                    {nombresUsuarios[comentario.idCalificador]?.nombre || 'Anónimo'}{' '}
+                                                    {nombresUsuarios[comentario.idCalificador]?.apellido || ''}
                                                 </strong>
                                                 <div className="text-sm text-gray-500">{fecha}</div>
                                             </div>
