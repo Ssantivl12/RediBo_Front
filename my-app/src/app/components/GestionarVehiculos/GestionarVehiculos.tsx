@@ -8,6 +8,7 @@ import { FiCheckCircle } from "react-icons/fi";
 import { API_URL } from '@config/api';
 import { VerKilometraje } from "../auto/VerKilometraje";
 import VehiculoFilter from "@components/filters/VehiculoFilter";
+import ComentariosModal from "@components/ComentariosModal/ComentariosModal";
 
 interface Kilometraje {
   id: string;
@@ -15,6 +16,13 @@ interface Kilometraje {
   fechaInicio: string;
   fechaFin: string;
   kilometraje: number;
+}
+
+interface Comentario {
+  autor: string;
+  fecha: string;
+  puntuacion: number;
+  contenido: string;
 }
 
 interface Vehiculo {
@@ -71,6 +79,22 @@ export default function GestionarVehiculos() {
   const [error, setError] = useState("");
   const [accionActual, setAccionActual] = useState("");
   const [datosMantenimientoTemp, setDatosMantenimientoTemp] = useState<MantenimientoData | null>(null);
+  const [mostrarModalComentarios, setMostrarModalComentarios] = useState(false);
+  const [comentarios, setComentarios] = useState<Comentario[]>([
+    {
+      autor: "Maria Rodriguez",
+      fecha: "2024-02-05",
+      puntuacion: 5,
+      contenido: "Increíble experiencia de manejo, muy satisfecha."
+    },
+    {
+      autor: "Juan Perez",
+      fecha: "2024-02-10",
+      puntuacion: 5,
+      contenido: "Gran relación calidad-precio, recomendado."
+    }
+  ]);
+
   const [formData, setFormData] = useState({
     fechaInicio: "",
     fechaFin: "",
@@ -453,7 +477,7 @@ export default function GestionarVehiculos() {
               Terminar Mantenimiento
             </button>
             <button
-              onClick={() => console.log(`Ver comentarios de: ${vehiculo.idAuto}`)}
+              onClick={() => setMostrarModalComentarios(true)}
               className="ml-auto bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
             > 
               Ver comentarios
@@ -471,7 +495,7 @@ export default function GestionarVehiculos() {
               Poner en Mantenimiento
             </button>
             <button
-              onClick={() => console.log(`Ver comentarios de: ${vehiculo.idAuto}`)}
+              onClick={() => setMostrarModalComentarios(true)}
               className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
             >
               Ver comentarios
@@ -662,6 +686,12 @@ export default function GestionarVehiculos() {
         onClose={() => setModalKilometraje(false)}
         kilometrajeActual={kilometrajeActual}
         mileageHistory={historialKilometraje}
+      />
+
+      <ComentariosModal
+        isOpen={mostrarModalComentarios}
+        onClose={() => setMostrarModalComentarios(false)}
+        comentarios={comentarios}
       />
     </div>
   );
