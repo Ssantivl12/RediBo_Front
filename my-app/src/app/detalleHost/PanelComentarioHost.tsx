@@ -60,11 +60,7 @@ export default function PanelComentariosHost({
         return { conteo, porcentajes };
     })();
 
-    const criterioTexto =
-        promedioCalificacion >= 4.5 ? 'Excelente' :
-        promedioCalificacion >= 3.5 ? 'Bueno' :
-        promedioCalificacion >= 2.5 ? 'Regular' :
-        promedioCalificacion >= 1.5 ? 'Malo' : 'Sin calificación';
+    
 
     useEffect(() => {
         let mounted = false;
@@ -135,6 +131,7 @@ export default function PanelComentariosHost({
             <div className={`fixed top-0 left-1/2 transform -translate-x-1/2 h-screen w-full sm:w-[90%] md:w-[600px] bg-[#f5f5f5] p-6 z-[1000] overflow-y-auto border-2 border-black rounded-2xl shadow-md transition-transform duration-300 ${
                 mostrar ? 'translate-y-0' : '-translate-y-full'
             }`}>
+                
                 <button
                     className="absolute top-2 right-4 bg-[#fca311] text-white text-lg px-3 py-1 rounded border border-black hover:bg-[#e69500] active:bg-[#cc8400]"
                     onClick={onClose}
@@ -142,30 +139,31 @@ export default function PanelComentariosHost({
                     ✕
                 </button>
 
-                <h2 className="text-2xl font-bold text-black mb-2">
+                <h2 className="text-2xl font-bold text-black mb-10">
                     {nombre} {apellido}
                 </h2>
                 <hr className="border-t-4 border-black mb-3" />
-
+                <h3 className="text-3xl font-bold text-[#002a5c] text-center mt-4">
+                    Calificación del Host
+                </h3>
                 <div className="flex gap-4 items-center mb-4">
                     <div className="bg-[#002a5c] text-white text-xl p-2 rounded w-12 text-center">
                         {promedioCalificacion.toFixed(1)}
                     </div>
                     <div className="flex flex-col">
                         <div className="flex items-center gap-3">
+                            
+
                             <div className="text-[#fca311] text-2xl leading-none flex gap-1">
                                 {renderEstrellasConMedia(promedioCalificacion)}
                             </div>
-                            <div className="flex flex-col leading-tight">
-                                <span className="font-bold text-black">{criterioTexto}</span>
-                                <span className="text-sm text-gray-500">{comentariosValidos.length} reseñas</span>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>
 
                 {([5, 4, 3, 2, 1] as const).map((estrella) => (
-                    <div key={estrella} className="flex items-center gap-2 mb-1">
+                    <div key={estrella} className="flex items-center gap-2 mb-3">
                         <div className="bg-[#002a5c] text-white w-8 h-8 flex items-center justify-center rounded">
                             {estrella}
                         </div>
@@ -181,9 +179,9 @@ export default function PanelComentariosHost({
                     </div>
                 ))}
 
-                <h3 className="text-xl mt-4 mb-2 text-black font-semibold">Comentarios</h3>
+                
 
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-10">
                     <div className="flex items-center w-full sm:w-auto border border-gray-400 rounded-full px-3 py-1 bg-white">
                         <input
                             type="text"
@@ -216,8 +214,8 @@ export default function PanelComentariosHost({
                         >
                             <option>Los más recientes</option>
                             <option>Los más antiguos</option>
-                            <option>Mayor calificación</option>
-                            <option>Menor calificación</option>
+                            <option>Los Mejores</option>
+                            <option>Los Peores</option>
                         </select>
                     </div>
                 </div>
