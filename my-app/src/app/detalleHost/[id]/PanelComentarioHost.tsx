@@ -3,6 +3,8 @@ import { CalificacionUsuario} from '@/types/auto';
 import Image from 'next/image';
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { getUsuarioPorId } from '@/libs/api';
+import BarraFiltros from '@/components/Auto/DetallesHost/BarraFiltros';
+
 interface PanelComentariosHostProps {
   mostrar: boolean;
   onClose: () => void;
@@ -41,6 +43,8 @@ export default function PanelComentariosHost({
 
     const [comentariosExpandidos, setComentariosExpandidos] = useState<Record<number, boolean>>({});
     const [comentariosConOverflow, setComentariosConOverflow] = useState<Record<number, boolean>>({});
+    const [terminoBusqueda, setTerminoBusqueda] = useState('');
+    const [comentariosFiltrados, setComentariosFiltrados] = useState(comentariosValidos);
     const refsComentarios = useRef<Record<number, HTMLParagraphElement | null>>({});
 
     const distribucionEstrellas = (() => {
@@ -126,6 +130,26 @@ useEffect(() => {
         };
     }, [comentariosValidos]);
 
+    useEffect(() => {
+  setComentariosFiltrados(comentariosValidos);
+}, [comentariosValidos]);
+
+useEffect(() => {
+  const comentariosFiltradosPorBusqueda = comentariosValidos.filter((comentario) => {
+    const texto = comentario.comentario?.toLowerCase() ?? '';
+    const nombre = nombresUsuarios[comentario.idCalificador]?.nombre?.toLowerCase() ?? '';
+    const apellido = nombresUsuarios[comentario.idCalificador]?.apellido?.toLowerCase() ?? '';
+    return (
+      texto.includes(terminoBusqueda.toLowerCase()) ||
+      nombre.includes(terminoBusqueda.toLowerCase()) ||
+      apellido.includes(terminoBusqueda.toLowerCase())
+    );
+  });
+
+  setComentariosFiltrados(comentariosFiltradosPorBusqueda);
+}, [comentariosValidos, terminoBusqueda, nombresUsuarios]);
+
+
     const toggleExpansion = (id: number) => {
         setComentariosExpandidos((prev) => ({ ...prev, [id]: !prev[id] }));
     };
@@ -203,16 +227,15 @@ useEffect(() => {
                     </div>
                 ))}
 
-                
-
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-10">
                     <div className="flex items-center w-full sm:w-auto border border-gray-400 rounded-full px-3 py-1 bg-white">
                         <input
                             type="text"
                             placeholder="Buscar comentarios..."
                             className="outline-none flex-grow px-2 py-1 text-black bg-transparent"
-                            readOnly
-                        />
+                            value={terminoBusqueda}
+                            onChange={(e) => setTerminoBusqueda(e.target.value)}
+                            />
                         <button className="text-[#002a5c] hover:text-[#fca311]" type="button">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -245,8 +268,8 @@ useEffect(() => {
                 </div>
 
                 <div className="space-y-4">
-                    {comentariosValidos.length > 0 ? (
-                        comentariosValidos.map((comentario) => {
+                    {comentariosFiltrados.length > 0 ? (
+                        comentariosFiltrados.map((comentario) => {
                             const fecha = new Date(comentario.fechaCreacion).toLocaleDateString('es-ES', {
                                 day: 'numeric',
                                 month: 'long',
@@ -271,7 +294,7 @@ useEffect(() => {
                                                 unoptimized
                                             />
                                             <div>
-                                                 <strong className="text-black font-semibold">
+                                                <strong className="text-black font-semibold">
                                                     {nombresUsuarios[comentario.idCalificador]?.nombre || 'Anónimo'}{' '}
                                                     {nombresUsuarios[comentario.idCalificador]?.apellido || ''}
                                                 </strong>
