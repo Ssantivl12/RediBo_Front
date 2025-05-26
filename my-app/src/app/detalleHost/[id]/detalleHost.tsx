@@ -28,7 +28,7 @@ function NavbarDetalle() {
 }
 
 interface Props {
-  id:string;
+  id: string;
   comentarios: CalificacionUsuario[];
 }
 
@@ -39,48 +39,37 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales }: P
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [mostrarPanel, setMostrarPanel] = useState(false);
+  
 
-useEffect(() => {
-  const cargarDatos = async () => {
-    setCargando(true);
-    setError(null);
+  useEffect(() => {
+    const cargarDatos = async () => {
+      setCargando(true);
+      setError(null);
 
-    if (!Array.isArray(comentariosIniciales) || comentariosIniciales.length === 0) {
-      setError('No hay comentarios disponibles.');
-      setCargando(false);
-      return;
-    }
+      try {
+        const [nuevosComentariosRes, usuario] = await Promise.all([
+          getComentariosDeHost(id),
+          getUsuarioPorId(id.toString())
+        ]);
 
-    if (!comentariosIniciales || comentariosIniciales.length === 0) {
-      setError('No hay comentarios disponibles o falta el ID del calificado');
-      setCargando(false);
-      return;
-    }
+        setComentarios(nuevosComentariosRes.data);
+        setNombre(usuario.data.nombre);
+        setApellido(usuario.data.apellido);
+      } catch (err) {
+        console.error('Error al cargar los datos del host:', err);
+        setError('Error al cargar los datos del host');
+      } finally {
+        setCargando(false);
+      }
+    };
 
-
-    try {
-      const [nuevosComentariosRes, usuario] = await Promise.all([
-        getComentariosDeHost(id),
-        getUsuarioPorId(id.toString())
-      ]);
-
-      setComentarios(nuevosComentariosRes.data);
-      setNombre(usuario.data.nombre);
-      setApellido(usuario.data.apellido);
-    } catch (err) {
-      console.error('Error al cargar los datos del host:', err);
-      setError('Error al cargar los datos del host');
-    } finally {
-      setCargando(false);
-    }
-  };
-
-  cargarDatos();
-}, []);
-
+    cargarDatos();
+  }, [id]);
 
   const handleMostrarPanel = () => setMostrarPanel(true);
   const handleCerrarPanel = () => setMostrarPanel(false);
+
+  const primerosTresComentarios = comentarios.slice(0, 3);
 
   return (
     <div>
@@ -108,25 +97,54 @@ useEffect(() => {
         )}
 
         {!cargando && !error && (
-          <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded text-green-700">
-            Se cargaron {comentarios.length} comentario(s) exitosamente
+          <div>
+            <h3 className="text-lg font-bold text-[#11295b] mb-4">Reseñas</h3>
+            <div className="flex gap-4 mb-6">
+              {primerosTresComentarios.map((comentario) => (
+                <div
+                  key={comentario.idCalificacion}
+                  className="border border-gray-200 rounded-lg p-4 shadow-sm w-full flex flex-col items-start"
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                      <Image
+                        src="/imagenesIconos/usuario.png"
+                        alt="Usuario"
+                        className="w-10 h-10 rounded-full"
+                        width={50}
+                        height={50}
+                        unoptimized
+                      />
+                    <div>
+                      <p className="font-semibold text-gray-800">
+                        {nombre} {apellido}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {new Date(comentario.fechaCreacion).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-3">{comentario.comentario}</p>
+                  <div className="flex items-center text-yellow-400 text-xl">
+  {'★'.repeat(comentario.puntuacion)}
+  {'☆'.repeat(5 - comentario.puntuacion)}
+</div>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={handleMostrarPanel}
+              disabled={cargando}
+              className={`px-5 py-2.5 rounded-full text-base font-semibold transition ${
+                cargando
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-[#fca311] hover:bg-[#e69500] active:bg-[#cc8400]'
+              } text-white`}
+            >
+              {cargando ? 'Cargando...' : 'Mostrar todas las reseñas'}
+            </button>
           </div>
         )}
-
-        <button
-          onClick={handleMostrarPanel}
-          disabled={cargando}
-          className={`
-            px-5 py-2.5 rounded-full text-base font-semibold transition
-            ${cargando
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-[#fca311] hover:bg-[#e69500] active:bg-[#cc8400]'
-            } 
-            text-white
-          `}
-        >
-          {cargando ? 'Cargando...' : 'Mostrar todas las reseñas'}
-        </button>
 
         {mostrarPanel && !cargando && (
           <PanelComentariosHost
