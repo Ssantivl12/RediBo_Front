@@ -14,6 +14,7 @@ export default function InformacionHost() {
   const email = searchParams.get('email');
   const marca = searchParams.get('marca') || '';
   const modelo = searchParams.get('modelo') || '';
+  
 
   const handleContactClick = () => {
     try {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { CalificacionUsuario } from '@/types/auto';
 import Image from 'next/image';
 import PanelComentariosHost from './PanelComentarioHost';
@@ -8,7 +8,6 @@ import { getUsuarioPorId, getComentariosDeHost } from '@/libs/api';
 import TarjetaHost from '@/components/Auto/DetallesHost/TarjetaHost';
 import InformacionHost from '@/components/Auto/DetallesHost/InformacionHost';
 import NavbarDetalle from '@/components/navbar/NavbarDetalle';
-
 
 interface Props {
   id: string;
@@ -23,7 +22,11 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales }: P
   const [error, setError] = useState<string | null>(null);
   const [mostrarPanel, setMostrarPanel] = useState(false);
   
-
+  // Estados para controlar expansión de comentarios
+  const [comentariosExpandidos, setComentariosExpandidos] = useState<{[key: number]: boolean}>({});
+  const [comentariosConOverflow, setComentariosConOverflow] = useState<{[key: number]: boolean}>({});
+  const refsComentarios = useRef<{[key: number]: HTMLParagraphElement | null}>({});
+  
   useEffect(() => {
     const cargarDatos = async () => {
       setCargando(true);
@@ -49,8 +52,39 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales }: P
     cargarDatos();
   }, [id]);
 
+  // Efecto para detectar overflow en comentarios
+  useEffect(() => {
+    const detectarOverflow = () => {
+      const nuevosOverflows: {[key: number]: boolean} = {};
+      
+      primerosTresComentarios.forEach((comentario) => {
+        const ref = refsComentarios.current[comentario.idCalificacion];
+        if (ref) {
+          const lineaEstimada = parseFloat(getComputedStyle(ref).lineHeight) || 20;
+          const limite = lineaEstimada * 4; // Mostrar máximo 4 líneas
+          const isOverflowing = ref.scrollHeight > limite + 2;
+          nuevosOverflows[comentario.idCalificacion] = isOverflowing;
+        }
+      });
+      
+      setComentariosConOverflow(nuevosOverflows);
+    };
+
+    if (!cargando && comentarios.length > 0) {
+      // Pequeño delay para asegurar que el DOM esté renderizado
+      setTimeout(detectarOverflow, 100);
+    }
+  }, [comentarios, cargando]);
+
   const handleMostrarPanel = () => setMostrarPanel(true);
   const handleCerrarPanel = () => setMostrarPanel(false);
+
+  const toggleComentarioExpandido = (idComentario: number) => {
+    setComentariosExpandidos(prev => ({
+      ...prev,
+      [idComentario]: !prev[idComentario]
+    }));
+  };
 
   const primerosTresComentarios = comentarios.slice(0, 3);
 
@@ -66,7 +100,11 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales }: P
         <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center md:items-start">
           {/* Tarjeta del Host (lado izquierdo) */}
           <div className="w-full md:w-1/3 flex justify-center md:justify-start">
-            <TarjetaHost />
+            <TarjetaHost 
+              comentarios={comentarios}
+              nombre={nombre}
+              apellido={apellido}
+            />
           </div>
           
           {/* Información del Host (lado derecho) */}
@@ -92,12 +130,16 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales }: P
           <div>
             <h3 className="text-lg font-bold text-[#11295b] mb-4">Reseñas</h3>
             <div className="flex gap-4 mb-6">
-              {primerosTresComentarios.map((comentario) => (
-                <div
-                  key={comentario.idCalificacion}
-                  className="border border-gray-200 rounded-lg p-4 shadow-sm w-full flex flex-col items-start"
-                >
-                  <div className="flex items-center gap-3 mb-2">
+              {primerosTresComentarios.map((comentario) => {
+                const estaExpandido = comentariosExpandidos[comentario.idCalificacion] || false;
+                const tieneOverflow = comentariosConOverflow[comentario.idCalificacion] || false;
+                
+                return (
+                  <div
+                    key={comentario.idCalificacion}
+                    className="border border-gray-200 rounded-lg p-4 shadow-sm w-full flex flex-col items-start"
+                  >
+                    <div className="flex items-center gap-3 mb-2">
                       <Image
                         src="/imagenesIconos/usuario.png"
                         alt="Usuario"
@@ -106,26 +148,45 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales }: P
                         height={50}
                         unoptimized
                       />
-                    <div>
-                      <p className="font-semibold text-gray-800">
-                        {nombre} {apellido}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {new Date(comentario.fechaCreacion).toLocaleDateString('es-ES', {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric'
-                        })}
-                      </p>
+                      <div>
+                        <p className="font-semibold text-gray-800">
+                          {nombre} {apellido}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {new Date(comentario.fechaCreacion).toLocaleDateString('es-ES', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <p
+                      ref={(el) => {
+                        refsComentarios.current[comentario.idCalificacion] = el;
+                      }}
+                      className={`text-sm text-gray-600 mb-3 ${!estaExpandido ? 'line-clamp-4' : ''}`}
+                    >
+                      {comentario.comentario}
+                    </p>
+                    
+                    {tieneOverflow && (
+                      <button
+                        onClick={() => toggleComentarioExpandido(comentario.idCalificacion)}
+                        className="text-blue-600 hover:text-blue-800 text-sm font-medium mb-2"
+                      >
+                        {estaExpandido ? 'Ver menos' : 'Ver más'}
+                      </button>
+                    )}
+                    
+                    <div className="flex items-center text-yellow-400 text-xl">
+                      {'★'.repeat(comentario.puntuacion)}
+                      {'☆'.repeat(5 - comentario.puntuacion)}
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-3">{comentario.comentario}</p>
-                  <div className="flex items-center text-yellow-400 text-xl">
-                    {'★'.repeat(comentario.puntuacion)}
-                    {'☆'.repeat(5 - comentario.puntuacion)}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <button
