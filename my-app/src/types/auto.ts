@@ -92,6 +92,16 @@ export interface Auto {
   vecesAlquilado?: number | null;
 }
 
+export interface AutoConDisponibilidad {
+  idAuto: number;
+  modelo: string;
+  marca: string;
+  precio: string;
+  calificacionPromedio?: number | null;
+  disponible: boolean;
+  imagenes: Imagen[];
+}
+
 export interface Imagen {
   idImagen: number;
   idAuto: number;
@@ -195,6 +205,8 @@ export interface CalificacionUsuario {
   idReserva: number;
   reserva: Reserva;
   tipoCalificacion: TipoCalificacionUsuario;
+  nombre: string;
+  apellido: string;
 }
 
 // Tipos utilitarios para relaciones parciales

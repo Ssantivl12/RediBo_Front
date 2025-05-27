@@ -10,6 +10,8 @@ import SolicitudReserva from '@/components/Auto/PanelSolicitud/solicitudReserva'
 import Estrellas from '@/components/Auto/Estrellas';
 import { useEffect, useState } from 'react';
 import { Auto, Comentario } from '@/types/auto';
+import { useSearchParams } from 'next/navigation';
+import { getAutosPorHostYFecha } from '@/libs/api';
 
 interface Props {
   auto: Auto;
@@ -19,6 +21,11 @@ export default function DetalleCocheCliente({ auto }: Props) {
   const [comentarios, setComentarios] = useState<Comentario[]>([]);
   const [mostrarPanel, setMostrarPanel] = useState(false);
   const [mostrarSolicitudResercva, setMostrarModalSolicitud] = useState(false);
+  const [disponible, setDisponible] = useState<boolean | null>(null);
+  
+  const searchParams = useSearchParams();
+  const inicio = searchParams.get('inicio');
+  const fin = searchParams.get('fin');
 
 
   useEffect(() => {
@@ -32,6 +39,25 @@ export default function DetalleCocheCliente({ auto }: Props) {
     });
 
   }, [auto.idAuto]);
+  useEffect(() => {
+  if (!inicio || !fin) {
+    setDisponible(true);
+    return;
+  }
+
+  async function fetchDisponibilidad() {
+    try {
+      const autosHost = await getAutosPorHostYFecha(auto.propietario.idUsuario, inicio as string, fin as string);
+      const autoInfo = autosHost.find(a => a.idAuto === auto.idAuto);
+      setDisponible(autoInfo?.disponible ?? false);
+    } catch (error) {
+      console.error('Error verificando disponibilidad:', error);
+      setDisponible(false);
+    }
+  }
+
+  fetchDisponibilidad();
+}, [inicio, fin, auto.propietario.idUsuario, auto.idAuto]);
   const comentariosValidos = comentarios.filter(c => c.calificacion > 0 && c.contenido?.trim() !== '');
   const promedio = comentariosValidos.length > 0
     ? comentariosValidos.reduce((acc, c) => acc + c.calificacion, 0) / comentariosValidos.length
@@ -119,17 +145,30 @@ export default function DetalleCocheCliente({ auto }: Props) {
 
             {/* Info host + precio */}
             <div className="flex-1 min-w-[250px] max-w-full flex flex-col gap-6">
-              <InfoHost usuario={auto.propietario} marca={auto.marca}
-                modelo={auto.modelo} />
-              <Precio precioPorDia={auto.precioRentaDiario} />
-              <div className="w-full flex justify-center">
-                <button
-                  className="bg-[#fca311] text-white px-2.5 py-2.5 rounded-full text-base font-semibold transition hover:bg-[#e69500] active:bg-[#cc8400] max-w-[250px] h-[50px]"
-                  onClick={() => setMostrarModalSolicitud(true)}
-                >
-                  Enviar solicitud
-                </button>
-              </div>
+              <InfoHost usuario={auto.propietario} marca={auto.marca} modelo={auto.modelo} />
+
+              {disponible === null && (
+                <div className="min-h-[100px]" />
+              )}
+
+              {disponible === false && (
+                <p className="text-center text-red-600 font-semibold">
+                </p>
+              )}
+
+              {disponible === true && (
+                <>
+                  <Precio precioPorDia={auto.precioRentaDiario} />
+                  <div className="w-full flex justify-center">
+                    <button
+                      className="bg-[#fca311] text-white px-2.5 py-2.5 rounded-full text-base font-semibold transition hover:bg-[#e69500] active:bg-[#cc8400] max-w-[250px] h-[50px]"
+                      onClick={() => setMostrarModalSolicitud(true)}
+                    >
+                      Enviar solicitud
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

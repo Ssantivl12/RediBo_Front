@@ -1,5 +1,6 @@
 import type { Auto, CalificacionUsuario, Comentario } from "@/types/auto"
 import type { Usuario } from "@/types/auto"
+import type { AutoConDisponibilidad } from '@/types/auto';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"
 
@@ -107,4 +108,40 @@ export async function getUsuarioPorId(id: string): Promise<{ data: Usuario }> {
   const res = await fetch(`${BASE_URL}/usuario/${id}`, { cache: "no-store" })
   if (!res.ok) throw new Error("Usuario no encontrado")
   return res.json()
+}
+
+export async function getAutosPorHostYFecha(
+  idUsuario: number, 
+  fechaInicio: string, 
+  fechaFin: string
+): Promise<AutoConDisponibilidad[]> {
+  // Convierte las fechas a objetos Date para normalizar y luego a yyyy-mm-dd
+  const inicioDate = new Date(fechaInicio);
+  const finDate = new Date(fechaFin);
+
+  const inicio = inicioDate.toISOString().split('T')[0];
+  const fin = finDate.toISOString().split('T')[0];
+  console.log("URL fetch:", `${BASE_URL}/hosts/${idUsuario}/${inicio}/${fin}`);
+  const res = await fetch(`${BASE_URL}/hosts/${idUsuario}/${inicio}/${fin}`);
+
+  if (!res.ok) {
+    console.error("Error al obtener los autos del host", await res.text());
+    throw new Error("Error al obtener los autos del host");
+  }
+
+  const data = await res.json();
+
+  return data.host.autos;
+}
+
+export async function getAutosPorHost(idUsuario: number): Promise<AutoConDisponibilidad[]> {
+  const res = await fetch(`${BASE_URL}/hosts/${idUsuario}`, { cache: "no-store" }); // asegúrate del plural "hosts"
+  
+  if (!res.ok) {
+    console.error("Error al obtener los autos del host:", await res.text());
+    throw new Error("Error al obtener los autos del host");
+  }
+  
+  const data = await res.json();
+  return data.host.autos;
 }

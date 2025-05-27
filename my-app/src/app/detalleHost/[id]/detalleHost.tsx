@@ -8,13 +8,18 @@ import { getUsuarioPorId, getComentariosDeHost } from '@/libs/api';
 import TarjetaHost from '@/components/Auto/DetallesHost/TarjetaHost';
 import InformacionHost from '@/components/Auto/DetallesHost/InformacionHost';
 import NavbarDetalle from '@/components/navbar/NavbarDetalle';
+import AutosDelHost from './AutosDelHost';  // Ajusta la ruta según tu estructura
+import { AutoConDisponibilidad } from '@/types/auto';
+
 
 interface Props {
   id: string;
   comentarios: CalificacionUsuario[];
+  autos: AutoConDisponibilidad[];
 }
 
-export default function DetalleHost({ id, comentarios: comentariosIniciales }: Props) {
+export default function DetalleHost({ id, comentarios: comentariosIniciales,autos }: Props) {
+  console.log("Autos en DetalleHost:", autos);
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [comentarios, setComentarios] = useState<CalificacionUsuario[]>(comentariosIniciales);
@@ -92,7 +97,7 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales }: P
     <div>
       <NavbarDetalle />
 
-      <main className="max-w-4xl mx-auto p-4 md:p-6">
+      <main className="max-w-6xl mx-auto p-4 md:p-6">
         <h1 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6 text-[#11295b] text-center md:text-left">
           Acerca del Anfitrión
         </h1>
@@ -150,7 +155,7 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales }: P
                       />
                       <div>
                         <p className="font-semibold text-gray-800">
-                          {nombre} {apellido}
+                          {comentario.nombre} {comentario.apellido}
                         </p>
                         <p className="text-sm text-gray-500">
                           {new Date(comentario.fechaCreacion).toLocaleDateString('es-ES', {
@@ -188,7 +193,7 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales }: P
                 );
               })}
             </div>
-
+              
             <button
               onClick={handleMostrarPanel}
               disabled={cargando}
@@ -212,6 +217,10 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales }: P
             apellido={apellido}
           />
         )}
+        <section className="mt-10">
+        <h2 className="text-2xl font-bold mb-6 text-[#11295b]">Autos del Host</h2>
+        <AutosDelHost autos={autos ?? []} />
+      </section>
       </main>
     </div>
   );

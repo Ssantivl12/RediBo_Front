@@ -406,9 +406,13 @@ export default function AutosPage() {
                         </div>
 
                         <Link
-                          className="inline-block px-4 py-2 bg-[#FCA311] text-white no-underline rounded-lg font-bold transition-colors duration-300 ease-in-out hover:bg-[#e4920b]"
-                          href={`/detalleCoche/${auto.idAuto}`}
+                          href={
+                            fechasReserva
+                              ? `/detalleCoche/${auto.idAuto}?inicio=${fechasReserva.inicio}&fin=${fechasReserva.fin}`
+                              : `/detalleCoche/${auto.idAuto}`
+                          }
                           target="_blank"
+                          className="inline-block px-4 py-2 bg-[#FCA311] text-white no-underline rounded-lg font-bold transition-colors duration-300 ease-in-out hover:bg-[#e4920b]"
                         >
                           Ver detalles
                         </Link>
