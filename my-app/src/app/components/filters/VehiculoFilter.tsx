@@ -52,7 +52,7 @@ const VehiculoFilter = ({
   };
 
   return (
-    <div className="flex flex-wrap gap-4 items-center mt-6 w-full relative z-10">
+    <div className="flex flex-wrap gap-4 items-center w-full relative z-10">
       {/* Input de búsqueda */}
       <input
         type="text"
