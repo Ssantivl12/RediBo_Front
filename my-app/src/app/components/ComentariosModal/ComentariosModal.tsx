@@ -16,7 +16,7 @@ interface ComentariosModalProps {
   comentarios: Comentario[];
 }
 
-const ComentariosModal: React.FC<ComentariosModalProps> = ({ isOpen, onClose, comentarios }) => {
+export const VerComentarios: React.FC<ComentariosModalProps> = ({ isOpen, onClose, comentarios }) => {
   const [orden, setOrden] = useState<"recientes" | "antiguos" | "mayor" | "menor">("recientes");
 
   const comentariosOrdenados = [...comentarios].sort((a, b) => {
@@ -56,7 +56,10 @@ const ComentariosModal: React.FC<ComentariosModalProps> = ({ isOpen, onClose, co
     { label: "Menor Puntuación", value: "menor" },
   ];
 
+  if (!isOpen) return null;
+
   return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
     <Modal isOpen={isOpen} onClose={onClose} title="Comentarios del vehículo" width="xl">
       <div className="space-y-6">
         <div className="flex flex-wrap gap-2 mb-4">
@@ -103,7 +106,7 @@ const ComentariosModal: React.FC<ComentariosModalProps> = ({ isOpen, onClose, co
         )}
       </div>
     </Modal>
+    </div>
   );
 };
 
-export default ComentariosModal;
