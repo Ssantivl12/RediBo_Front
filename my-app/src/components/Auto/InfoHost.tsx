@@ -11,25 +11,40 @@ interface Props {
   modelo: string;
 }
 
-export default function InfoHost({ usuario, marca, modelo}: Props) {
+export default function InfoHost({ usuario, marca, modelo }: Props) {
   const [error, setError] = useState(false);
+  
   const handleContactClick = () => {
     try {
       const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-      const baseUrl = isMobile
-        ? 'https://wa.me'
-        : 'https://web.whatsapp.com/send';
-
+      const baseUrl = isMobile ? 'https://wa.me' : 'https://web.whatsapp.com/send';
       const link = `${baseUrl}?phone=591${usuario.telefono}&text=${encodeURIComponent(
         `Hola, estoy interesado en tu vehículo ${marca}-${modelo} publicado en REDIBO.`
       )}`;
-
       window.open(link, '_blank');
     } catch (err) {
       console.error('Error al redirigir a WhatsApp:', err);
       setError(true);
     }
+  };
+
+  const handleViewProfile = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    // Primero abrimos la página con los parámetros
+    const queryParams = new URLSearchParams({
+      nombre: usuario.nombre,
+      apellido: usuario.apellido,
+      telefono: usuario.telefono || '',
+      direccion: usuario.direccion || '',
+      email: usuario.email || '',
+      edad: '21',
+      marca: marca || '',
+      modelo: modelo || ''
+    }).toString();
+    
+    const paramsUrl = `/detalleHost/${usuario.idUsuario}?${queryParams}`;
+    window.open(paramsUrl, '_blank');
   };
 
   return (
@@ -80,8 +95,9 @@ export default function InfoHost({ usuario, marca, modelo}: Props) {
 
       <div className="flex justify-center mt-4">
         <Link
-          className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded-full shadow-md transition"
           href={`/detalleHost/${usuario.idUsuario}`}
+          onClick={handleViewProfile}
+          className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded-full shadow-md transition"
           target="_blank"
         >
           Ver perfil

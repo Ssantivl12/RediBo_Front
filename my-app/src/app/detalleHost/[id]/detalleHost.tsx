@@ -5,27 +5,10 @@ import { CalificacionUsuario } from '@/types/auto';
 import Image from 'next/image';
 import PanelComentariosHost from './PanelComentarioHost';
 import { getUsuarioPorId, getComentariosDeHost } from '@/libs/api';
+import TarjetaHost from '@/components/Auto/DetallesHost/TarjetaHost';
+import InformacionHost from '@/components/Auto/DetallesHost/InformacionHost';
+import NavbarDetalle from '@/components/navbar/NavbarDetalle';
 
-function NavbarDetalle() {
-  return (
-    <div className="px-6 py-4 border-b border-[rgba(0,0,0,0.05)] bg-white flex justify-between items-center">
-      <h1 className="text-3xl text-[var(--naranja)] font-[var(--tamaño-black)] drop-shadow-lg">REDIBO</h1>
-      <button
-        onClick={() => console.log('Botón de perfil presionado')}
-        className="p-1 rounded-full hover:opacity-80 transition"
-      >
-        <Image
-          src="/imagenesIconos/image.png"
-          width={50}
-          height={50}
-          alt="Icono de perfil"
-          unoptimized
-          className="w-7 h-7 cursor-pointer"
-        />
-      </button>
-    </div>
-  );
-}
 
 interface Props {
   id: string;
@@ -75,12 +58,21 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales }: P
     <div>
       <NavbarDetalle />
 
-      <main className="p-6">
-        <h2 className="text-xl font-semibold text-[#11295b] mb-4">Perfil del Host</h2>
-        <div className="mb-4">
-          <h3 className="text-lg font-medium text-gray-800">
-            {nombre} {apellido}
-          </h3>
+      <main className="max-w-4xl mx-auto p-4 md:p-6">
+        <h1 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6 text-[#11295b] text-center md:text-left">
+          Acerca del Anfitrión
+        </h1>
+        
+        <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center md:items-start">
+          {/* Tarjeta del Host (lado izquierdo) */}
+          <div className="w-full md:w-1/3 flex justify-center md:justify-start">
+            <TarjetaHost />
+          </div>
+          
+          {/* Información del Host (lado derecho) */}
+          <div className="w-full md:w-2/3 mt-4 md:mt-0">
+            <InformacionHost />
+          </div>
         </div>
 
         {cargando && (
