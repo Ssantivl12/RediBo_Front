@@ -18,7 +18,7 @@ export default function GestionarAutos() {
       />
 
       {/* Barra de filtros estática */}
-      <VehiculoFilter />
+      
 
       <GestionarVehiculos />
     </div>
