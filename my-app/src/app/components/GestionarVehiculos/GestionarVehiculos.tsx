@@ -81,7 +81,6 @@ export default function GestionarVehiculos() {
   const [datosMantenimientoTemp, setDatosMantenimientoTemp] = useState<MantenimientoData | null>(null);
   const [mostrarModalComentarios, setMostrarModalComentarios] = useState(false);
   const [comentarios, setComentarios] = useState<Comentario[]>([]);
-  const [autoSeleccionadoParaComentarios, setAutoSeleccionadoParaComentarios] = useState<number | null>(null);
 
 // función para cargar comentarios desde la API
 const fetchComentarios = async (idAuto: number) => {
@@ -91,7 +90,6 @@ const fetchComentarios = async (idAuto: number) => {
     const data = await response.json();
     console.log("Comentarios cargados:", data);
     setComentarios(data);
-    setAutoSeleccionadoParaComentarios(idAuto);
     setMostrarModalComentarios(true);
   } catch (error) {
     console.error("Error al obtener comentarios:", error);
