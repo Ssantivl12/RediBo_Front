@@ -1,14 +1,14 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { getAutosDisponiblesPorFecha } from "@/libs/api"
+import { getAutosDisponiblesPorFecha } from "@/libs/autoServices"
 import type { Auto } from "@/types/auto"
 import Image from "next/image"
-import BarraBusqueda from "@/components/Auto/BusquedaAuto/BarraBusqueda"
+import BarraBusqueda from "@/app/components/Auto/BusquedaAuto/BarraBusqueda"
 import Link from "next/link"
-import Estrellas from "@/components/Auto/Estrellas"
-import OrdenadoPor from "@/components/Auto/Ordenamiento/OrdenadoPor"
-import BarraReserva from "@/components/listaAutos/barraReserva"
+import Estrellas from "@/app/components/Auto/Estrellas"
+import OrdenadoPor from "@/app/components/Auto/Ordenamiento/OrdenadoPor"
+import BarraReserva from "@/app/components/listaAutos/barraReserva"
 
 interface OptimizedImageProps {
   src: string;
@@ -406,13 +406,9 @@ export default function AutosPage() {
                         </div>
 
                         <Link
-                          href={
-                            fechasReserva
-                              ? `/detalleCoche/${auto.idAuto}?inicio=${fechasReserva.inicio}&fin=${fechasReserva.fin}`
-                              : `/detalleCoche/${auto.idAuto}`
-                          }
-                          target="_blank"
                           className="inline-block px-4 py-2 bg-[#FCA311] text-white no-underline rounded-lg font-bold transition-colors duration-300 ease-in-out hover:bg-[#e4920b]"
+                          href={`/detalleCoche/${auto.idAuto}`}
+                          target="_blank"
                         >
                           Ver detalles
                         </Link>

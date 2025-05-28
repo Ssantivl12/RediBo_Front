@@ -1,5 +1,5 @@
 import DetalleHost from './detalleHost';
-import { getComentariosDeHost, getAutosPorHost } from '@/libs/api';
+import { getComentariosDeHost, getAutosPorHost } from '@/libs/autoServices';
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

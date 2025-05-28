@@ -4,13 +4,11 @@ import { useEffect, useState, useRef } from 'react';
 import { CalificacionUsuario } from '@/types/auto';
 import Image from 'next/image';
 import PanelComentariosHost from './PanelComentarioHost';
-import { getUsuarioPorId, getComentariosDeHost } from '@/libs/api';
-import TarjetaHost from '@/components/Auto/DetallesHost/TarjetaHost';
-import InformacionHost from '@/components/Auto/DetallesHost/InformacionHost';
-import NavbarDetalle from '@/components/navbar/NavbarDetalle';
-import AutosDelHost from './AutosDelHost';  // Ajusta la ruta según tu estructura
+import { getUsuarioPorId, getComentariosDeHost } from '@/libs/autoServices';
+import TarjetaHost from '@/app/components/Auto/DetallesHost/TarjetaHost';
+import InformacionHost from '@/app/components/Auto/DetallesHost/InformacionHost';
+import AutosDelHost from './AutosDelHost';
 import { AutoConDisponibilidad } from '@/types/auto';
-
 
 interface Props {
   id: string;
@@ -21,7 +19,6 @@ interface Props {
 export default function DetalleHost({ id, comentarios: comentariosIniciales,autos }: Props) {
   console.log("Autos en DetalleHost:", autos);
   const [nombre, setNombre] = useState('');
-  const [apellido, setApellido] = useState('');
   const [comentarios, setComentarios] = useState<CalificacionUsuario[]>(comentariosIniciales);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,8 +41,7 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales,auto
         ]);
 
         setComentarios(nuevosComentariosRes.data);
-        setNombre(usuario.data.nombre);
-        setApellido(usuario.data.apellido);
+        setNombre(usuario.data.nombreCompleto);
       } catch (err) {
         console.error('Error al cargar los datos del host:', err);
         setError('Error al cargar los datos del host');
@@ -95,7 +91,6 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales,auto
 
   return (
     <div>
-      <NavbarDetalle />
 
       <main className="max-w-6xl mx-auto p-4 md:p-6">
         <h1 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6 text-[#11295b] text-center md:text-left">
@@ -108,7 +103,6 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales,auto
             <TarjetaHost 
               comentarios={comentarios}
               nombre={nombre}
-              apellido={apellido}
             />
           </div>
           
@@ -214,7 +208,6 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales,auto
             onClose={handleCerrarPanel}
             comentarios={comentarios}
             nombre={nombre}
-            apellido={apellido}
           />
         )}
         <section className="mt-10">

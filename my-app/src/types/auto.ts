@@ -16,8 +16,7 @@ export type TipoDeNotificacion = 'RESERVA_SOLICITADA' | 'RESERVA_APROBADA' | 'RE
 // Interfaces principales
 export interface Usuario {
   idUsuario: number;
-  nombre: string;
-  apellido: string;
+  nombreCompleto: string;
   email: string;
   telefono?: string | null;
   direccion?: string | null;

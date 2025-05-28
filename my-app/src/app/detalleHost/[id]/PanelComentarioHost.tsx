@@ -2,7 +2,7 @@
 import { CalificacionUsuario } from '@/types/auto';
 import Image from 'next/image';
 import { useEffect, useRef, useState, useMemo } from 'react';
-import { getUsuarioPorId } from '@/libs/api';
+import { getUsuarioPorId } from '@/libs/autoServices';
 
 
 interface PanelComentariosHostProps {
@@ -10,7 +10,6 @@ interface PanelComentariosHostProps {
   onClose: () => void;
   comentarios: CalificacionUsuario[];
   nombre: string;
-  apellido: string;
 }
 
 export default function PanelComentariosHost({
@@ -18,7 +17,6 @@ export default function PanelComentariosHost({
   onClose,
   comentarios,
   nombre,
-  apellido,
 }: PanelComentariosHostProps) {
   const comentariosValidos = useMemo(() => {
     return comentarios
@@ -61,23 +59,22 @@ export default function PanelComentariosHost({
     return { conteo, porcentajes };
   })();
 
-  const [nombresUsuarios, setNombresUsuarios] = useState<Record<number, { nombre: string; apellido: string }>>({});
+  const [nombresUsuarios, setNombresUsuarios] = useState<Record<number, { nombreCompleto: string; }>>({});
 
   useEffect(() => {
     const cargarNombres = async () => {
       const idsUnicos = [...new Set(comentariosValidos.map(c => c.idCalificador))];
-      const nuevosNombres: Record<number, { nombre: string; apellido: string }> = {};
+      const nuevosNombres: Record<number, { nombreCompleto: string; }> = {};
       
       await Promise.all(idsUnicos.map(async (id) => {
         if (!nombresUsuarios[id]) {
           try {
             const usuario = await getUsuarioPorId(id.toString());
             nuevosNombres[id] = {
-              nombre: usuario.data.nombre || 'Anónimo',
-              apellido: usuario.data.apellido || '',
+              nombreCompleto: usuario.data.nombreCompleto || 'Anónimo',
             };
           } catch {
-            nuevosNombres[id] = { nombre: 'Anónimo', apellido: '' };
+            nuevosNombres[id] = { nombreCompleto: 'Anónimo' };
           }
         }
       }));
@@ -134,12 +131,10 @@ export default function PanelComentariosHost({
     if (terminoBusqueda) {
       comentariosFiltrados = comentariosFiltrados.filter((comentario) => {
         const texto = comentario.comentario?.toLowerCase() ?? '';
-        const nombre = nombresUsuarios[comentario.idCalificador]?.nombre?.toLowerCase() ?? '';
-        const apellido = nombresUsuarios[comentario.idCalificador]?.apellido?.toLowerCase() ?? '';
+        const nombre = nombresUsuarios[comentario.idCalificador]?.nombreCompleto?.toLowerCase() ?? '';
         return (
           texto.includes(terminoBusqueda.toLowerCase()) ||
-          nombre.includes(terminoBusqueda.toLowerCase()) ||
-          apellido.includes(terminoBusqueda.toLowerCase())
+          nombre.includes(terminoBusqueda.toLowerCase())
         );
       });
     }
@@ -200,7 +195,7 @@ export default function PanelComentariosHost({
         </button>
 
         <h2 className="text-2xl font-bold text-black mb-10">
-          {nombre} {apellido}
+          {nombre}
         </h2>
         <hr className="border-t-4 border-black mb-3" />
         <h3 className="text-3xl font-bold text-[#002a5c] text-center mt-4">
@@ -303,8 +298,7 @@ export default function PanelComentariosHost({
                       />
                       <div>
                         <strong className="text-black font-semibold">
-                          {nombresUsuarios[comentario.idCalificador]?.nombre || 'Anónimo'}{' '}
-                          {nombresUsuarios[comentario.idCalificador]?.apellido || ''}
+                          {nombresUsuarios[comentario.idCalificador]?.nombreCompleto || 'Anónimo'}{' '}
                         </strong>
                         <div className="text-sm text-gray-500">{fecha}</div>
                       </div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import Estrellas from "@/components/Auto/Estrellas";
+import Estrellas from "@/app/components/Auto/Estrellas";
 
 interface Imagen {
   idImagen: number;
