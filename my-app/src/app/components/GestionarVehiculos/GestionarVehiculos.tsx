@@ -80,20 +80,25 @@ export default function GestionarVehiculos() {
   const [accionActual, setAccionActual] = useState("");
   const [datosMantenimientoTemp, setDatosMantenimientoTemp] = useState<MantenimientoData | null>(null);
   const [mostrarModalComentarios, setMostrarModalComentarios] = useState(false);
-  const [comentarios] = useState<Comentario[]>([
-    {
-      autor: "Maria Rodriguez",
-      fecha: "2024-02-05",
-      puntuacion: 5,
-      contenido: "Increíble experiencia de manejo, muy satisfecha."
-    },
-    {
-      autor: "Juan Perez",
-      fecha: "2024-02-10",
-      puntuacion: 5,
-      contenido: "Gran relación calidad-precio, recomendado."
-    }
-  ]);
+  const [comentarios, setComentarios] = useState<Comentario[]>([]);
+  const [autoSeleccionadoParaComentarios, setAutoSeleccionadoParaComentarios] = useState<number | null>(null);
+
+// función para cargar comentarios desde la API
+const fetchComentarios = async (idAuto: number) => {
+  try {
+    const response = await fetch(`${API_URL}/comentarios/auto/${idAuto}`);
+    if (!response.ok) throw new Error("No se pudieron cargar los comentarios");
+    const data = await response.json();
+    console.log("Comentarios cargados:", data);
+    setComentarios(data);
+    setAutoSeleccionadoParaComentarios(idAuto);
+    setMostrarModalComentarios(true);
+  } catch (error) {
+    console.error("Error al obtener comentarios:", error);
+  }
+};
+
+
 
   const [formData, setFormData] = useState({
     fechaInicio: "",
@@ -462,7 +467,7 @@ export default function GestionarVehiculos() {
         <div className="flex items-center w-full">
         <div className="ml-auto flex gap-2">
           <button
-            onClick={() => setMostrarModalComentarios(true)}
+            onClick={() => fetchComentarios(vehiculo.idAuto)}
             className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
           >
             Ver comentarios
@@ -487,7 +492,7 @@ export default function GestionarVehiculos() {
           </button>
           <div className="ml-auto flex gap-2">
             <button
-              onClick={() => setMostrarModalComentarios(true)}
+              onClick={() => fetchComentarios(vehiculo.idAuto)}
               className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
             >
               Ver comentarios
@@ -513,7 +518,7 @@ export default function GestionarVehiculos() {
           </button>
           <div className="ml-auto flex gap-2">
             <button
-              onClick={() => setMostrarModalComentarios(true)}
+              onClick={() => fetchComentarios(vehiculo.idAuto)}
               className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
             >
               Ver comentarios
@@ -532,7 +537,7 @@ export default function GestionarVehiculos() {
         <div className="flex items-center w-full">
           <div className="ml-auto flex gap-2">
             <button
-              onClick={() => setMostrarModalComentarios(true)}
+              onClick={() => fetchComentarios(vehiculo.idAuto)}
               className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
             >
               Ver comentarios
@@ -557,7 +562,7 @@ export default function GestionarVehiculos() {
           </button>
           <div className="ml-auto flex gap-2">
             <button
-              onClick={() => setMostrarModalComentarios(true)}
+              onClick={() => fetchComentarios(vehiculo.idAuto)}
               className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
             >
               Ver comentarios
@@ -582,7 +587,7 @@ export default function GestionarVehiculos() {
           </button>
           <div className="ml-auto flex gap-2">
             <button
-              onClick={() => setMostrarModalComentarios(true)}
+              onClick={() => fetchComentarios(vehiculo.idAuto)}
               className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
             >
               Ver comentarios
