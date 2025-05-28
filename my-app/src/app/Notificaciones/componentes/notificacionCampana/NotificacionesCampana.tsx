@@ -51,19 +51,15 @@ export function NotificacionesCampana() {
   }, [mostrarPanel]);
 
   const togglePanel = () => {
-    console.log("Toggle panel - Estado previo:", mostrarPanel);
     if (!mostrarPanel) {
-      console.log("Panel abierto - Cargando notificaciones...");
       cargarNotificaciones();
     }
     setMostrarPanel(!mostrarPanel);
   };
 
   const obtenerDetalleNotificacion = async (id: string) => {
-    console.log("Obteniendo detalle para notificación:", id);
     try {
       const respuesta = await api.get(`/notificaciones/detalle-notificacion/${id}?usuarioId=${userId}`);
-      console.log("Detalle obtenido:", respuesta.data);
       return respuesta.data;
     } catch (error) {
       console.error('Error al obtener detalle de notificación:', error);
@@ -72,11 +68,9 @@ export function NotificacionesCampana() {
   };
 
   const handleVerDetalles = async (notificacion: Notificacion) => {
-    console.log("Manejando ver detalles para:", notificacion.id, "Leída:", notificacion.leida);
     try {
       const detalle = await obtenerDetalleNotificacion(notificacion.id);
       if (detalle) {
-        console.log("Detalle recibido, actualizando selectedNotificacion", detalle);
         setSelectedNotificacion(notificacion);
       }
     } catch (error) {
@@ -85,24 +79,15 @@ export function NotificacionesCampana() {
   };
 
   const handleNotificacionClick = async (notificacion: Notificacion) => {
-    console.log("Click en notificación:", notificacion.id, "Estado leída actual:", notificacion.leida);
     setMostrarPanel(false);
-
     try {
       await handleVerDetalles(notificacion);
-
-      if (!userId) {
-        console.error('userId no disponible');
-        return;
-      }
+      if (!userId) return;
 
       if (!notificacion.leida && !isProcessingRead) {
-        console.log("Marcando como leída la notificación:", notificacion.id);
         setIsProcessingRead(true);
-
         try {
           await markAsRead(notificacion.id);
-          console.log("Notificación marcada como leída correctamente");
         } catch (error) {
           console.error('Error al marcar notificación como leída:', error);
         } finally {
@@ -116,19 +101,15 @@ export function NotificacionesCampana() {
   };
 
   const handleCloseModal = () => {
-    console.log("Cerrando modal, recargando notificaciones");
     setSelectedNotificacion(null);
     cargarNotificaciones();
   };
 
   const handleDelete = async (id: string) => {
-    console.log("Eliminando notificación:", id);
     try {
       await api.delete(`/notificaciones/eliminar-notificacion/${id}`, {
         data: { usuarioId: userId },
       });
-
-      console.log("Notificación eliminada, actualizando estado");
       setSelectedNotificacion(null);
       cargarNotificaciones();
     } catch (err) {
@@ -136,7 +117,6 @@ export function NotificacionesCampana() {
     }
   };
 
-  // Función para transformar las notificaciones
   const transformarNotificacion = (item: any): Notificacion => {
     return {
       id: item.id,
@@ -152,36 +132,22 @@ export function NotificacionesCampana() {
     };
   };
 
-  // Efecto para manejar las notificaciones SSE
   useEffect(() => {
     if (notifications && notifications.length > 0) {
       const notisTransformadas = notifications.map(transformarNotificacion);
-      
-      // Si es la primera carga (prevNotificationsRef.current está vacío), solo actualizamos la referencia
       if (prevNotificationsRef.current.length === 0) {
         prevNotificationsRef.current = notisTransformadas;
         return;
       }
-      
-      // Crear un Map con las notificaciones existentes para búsqueda rápida
       const notificacionesExistentes = new Map(prevNotificationsRef.current.map(n => [n.id, n]));
-      
-      // Filtrar solo las notificaciones que realmente son nuevas (no existían antes)
       const nuevas = notisTransformadas.filter(nueva => !notificacionesExistentes.has(nueva.id));
-
-      // Si hay notificaciones nuevas, mostrar el toast solo para la más reciente
       if (nuevas.length > 0) {
-        const notificacionMasReciente = nuevas.reduce((masReciente, actual) => {
-          return new Date(actual.creadoEn) > new Date(masReciente.creadoEn) ? actual : masReciente;
-        });
-        
+        const notificacionMasReciente = nuevas.reduce((masReciente, actual) =>
+          new Date(actual.creadoEn) > new Date(masReciente.creadoEn) ? actual : masReciente
+        );
         setToastNotification(notificacionMasReciente);
-        setTimeout(() => {
-          setToastNotification(null);
-        }, 3000);
+        setTimeout(() => setToastNotification(null), 3000);
       }
-      
-      // Actualizar la referencia de notificaciones anteriores
       prevNotificationsRef.current = notisTransformadas;
     }
   }, [notifications]);
@@ -191,14 +157,17 @@ export function NotificacionesCampana() {
       <div className="relative notificaciones-panel">
         <button
           onClick={togglePanel}
-          className="cursor-pointer relative p-2 rounded-full hover:bg-gray-200 transition-colors"
+          className="relative p-2 rounded-full hover:scale-105 transition-transform hover:bg-gray-100"
           aria-label="Ver notificaciones"
         >
           <BellIcon className="w-6 h-6 text-orange-500" />
           {unreadCount > 0 && (
-            <span className="absolute top-1 right-1 flex items-center justify-center w-4 h-4 text-xs text-white bg-red-500 rounded-full">
-              {unreadCount > 9 ? '9+' : unreadCount}
-            </span>
+            <>
+              <span className="absolute top-1 right-1 flex items-center justify-center w-4 h-4 text-xs text-white bg-red-500 rounded-full z-10">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+              <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-red-500 animate-ping z-0 opacity-75"></span>
+            </>
           )}
           {!isConnected && (
             <span className="absolute bottom-0 right-0 w-2 h-2 bg-yellow-500 rounded-full border border-white"></span>
@@ -206,9 +175,9 @@ export function NotificacionesCampana() {
         </button>
 
         {mostrarPanel && (
-          <div className="absolute right-0 w-80 mt-2 bg-white rounded-md shadow-lg z-40 notificaciones-panel">
-            <div className="p-3 border-b border-gray-200 flex justify-between items-center">
-              <h3 className="text-lg font-medium text-gray-900">Notificaciones</h3>
+          <div className="absolute right-0 w-80 mt-2 bg-white rounded-2xl shadow-2xl z-40 notificaciones-panel transition-all">
+            <div className="p-3 border-b border-gray-200 flex justify-between items-center rounded-t-2xl">
+              <h3 className="text-lg font-semibold text-gray-900">Notificaciones</h3>
               {!isConnected && (
                 <span className="text-xs text-yellow-600 flex items-center">
                   <span className="w-2 h-2 bg-yellow-500 rounded-full mr-1"></span>
@@ -250,8 +219,11 @@ export function NotificacionesCampana() {
               )}
             </div>
 
-            <div className="p-2 border-t border-gray-200">
-              <Link href="/Notificaciones/PanelNotificaciones" className="block w-full text-center text-sm text-blue-600 hover:text-blue-800 p-2">
+            <div className="p-2 border-t border-gray-200 rounded-b-2xl">
+              <Link
+                href="/Notificaciones/PanelNotificaciones"
+                className="block w-full text-center text-sm text-blue-600 hover:text-blue-800 p-2"
+              >
                 Ver todas
               </Link>
             </div>
@@ -298,6 +270,5 @@ function formatDate(dateString: Date | string) {
   const año = fecha.getFullYear();
   const hora = fecha.getHours().toString().padStart(2, '0');
   const minutos = fecha.getMinutes().toString().padStart(2, '0');
-
   return `${dia}/${mes}/${año}, ${hora}:${minutos}`;
 }
