@@ -16,8 +16,16 @@ interface ComentariosModalProps {
   comentarios: Comentario[];
 }
 
-export const VerComentarios: React.FC<ComentariosModalProps> = ({ isOpen, onClose, comentarios }) => {
-  const [orden, setOrden] = useState<"recientes" | "antiguos" | "mayor" | "menor">("recientes");
+export const VerComentarios: React.FC<ComentariosModalProps> = ({
+  isOpen,
+  onClose,
+  comentarios,
+}) => {
+  const [orden, setOrden] = useState<
+    "recientes" | "antiguos" | "mayor" | "menor"
+  >("recientes");
+  const [paginaActual, setPaginaActual] = useState(1);
+  const comentariosPorPagina = 2;
 
   const comentariosOrdenados = [...comentarios].sort((a, b) => {
     switch (orden) {
@@ -34,12 +42,24 @@ export const VerComentarios: React.FC<ComentariosModalProps> = ({ isOpen, onClos
     }
   });
 
+  const totalPaginas = Math.ceil(comentariosOrdenados.length / comentariosPorPagina);
+  const indiceInicio = (paginaActual - 1) * comentariosPorPagina;
+  const comentariosPaginados = comentariosOrdenados.slice(indiceInicio, indiceInicio + comentariosPorPagina);
+
+  const cambiarPagina = (tipo: "anterior" | "siguiente") => {
+    if (tipo === "anterior" && paginaActual > 1) {
+      setPaginaActual(paginaActual - 1);
+    } else if (tipo === "siguiente" && paginaActual < totalPaginas) {
+      setPaginaActual(paginaActual + 1);
+    }
+  };
+
   const renderEstrellas = (puntuacion: number) => {
     return (
       <div className="flex">
         {[...Array(5)].map((_, i) => (
-          <span 
-            key={i} 
+          <span
+            key={i}
             className={i < puntuacion ? "text-yellow-400 text-xl" : "text-gray-300 text-xl"}
           >
             ★
@@ -66,56 +86,84 @@ export const VerComentarios: React.FC<ComentariosModalProps> = ({ isOpen, onClos
             {botones.map(({ label, value }) => (
               <button
                 key={value}
-                onClick={() => setOrden(value as typeof orden)}
+                onClick={() => {
+                  setOrden(value as typeof orden);
+                  setPaginaActual(1); // Reinicia a la página 1 cuando se cambia el orden
+                }}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200
-                  ${orden === value ? "bg-[#e69300] text-white" : "bg-[#11295B] text-white hover:opacity-90 active:bg-[#e69300]"}`}
+                  ${
+                    orden === value
+                      ? "bg-[#e69300] text-white"
+                      : "bg-[#11295B] text-white hover:opacity-90 active:bg-[#e69300]"
+                  }`}
               >
                 {label}
               </button>
             ))}
           </div>
 
-          {comentariosOrdenados.length === 0 ? (
+          {comentariosPaginados.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-gray-500">No hay comentarios disponibles para este vehículo.</p>
             </div>
           ) : (
             <div className="space-y-6">
-              {comentariosOrdenados.map((comentario, index) => (
-                <div 
-                  key={index} 
+              {comentariosPaginados.map((comentario, index) => (
+                <div
+                  key={index}
                   className="bg-white p-4 rounded-lg shadow-sm border border-gray-100"
                 >
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-lg text-[#11295B]">{comentario.autor}</h3>
+                    <h3 className="font-bold text-lg text-[#11295B]">
+                      {comentario.autor}
+                    </h3>
                     <span className="text-sm text-gray-500">
-                      {new Date(comentario.fecha).toLocaleDateString('es-ES', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
+                      {new Date(comentario.fecha).toLocaleDateString("es-ES", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
                       })}
                     </span>
                   </div>
-                  <div className="mb-3">
-                    {renderEstrellas(comentario.puntuacion)}
-                  </div>
+                  <div className="mb-3">{renderEstrellas(comentario.puntuacion)}</div>
                   <p className="text-gray-700">{comentario.contenido}</p>
                 </div>
               ))}
             </div>
           )}
 
-          {/* PAGINACIÓN ESTÁTICA */}
+          {/* Paginación dinámica con estilo corregido */}
           <div className="flex items-center justify-center gap-6 mt-6">
-            <button className="bg-[#11295B] text-white rounded-full w-8 h-8 flex items-center justify-center">
+            <button
+              onClick={() => cambiarPagina("anterior")}
+              disabled={paginaActual === 1}
+              className={`rounded-full w-8 h-8 flex items-center justify-center transition ${
+                paginaActual === 1
+                  ? "bg-gray-300 text-white opacity-50"
+                  : "bg-[#11295B] text-white hover:opacity-90"
+              }`}
+              style={{ cursor: paginaActual === 1 ? "default" : "pointer" }}
+            >
               &lt;
             </button>
-            <span className="text-[#11295B] font-medium">1 / 1</span>
-            <button className="bg-[#11295B] text-white rounded-full w-8 h-8 flex items-center justify-center">
+
+            <span className="text-[#11295B] font-medium">
+              {paginaActual} / {totalPaginas}
+            </span>
+
+            <button
+              onClick={() => cambiarPagina("siguiente")}
+              disabled={paginaActual === totalPaginas}
+              className={`rounded-full w-8 h-8 flex items-center justify-center transition ${
+                paginaActual === totalPaginas
+                  ? "bg-gray-300 text-white opacity-50"
+                  : "bg-[#11295B] text-white hover:opacity-90"
+              }`}
+              style={{ cursor: paginaActual === totalPaginas ? "default" : "pointer" }}
+            >
               &gt;
             </button>
           </div>
-
         </div>
       </Modal>
     </div>
