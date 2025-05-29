@@ -1,8 +1,7 @@
 'use client';
 import { useState, useRef } from 'react';
+import { BASE_URL } from "@/libs/autoServices";
 
-//foto de perfil
-//import { uploadProfilePhoto } from '@/libs/userService';
 import { deleteProfilePhoto } from '@/libs/userService';
 interface Props {
   setImagePreviewUrl: (url: string | null) => void;
@@ -12,13 +11,10 @@ export default function FotoDePerfilEditable({setImagePreviewUrl }: Props) {
 
   const [alertType, setAlertType] = useState<'success' | 'error'>('success');
 
-  
-  // Creamos la referencia para el input file
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  // Al hacer click en el botón, activamos el input
   const handleCambiarFoto = () => {
     if (fileInputRef.current) {
-      fileInputRef.current.click(); // Esto abre el selector de archivos
+      fileInputRef.current.click();
     }
   };
 
@@ -46,7 +42,6 @@ export default function FotoDePerfilEditable({setImagePreviewUrl }: Props) {
     const file = e.target.files?.[0];
   
     if (file) {
-      // Validación rápida: PNG y tamaño
       if (!file.type.includes('png')) {
         setFeedback('Formato de imagen no válido. Usa PNG.');
         setAlertType('error');
@@ -58,17 +53,15 @@ export default function FotoDePerfilEditable({setImagePreviewUrl }: Props) {
         return;
       }
   
-      const previewUrl = URL.createObjectURL(file);
-      setImagePreviewUrl(previewUrl);
+      setImagePreviewUrl(null);
       setFeedback('Subiendo foto...');
   
-      // 👉 Crear FormData para enviar el archivo
       const formData = new FormData();
-      formData.append('foto_perfil', file);
+      formData.append('fotoPerfil', file);
   
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:3001/api/upload-profile-photo', {
+        const response = await fetch(`${BASE_URL}/upload-profile-photo`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`,
@@ -81,6 +74,8 @@ export default function FotoDePerfilEditable({setImagePreviewUrl }: Props) {
         if (response.ok) {
           setFeedback('Foto de perfil actualizada exitosamente.');
           setAlertType('success');
+
+          setImagePreviewUrl(data.foto_perfil);
           console.log('Foto guardada en:', data.foto_perfil);
         } else {
           console.error(data.message);

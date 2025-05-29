@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { BASE_URL } from '@/libs/autoServices';
 
 const CodeVerificationModal = ({
   onClose,
@@ -34,7 +35,7 @@ const CodeVerificationModal = ({
     console.log('🚀 Enviando al backend:', { code });
 
     try {
-      const response = await fetch('http://localhost:3001/api/verify-code', {
+      const response = await fetch(`${BASE_URL}/verify-code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code }),
@@ -50,10 +51,7 @@ const CodeVerificationModal = ({
         setErrorMessage('Has sido bloqueado temporalmente. Intenta nuevamente más tarde.');
         onBlocked?.();
       } else {
-        // Handle other errors
-        //alert(`Error: ${data.message || 'Unknown error occurred.'}`);
         setErrorMessage(data.message || 'Codigo incorrecto. Por favor intenta nuevamente.');
-
       }
       return;
     }

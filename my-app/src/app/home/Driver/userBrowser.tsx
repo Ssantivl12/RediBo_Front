@@ -1,44 +1,28 @@
 "use client";
-import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { debounce } from "lodash";
 import { FiMail, FiPhone, FiSearch, FiPlusCircle, FiX } from "react-icons/fi";
-import NavbarPerfilUsuario from '@/app/components/navbar/NavbarPerfilUsuario';
 import { useRouter } from "next/navigation";
-
-
+import Image from "next/image"
+import { BASE_URL } from "@/libs/autoServices";
 
 interface User {
-  id_usuario: number;
-  nombre_completo: string;
+  idUsuario: number;
+  nombreCompleto: string;
   email: string;
   telefono: string;
-  foto_perfil: string;
+  fotoPerfil: string;
 }
-
-const getUserProfileImage = (fotoPerfil: string | undefined): string => {
-  if (!fotoPerfil) {
-    return "/userIcon.svg";
-  }
-  const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "";
-  return `${baseUrl}${fotoPerfil.startsWith("/") ? "" : "/"}${fotoPerfil}`;
-};
 
 const UserBrowser = () => {
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const router = useRouter();
-  const [fallback, setFallback] = useState(false); 
-
-
-
 
   useEffect(() => {
-    // Imprimir los datos del paso 1
     const datosPaso1 = localStorage.getItem("registroDriverPaso1");
     if (datosPaso1) {
       console.log("📦 Datos del paso 1 recibidos:", JSON.parse(datosPaso1));
@@ -46,16 +30,13 @@ const UserBrowser = () => {
       console.warn("⚠️ No se encontraron datos del paso 1 en localStorage");
     }
   
-    // Cargar usuarios desde backend
-    fetch("http://localhost:3001/api/usuarios/renters")
+    fetch(`${BASE_URL}/api/usuarios/renters`)
       .then((res) => res.json())
       .then((data) => setAllUsers(data))
       .catch((err) => console.error("Error al obtener renters:", err))
       .finally(() => setLoading(false));
   }, []);
   
-
-  // Cargar usuarios seleccionados desde localStorage
   useEffect(() => {
     const stored = localStorage.getItem("selectedRenters");
     if (stored) {
@@ -63,34 +44,33 @@ const UserBrowser = () => {
     }
   }, []);
 
-  // Guardar en localStorage cuando cambie la selección
   useEffect(() => {
     localStorage.setItem("selectedRenters", JSON.stringify(selectedUsers));
   }, [selectedUsers]);
 
-  const debouncedSearch = useCallback(
-    debounce((query) => setSearchQuery(query), 300),
-    []
+  const debouncedSearch = useMemo(
+    () => debounce((query: string) => setSearchQuery(query), 300),
+    [setSearchQuery]
   );
 
   const filteredUsers = useMemo(() => {
     const q = searchQuery.toLowerCase();
     return allUsers.filter(
       (user) =>
-        user.nombre_completo.toLowerCase().includes(q) ||
+        user.nombreCompleto.toLowerCase().includes(q) ||
         user.email.toLowerCase().includes(q) ||
         user.telefono?.toString().includes(q)
     );
   }, [searchQuery, allUsers]);
 
   const handleAddUser = (user: User) => {
-    if (!selectedUsers.find((u) => u.id_usuario === user.id_usuario)) {
+    if (!selectedUsers.find((u) => u.idUsuario === user.idUsuario)) {
       setSelectedUsers([...selectedUsers, user]);
     }
   };
 
   const handleRemoveUser = (id: number) => {
-    setSelectedUsers(selectedUsers.filter((u) => u.id_usuario !== id));
+    setSelectedUsers(selectedUsers.filter((u) => u.idUsuario !== id));
   };
 
   const handleRegisterDriver = async () => {
@@ -98,7 +78,6 @@ const UserBrowser = () => {
       const datosPaso1 = localStorage.getItem("registroDriverPaso1");
       const token = localStorage.getItem("token");
       if (!token) {
-        setError("No se encontró el token de autenticación.");
         setLoading(false);
         return;
       }
@@ -119,7 +98,7 @@ const UserBrowser = () => {
         reversoUrl,
       } = JSON.parse(datosPaso1);
   
-      const res = await fetch("http://localhost:3001/api/registro-driver", {
+      const res = await fetch(`${BASE_URL}/api/registro-driver`, {
         method: "POST",
         headers: { "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,},
@@ -133,7 +112,7 @@ const UserBrowser = () => {
           fecha_vencimiento,
           anversoUrl,
           reversoUrl,
-          rentersIds: selectedUsers.map((u) => u.id_usuario),
+          rentersIds: selectedUsers.map((u) => u.idUsuario),
         }),
       });
       console.log("🔴 Respuesta del backend:", res.status);
@@ -141,25 +120,23 @@ const UserBrowser = () => {
       console.log("🧾 Detalle del error:", errorText);
   
       if (!res.ok) throw new Error("Falló el registro");
-      // ✅ Bandera para activar modal en homePage
       localStorage.setItem("registroExitosoDriver", "true");
-
-      // ✅ Redirección automática
-      router.push("/home/homePage?registroExitoso=1");
-      // setShowSuccessModal(true); 
-      //alert("Driver registrado con éxito ✅");
-
-      //window.location.href = "/home/homePage?success=driver";
-
+      window.dispatchEvent(new Event('authChange'));
+      window.dispatchEvent(new CustomEvent('driverRegistered',{
+        detail: {success: true}
+      }))
   
       setSelectedUsers([]);
       localStorage.removeItem("selectedRenters");
       localStorage.removeItem("registroDriverPaso1");
+      localStorage.setItem('registroDriver', '1');
+      router.push("/home");
     } catch (err) {
       console.error("Error:", err);
       alert("❌ Error al registrar driver");
     }
   };
+
   const scrollLeft = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollBy({ left: -300, behavior: "smooth" });
@@ -171,8 +148,6 @@ const UserBrowser = () => {
       scrollRef.current.scrollBy({ left: 300, behavior: "smooth" });
     }
   };  
-  
-
   
   const UserCard = ({
     user,
@@ -186,27 +161,29 @@ const UserBrowser = () => {
     const [fallback, setFallback] = useState(false);
 
     const profileImageUrl =
-      fallback || !user.foto_perfil
+      fallback || !user.fotoPerfil
         ? "/user-default.svg"
         : `http://localhost:3001${
-            user.foto_perfil.startsWith("/") ? "" : "/"
-          }${user.foto_perfil}`;
+            user.fotoPerfil.startsWith("/") ? "" : "/"
+          }${user.fotoPerfil}`;
 
     return (
       <div
         className="w-65 min-h-fit px-4 py-3 m-3 bg-white rounded-xl border border-gray-300 shadow-sm hover:shadow-md transition duration-300 font-inter justify-between"
       >
         <div className="flex items-center space-x-4">
-          <img
+          <Image
+            width={128}
+            height={128}
             src={profileImageUrl}
-            alt={`Foto de ${user.nombre_completo}`}
+            alt={`Foto de ${user.nombreCompleto}`}
             className="w-12 h-12 rounded-full object-cover border border-gray-200"
             onError={() => setFallback(true)}
           />
 
           <div className="flex-1 min-w-0">
             <h3 className="text-lg font-semibold truncate">
-              {user.nombre_completo}
+              {user.nombreCompleto}
             </h3>
             <div className="text-sm text-gray-600 flex items-center mt-1 truncate">
               <FiMail className="mr-2 shrink-0" />
@@ -245,17 +222,9 @@ const UserBrowser = () => {
     );
   };
 
-
-
-
-
   return (
     
     <div className="min-h-screen bg-white">
-      {/* Navbar fijo */}
-      <div className="fixed top-0 w-full z-50 bg-white shadow-sm border-b border-gray-200">
-        <NavbarPerfilUsuario />
-      </div>
 
       {/* Contenedor principal con margen top suficiente */}
       <div className="max-w-7xl mx-auto pt-25 px-6">
@@ -272,25 +241,6 @@ const UserBrowser = () => {
           />
         </div>
 
-        {/* Lista de cards 
-        {loading ? (
-          <p className="text-center">Cargando usuarios...</p>
-        ) : filteredUsers.length === 0 ? (
-          <p className="text-center text-gray-600">No se encontraron usuarios.</p>
-        ) : (
-          <div className="overflow-x-auto pb-4">
-            <div className="flex space-x-4 w-max">
-              {filteredUsers.map((user) => (
-                <UserCard
-                  key={user.id_usuario}
-                  user={user}
-                  isSelected={selectedUsers.some((u) => u.id_usuario === user.id_usuario)}
-                  onAction={handleAddUser}
-                />
-              ))}
-            </div>
-          </div>
-        )}*/}
 
         {loading ? (
           <p className="text-center">Cargando usuarios...</p>
@@ -318,10 +268,10 @@ const UserBrowser = () => {
               >
                 {filteredUsers.map((user) => (
                   <UserCard
-                    key={user.id_usuario}
+                    key={user.idUsuario}
                     user={user}
                     isSelected={selectedUsers.some(
-                      (u) => u.id_usuario === user.id_usuario
+                      (u) => u.idUsuario === user.idUsuario
                     )}
                     onAction={handleAddUser}
                   />
@@ -362,15 +312,15 @@ const UserBrowser = () => {
               <tbody>
                 {selectedUsers.map((user) => (
                   <tr
-                    key={user.id_usuario}
+                    key={user.idUsuario}
                     className="border-b last:border-0 hover:bg-gray-50 transition"
                   >
-                    <td className="py-2 px-2">{user.nombre_completo}</td>
+                    <td className="py-2 px-2">{user.nombreCompleto}</td>
                     <td className="py-2 px-2">{user.email}</td>
                     <td className="py-2 px-2">{user.telefono}</td>
                     <td className="py-2 px-2 text-center">
                       <button
-                        onClick={() => handleRemoveUser(user.id_usuario)}
+                        onClick={() => handleRemoveUser(user.idUsuario)}
                         className="p-2 rounded-full hover:bg-red-100 text-red-500 transition"
                         title="Eliminar renter"
                       >

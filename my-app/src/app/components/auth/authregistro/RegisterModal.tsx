@@ -1,8 +1,12 @@
 import styles from "./RegisterModal.module.css";
 import { useState } from "react";
-import CompleteProfileModal from "./CompleteProfileModal"; // ajusta si cambia el path
+import CompleteProfileModal from "./CompleteProfileHost";
 import { useEffect } from "react";
+<<<<<<< HEAD
 /* import { useRouter } from 'next/navigation'; */
+=======
+import { BASE_URL } from '@/libs/autoServices';
+>>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
 
 export default function RegisterModal({
   onClose,
@@ -11,6 +15,7 @@ export default function RegisterModal({
   onClose: () => void;
   onLoginClick: () => void;
 }) {
+<<<<<<< HEAD
   const handleGoogleRegister = () => {
     try {
       setLoading(true);
@@ -31,12 +36,32 @@ export default function RegisterModal({
   };
 
   /* Parte de las const*/
+=======
+>>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
   const [welcome, setWelcome] = useState("");
-
   const [showWelcome, setShowWelcome] = useState(false);
-
   const [loading, setLoading] = useState(false);
-
+  const [error, setError] = useState("");
+  const [nameError, setNameError] = useState(false);
+  const [nameMessage, setNameMessage] = useState("");
+  const [emailError, setEmailError] = useState(false);
+  const [emailMessage, setEmailMessage] = useState("");
+  const [passwordError, setPasswordError] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState(false);
+  const [confirmPasswordMessage, setConfirmPasswordMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [birthError, setBirthError] = useState(false);
+  const [birthMessage, setBirthMessage] = useState("");
+  const [phoneError, setPhoneError] = useState(false);
+  const [phoneMessage, setPhoneMessage] = useState("");
+  const [termsError, setTermsError] = useState(false);
+  const [showCompleteProfile, setShowCompleteProfile] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const shouldOpen = localStorage.getItem("openCompleteProfileModal");
+  const params = new URLSearchParams(window.location.search);
+  const googleError = params.get("error");
   const [nameValue, setNameValue] = useState(
     localStorage.getItem("register_name") || ""
   );
@@ -49,10 +74,10 @@ export default function RegisterModal({
   const [confirmPasswordValue, setConfirmPasswordValue] = useState(
     localStorage.getItem("register_confirmPassword") || ""
   );
-
   const [phoneValue, setPhoneValue] = useState(
     localStorage.getItem("register_phone") || ""
   );
+<<<<<<< HEAD
 
   const [error, setError] = useState("");
 
@@ -85,6 +110,11 @@ export default function RegisterModal({
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
+=======
+  const handleGoogleRegister = () => {
+    window.location.href = `${BASE_URL}/api/auth/google`
+  };
+>>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
   const getLabelColor = (hasError: boolean) =>
     hasError ? "#E30000" : "var(--azul-oscuro)";
 
@@ -97,8 +127,8 @@ export default function RegisterModal({
     "@icloud.com",
     "@proton.me",
   ];
-
   useEffect(() => {
+<<<<<<< HEAD
     const params = new URLSearchParams(window.location.search);
 
   const autoLogin = params.get("googleAutoLogin");
@@ -142,11 +172,34 @@ export default function RegisterModal({
   // ✅ CASO 3: modal de perfil
   
   /* if (googleComplete === "true" && shouldOpen === "true") {
+=======
+    const message = localStorage.getItem("welcomeMessage");
+    if (message) {
+      setWelcome(message);
+      setShowWelcome(true);
+      localStorage.removeItem("welcomeMessage");
+      setTimeout(() => {
+        setShowWelcome(false);
+      }, 3000);
+    }
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("error") === "cuentaExistente") {
+      alert(
+        "Este correo ya fue registrado de forma manual. Inicia sesión con tu contraseña."
+      );
+      return;
+    }
+    const googleComplete = window.location.search.includes(
+      "googleComplete=true"
+    );
+    if (googleComplete && shouldOpen === "true") {
+>>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
       setShowCompleteProfile(true);
       localStorage.removeItem("openCompleteProfileModal");
     console.log("🧩 Mostrar modal CompleteProfileModal");
   } */
 
+<<<<<<< HEAD
   // ✅ CASO 4: error de cuenta ya registrada
   const googleError = params.get("error");
   if (googleError === "alreadyExists" || googleError === "cuentaExistente") {
@@ -166,25 +219,30 @@ export default function RegisterModal({
     }
 
     // ✅ Limpieza general
+=======
+    if (googleError === "alreadyExists") {
+      setError("Esta cuenta ya está registrada. Por favor, inicia sesión.");
+      onClose();
+      setTimeout(() => onLoginClick(), 100);
+    }
+>>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
     const url = new URL(window.location.href);
     url.searchParams.delete("googleComplete");
     url.searchParams.delete("error");
     window.history.replaceState({}, document.title, url.toString());
-  }, []);
+  }, [googleError, onClose, onLoginClick, shouldOpen]);
 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
+    setLoading(true);
     const form = e.target as HTMLFormElement;
-
     const name = nameValue.trim();
     const email = emailValue.trim();
     const password = passwordValue.trim();
     const confirmPassword = confirmPasswordValue.trim();
     const phone = phoneValue.trim();
-
     const birthDay = (form.elements.namedItem("birthDay") as HTMLSelectElement)
       .value;
     const birthMonth = (
@@ -193,11 +251,10 @@ export default function RegisterModal({
     const birthYear = (
       form.elements.namedItem("birthYear") as HTMLSelectElement
     ).value;
-
-    //manejo de errores
-
     let hasErrors = false;
+    const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ'’\- ]+$/;
 
+<<<<<<< HEAD
     //validaciones de nombre de usuario
     const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
 
@@ -221,6 +278,26 @@ if (nameValue.trim().length < 3) {
 
     //validaciones de email
 
+=======
+    if (name.length < 3) {
+      setNameError(true);
+      setNameMessage("El nombre debe tener al menos 3 caracteres");
+      hasErrors = true;
+    } else if (name.length > 50) {
+      setNameError(true);
+      setNameMessage("El nombre no puede superar los 50 caracteres");
+      hasErrors = true;
+    } else if (!nameRegex.test(name)) {
+      setNameError(true);
+      setNameMessage(
+        "El nombre solo puede contener letras, tildes, espacios, guiones y apóstrofes"
+      );
+      hasErrors = true;
+    } else {
+      setNameError(false);
+      setNameMessage("");
+    }
+>>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
     const emailDomain = email.slice(email.indexOf("@"));
 
     if (!email.includes("@") || !email.includes(".") || email.length < 5) {
@@ -239,9 +316,6 @@ if (nameValue.trim().length < 3) {
       setEmailError(false);
       setEmailMessage("");
     }
-
-    //validaciones de passwrod
-
     if (password.trim() === "") {
       setPasswordMessage("La contraseña no puede estar vacía");
       setPasswordError(true);
@@ -278,9 +352,6 @@ if (nameValue.trim().length < 3) {
       setPasswordError(false);
       setPasswordMessage("");
     }
-
-    // validacion de Confirmar contraseña
-
     if (confirmPassword.trim() === "") {
       setConfirmPasswordError(true);
       setConfirmPasswordMessage("Debes confirmar la contraseña");
@@ -293,19 +364,15 @@ if (nameValue.trim().length < 3) {
       setConfirmPasswordError(false);
       setConfirmPasswordMessage("");
     }
-
-    /*validacion de fecha*/
     const today = new Date();
     const selectedDate = new Date(
       Number(birthYear),
       Number(birthMonth) - 1,
       Number(birthDay)
     );
-
     const ageDiffMs = today.getTime() - selectedDate.getTime();
     const ageDate = new Date(ageDiffMs);
     const age = Math.abs(ageDate.getUTCFullYear() - 1970);
-
     const invalidBirth =
       !birthDay || !birthMonth || !birthYear || selectedDate > today;
 
@@ -325,8 +392,6 @@ if (nameValue.trim().length < 3) {
       setBirthError(false);
       setBirthMessage("");
     }
-
-    //validacion de telefono
     const cleanPhone = phone.replace(/\D/g, "");
 
     if (!phone) {
@@ -341,14 +406,16 @@ if (nameValue.trim().length < 3) {
       setPhoneMessage("El número debe tener exactamente 8 dígitos");
       hasErrors = true;
     } else {
-      // Si pasa validaciones de formato, ahora verificamos si ya está en uso en BD
       try {
         const phoneCheckResponse = await fetch(
-          "http://localhost:3001/api/check-phone",
+          `${BASE_URL}/api/check-phone`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+<<<<<<< HEAD
             credentials: "include",
+=======
+>>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
             body: JSON.stringify({ telefono: cleanPhone }),
           }
         );
@@ -358,7 +425,7 @@ if (nameValue.trim().length < 3) {
         if (phoneCheckData.exists) {
           setPhoneError(true);
           setPhoneMessage("El número ya está registrado en el sistema.");
-          hasErrors = true; //  Muy importante: detener el submit
+          hasErrors = true;
         } else {
           setPhoneError(false);
           setPhoneMessage("");
@@ -367,8 +434,6 @@ if (nameValue.trim().length < 3) {
         console.error("Error verificando teléfono:", error);
       }
     }
-
-    //validacion de terminos y condiciones
     const terms = (form.elements.namedItem("terms") as HTMLInputElement)
       .checked;
 
@@ -379,9 +444,11 @@ if (nameValue.trim().length < 3) {
       setTermsError(false);
     }
 
-    if (hasErrors) return; // Si hay al menos un error, no continúa
+    if (hasErrors) {
+      setLoading(false);
+      return;
+    }
 
-    /*conexion con back end*/
     try {
       const fechaNacimiento = new Date(
         Number(birthYear),
@@ -390,9 +457,10 @@ if (nameValue.trim().length < 3) {
       ).toISOString();
 
       const user = {
-        nombre_completo: name,
+        nombreCompleto: nameValue.trim(),
         email,
         contraseña: password,
+<<<<<<< HEAD
         fecha_nacimiento: fechaNacimiento,
         telefono: phone ? cleanPhone : null,
       };
@@ -400,6 +468,13 @@ if (nameValue.trim().length < 3) {
       const res = await fetch(
         "http://localhost:3001/api/register",
         {
+=======
+        fechaNacimiento: fechaNacimiento,
+        telefono: phone ? cleanPhone : null,
+      };
+
+      const res = await fetch(`${BASE_URL}/api/register`, {
+>>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -408,15 +483,13 @@ if (nameValue.trim().length < 3) {
     );
 
       if (res.ok) {
-        /* alert("¡Usuario registrado con éxito!"); */
-        setShowSuccessModal(true); // ✅ Mostrar el modal
+        setShowSuccessModal(true);
         localStorage.removeItem("register_name");
         localStorage.removeItem("register_email");
         localStorage.removeItem("register_password");
         localStorage.removeItem("register_confirmPassword");
         localStorage.removeItem("register_phone");
         form.reset();
-        /* onClose(); */
       } else {
         const data = await res.json();
         setError(
@@ -426,10 +499,14 @@ if (nameValue.trim().length < 3) {
     } catch (error) {
       console.error(error);
       setError("No se pudo conectar al servidor.");
+    } finally {
+      setLoading(false);
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
   };
-
   return (
     <div className={styles.overlay}>
       {showCompleteProfile && (
@@ -450,9 +527,8 @@ if (nameValue.trim().length < 3) {
           <div className={styles.modal}>
             {showWelcome && (
               <div
-                className={`${styles.welcomeMessage} ${
-                  !showWelcome ? styles.fadeOut : ""
-                }`}
+                className={`${styles.welcomeMessage} ${!showWelcome ? styles.fadeOut : ""
+                  }`}
               >
                 {welcome}
               </div>
@@ -514,17 +590,15 @@ if (nameValue.trim().length < 3) {
             <form onSubmit={handleSubmit} className={styles.form}>
               {/* campo nombre */}
               <div
-                className={`${styles.halfInput} ${
-                  nameError ? styles.errorInput : ""
-                }`}
+                className={`${styles.halfInput} ${nameError ? styles.errorInput : ""
+                  }`}
               >
                 <svg
                   fill="currentColor"
                   viewBox="0 0 24 24"
                   xmlns="http://www.w3.org/2000/svg"
-                  className={`${styles.uIcon} ${
-                    nameError ? styles.errorIcon : ""
-                  }`}
+                  className={`${styles.uIcon} ${nameError ? styles.errorIcon : ""
+                    }`}
                 >
                   <path
                     fillRule="evenodd"
@@ -538,7 +612,11 @@ if (nameValue.trim().length < 3) {
                     htmlFor="name"
                     style={{ color: getLabelColor(passwordError) }}
                   >
+<<<<<<< HEAD
                     {nameError ? "Nombre completo" : "Nombre completo"}
+=======
+                    {nameError ? "Nombre" : "Nombre"}
+>>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
                   </label>
 
                   <input
@@ -546,38 +624,23 @@ if (nameValue.trim().length < 3) {
                     id="name"
                     name="name"
                     value={nameValue}
+                    onChange={(e) => {
+                      setNameValue(e.target.value);
+                      localStorage.setItem("register_name", e.target.value);
+                    }}
                     maxLength={50}
                     placeholder={
                       nameError
                         ? "El campo no puede estar vacío"
-                        : "Nombre completo"
+                        : "Nombre"
                     }
-                    className={`${styles.input} ${
-                      nameError ? styles.errorInput : ""
-                    }`}
-                    onChange={(e) => {
-                      const input = e.target.value;
-                      const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/;
-
-                      if (regex.test(input) || input === "") {
-                        setNameValue(input);
-                        localStorage.setItem("register_name", input);
-                      }
-                    }}
-                    onKeyDown={(e) => {
-                      if (/\d/.test(e.key)) {
-                        e.preventDefault(); // Bloquea ingreso de números
-                      }
-                    }}
-                    onPaste={(e) => {
-                      const paste = e.clipboardData.getData("text");
-                      if (/\d/.test(paste)) {
-                        e.preventDefault(); // Bloquea pegado de números
-                      }
-                    }}
-                    required
+                    className={`${styles.input} ${nameError ? styles.errorInput : ""
+                      }`}
                   />
+<<<<<<< HEAD
                   
+=======
+>>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
                   {nameError && nameMessage && (
                     <p
                       style={{
@@ -594,17 +657,15 @@ if (nameValue.trim().length < 3) {
 
               {/*campo email correo electronico*/}
               <div
-                className={`${styles.halfInput} ${
-                  emailError ? styles.errorInput : ""
-                }`}
+                className={`${styles.halfInput} ${emailError ? styles.errorInput : ""
+                  }`}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
                   fill="currentColor"
-                  className={`${styles.eicon} ${
-                    emailError ? styles.errorIcon : ""
-                  }`}
+                  className={`${styles.eicon} ${emailError ? styles.errorIcon : ""
+                    }`}
                 >
                   <path d="M1.5 8.67v8.58a3 3 0 0 0 3 3h15a3 3 0 0 0 3-3V8.67l-8.928 5.493a3 3 0 0 1-3.144 0L1.5 8.67Z" />
                   <path d="M22.5 6.908V6.75a3 3 0 0 0-3-3h-15a3 3 0 0 0-3 3v.158l9.714 5.978a1.5 1.5 0 0 0 1.572 0L22.5 6.908Z" />
@@ -630,9 +691,8 @@ if (nameValue.trim().length < 3) {
                     placeholder={
                       emailError ? "Correo inválido" : "Correo electrónico"
                     }
-                    className={`${styles.input} ${
-                      emailError ? styles.errorInput : ""
-                    }`}
+                    className={`${styles.input} ${emailError ? styles.errorInput : ""
+                      }`}
                   />
 
                   {emailError && emailMessage && (
@@ -652,9 +712,8 @@ if (nameValue.trim().length < 3) {
               {/* campo password */}
               <div className={styles.passwordRow}>
                 <div
-                  className={`${styles.halfInputC1} ${
-                    passwordError ? styles.errorInput : ""
-                  }`}
+                  className={`${styles.halfInputC1} ${passwordError ? styles.errorInput : ""
+                    }`}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -662,9 +721,8 @@ if (nameValue.trim().length < 3) {
                     height="24"
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    className={`${styles.iconollave} ${
-                      passwordError ? styles.errorIcon : ""
-                    }`}
+                    className={`${styles.iconollave} ${passwordError ? styles.errorIcon : ""
+                      }`}
                   >
                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                     <path d="M14.52 2c1.029 0 2.015 .409 2.742 1.136l3.602 3.602a3.877 3.877 0 0 1 0 5.483l-2.643 2.643a3.88 3.88 0 0 1 -4.941 .452l-.105 -.078l-5.882 5.883a3 3 0 0 1 -1.68 .843l-.22 .027l-.221 .009h-1.172c-1.014 0 -1.867 -.759 -1.991 -1.823l-.009 -.177v-1.172c0 -.704 .248 -1.386 .73 -1.96l.149 -.161l.414 -.414a1 1 0 0 1 .707 -.293h1v-1a1 1 0 0 1 .883 -.993l.117 -.007h1v-1a1 1 0 0 1 .206 -.608l.087 -.1l1.468 -1.469l-.076 -.103a3.9 3.9 0 0 1 -.678 -1.963l-.007 -.236c0 -1.029 .409 -2.015 1.136 -2.742l2.643 -2.643a3.88 3.88 0 0 1 2.741 -1.136m.495 5h-.02a2 2 0 1 0 0 4h.02a2 2 0 1 0 0 -4" />
@@ -691,9 +749,8 @@ if (nameValue.trim().length < 3) {
                       placeholder={
                         passwordError ? "contraseña inválida" : "Contraseña"
                       }
-                      className={`${styles.input2} ${
-                        passwordError ? styles.errorInput : ""
-                      }`}
+                      className={`${styles.input2} ${passwordError ? styles.errorInput : ""
+                        }`}
                     />
                     {passwordError && (
                       <p
@@ -714,9 +771,8 @@ if (nameValue.trim().length < 3) {
                     viewBox="0 0 24 24"
                     fill="currentColor"
                     style={{ cursor: "pointer" }}
-                    className={`${styles.ojito} ${
-                      passwordError ? styles.errorIcon : ""
-                    }`}
+                    className={`${styles.ojito} ${passwordError ? styles.errorIcon : ""
+                      }`}
                   >
                     <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
                     <path
@@ -729,9 +785,8 @@ if (nameValue.trim().length < 3) {
 
                 {/* campo confirmar contraseña */}
                 <div
-                  className={`${styles.halfInputC2} ${
-                    confirmPasswordError ? styles.errorInput : ""
-                  }`}
+                  className={`${styles.halfInputC2} ${confirmPasswordError ? styles.errorInput : ""
+                    }`}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -739,9 +794,8 @@ if (nameValue.trim().length < 3) {
                     height="24"
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    className={`${styles.iconollave} ${
-                      confirmPasswordError ? styles.errorIcon : ""
-                    }`}
+                    className={`${styles.iconollave} ${confirmPasswordError ? styles.errorIcon : ""
+                      }`}
                   >
                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                     <path d="M14.52 2c1.029 0 2.015 .409 2.742 1.136l3.602 3.602a3.877 3.877 0 0 1 0 5.483l-2.643 2.643a3.88 3.88 0 0 1 -4.941 .452l-.105 -.078l-5.882 5.883a3 3 0 0 1 -1.68 .843l-.22 .027l-.221 .009h-1.172c-1.014 0 -1.867 -.759 -1.991 -1.823l-.009 -.177v-1.172c0 -.704 .248 -1.386 .73 -1.96l.149 -.161l.414 -.414a1 1 0 0 1 .707 -.293h1v-1a1 1 0 0 1 .883 -.993l.117 -.007h1v-1a1 1 0 0 1 .206 -.608l.087 -.1l1.468 -1.469l-.076 -.103a3.9 3.9 0 0 1 -.678 -1.963l-.007 -.236c0 -1.029 .409 -2.015 1.136 -2.742l2.643 -2.643a3.88 3.88 0 0 1 2.741 -1.136m.495 5h-.02a2 2 0 1 0 0 4h.02a2 2 0 1 0 0 -4" />
@@ -772,9 +826,8 @@ if (nameValue.trim().length < 3) {
                           ? "contraseña invalida"
                           : "Confirme su contraseña"
                       }
-                      className={`${styles.input2} ${
-                        confirmPasswordError ? styles.errorInput : ""
-                      }`}
+                      className={`${styles.input2} ${confirmPasswordError ? styles.errorInput : ""
+                        }`}
                     />
                     {confirmPasswordError && (
                       <p
@@ -795,9 +848,8 @@ if (nameValue.trim().length < 3) {
                     viewBox="0 0 24 24"
                     fill="currentColor"
                     style={{ cursor: "pointer" }}
-                    className={`${styles.ojito} ${
-                      confirmPasswordError ? styles.errorIcon : ""
-                    }`}
+                    className={`${styles.ojito} ${confirmPasswordError ? styles.errorIcon : ""
+                      }`}
                   >
                     <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
                     <path
@@ -810,17 +862,15 @@ if (nameValue.trim().length < 3) {
               </div>
 
               <div
-                className={`${styles.halfInput} ${
-                  birthError ? styles.errorInput : ""
-                }`}
+                className={`${styles.halfInput} ${birthError ? styles.errorInput : ""
+                  }`}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
                   fill="currentColor"
-                  className={`${styles.cIcon} ${
-                    birthError ? styles.errorIcon : ""
-                  }`}
+                  className={`${styles.cIcon} ${birthError ? styles.errorIcon : ""
+                    }`}
                 >
                   <path
                     fillRule="evenodd"
@@ -838,9 +888,8 @@ if (nameValue.trim().length < 3) {
                   <div className={styles.birthInputs}>
                     <select
                       name="birthDay"
-                      className={`${styles.select} ${
-                        birthError ? styles.errorInput : ""
-                      }`}
+                      className={`${styles.select} ${birthError ? styles.errorInput : ""
+                        }`}
                     >
                       <option value="">DD</option>
                       {[...Array(31)].map((_, i) => (
@@ -851,9 +900,8 @@ if (nameValue.trim().length < 3) {
                     </select>
                     <select
                       name="birthMonth"
-                      className={`${styles.select} ${
-                        birthError ? styles.errorInput : ""
-                      }`}
+                      className={`${styles.select} ${birthError ? styles.errorInput : ""
+                        }`}
                     >
                       <option value="">MM</option>
                       {[...Array(12)].map((_, i) => (
@@ -864,9 +912,8 @@ if (nameValue.trim().length < 3) {
                     </select>
                     <select
                       name="birthYear"
-                      className={`${styles.select} ${
-                        birthError ? styles.errorInput : ""
-                      }`}
+                      className={`${styles.select} ${birthError ? styles.errorInput : ""
+                        }`}
                     >
                       <option value="">AAAA</option>
                       {[...Array(100)].map((_, i) => {
@@ -895,17 +942,15 @@ if (nameValue.trim().length < 3) {
 
               {/* campo teléfono */}
               <div
-                className={`${styles.halfInput} ${
-                  phoneError ? styles.errorInput : ""
-                }`}
+                className={`${styles.halfInput} ${phoneError ? styles.errorInput : ""
+                  }`}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
                   fill="currentColor"
-                  className={`${styles.tIcon} ${
-                    phoneError ? styles.errorIcon : ""
-                  }`}
+                  className={`${styles.tIcon} ${phoneError ? styles.errorIcon : ""
+                    }`}
                 >
                   <path
                     fillRule="evenodd"
@@ -944,9 +989,8 @@ if (nameValue.trim().length < 3) {
                         ? "Número inválido"
                         : "Ingrese número de teléfono"
                     }
-                    className={`${styles.input3} ${
-                      phoneError ? styles.errorInput : ""
-                    }`}
+                    className={`${styles.input3} ${phoneError ? styles.errorInput : ""
+                      }`}
                   />
                 </div>
 
@@ -992,12 +1036,10 @@ if (nameValue.trim().length < 3) {
               {error && (
                 <p style={{ color: "red", marginBottom: "1rem" }}>{error}</p>
               )}
-
               {/* boton registrarse */}
               <button type="submit" className={styles.button}>
                 Registrarse
               </button>
-
               {/* campo inicio de sesion */}
               <p
                 style={{
@@ -1040,9 +1082,14 @@ if (nameValue.trim().length < 3) {
             <button
               onClick={() => {
                 setShowSuccessModal(false);
+<<<<<<< HEAD
                 onClose(); // Cierra el modal de registro
                 setTimeout(() =>  window.location.href = "/", 100); 
                 /* onClose(); */
+=======
+                onClose();
+                setTimeout(() => onLoginClick(), 100);
+>>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
               }}
               className={styles.successButton}
             >

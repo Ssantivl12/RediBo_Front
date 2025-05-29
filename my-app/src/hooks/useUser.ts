@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react';
+import { BASE_URL } from "@/libs/autoServices";
 
 interface User {
-  id_usuario: number;
-  nombre_completo: string;
+  idUsuario: number;
+  nombreCompleto: string;
   email: string;
-  telefono?: number;
-  fecha_nacimiento?: string;
-  foto_perfil?: string;
-  ediciones_nombre: number; // 👈 AÑADIR ESTO
-  ediciones_telefono: number;
-  ediciones_fecha: number;
+  telefono?: string;
+  fechaNacimiento?: string;
+  fotoPerfil?: string;
+  edicionesNombre: number; // 👈 AÑADIR ESTO
+  edicionesTelefono: number;
+  edicionesFecha: number;
 
   driverBool: boolean;
   host: boolean
@@ -24,7 +25,7 @@ export const useUser = () => {
       if (!token) return;
 
       try {
-        const res = await fetch('http://localhost:3001/api/me', {
+        const res = await fetch(`${BASE_URL}/api/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

@@ -2,13 +2,14 @@
 
 import React, { useState, useRef } from "react";
 import { X, Upload } from "lucide-react";
+import Image from "next/image"
 
 interface Props {
   onNext: (data: {
     placa: string;
     soat: string;
     imagenes: File[];
-    id_vehiculo: number;
+    idAuto: number;
   }) => void;
   onClose: () => void;
 }
@@ -184,21 +185,18 @@ const VehicleDataModal: React.FC<Props> = ({ onNext, onClose }) => {
 
     onNext({
       placa, soat, imagenes,
-      id_vehiculo: 0
+      idAuto: 0
     });
   };
 
-  // Función para manejar los cambios en el campo de placa con formato específico
   const handlePlacaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = e.target.value.toUpperCase();
     
-    // Permitir solo números en los primeros 4 caracteres
     if (valor.length <= 4) {
       if (/^\d*$/.test(valor)) {
         validarYActualizarPlaca(valor);
       }
     } 
-    // Permitir solo letras en los siguientes 3 caracteres
     else if (valor.length <= 7) {
       const numeros = valor.substring(0, 4);
       const letras = valor.substring(4).replace(/[^A-Z]/g, '');
@@ -206,10 +204,9 @@ const VehicleDataModal: React.FC<Props> = ({ onNext, onClose }) => {
     }
   };
   
-  // Función para manejar los cambios en el campo de SOAT permitiendo solo números
   const handleSoatChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = e.target.value;
-    const valorFiltrado = valor.replace(/\D/g, ''); // Solo permite dígitos
+    const valorFiltrado = valor.replace(/\D/g, '');
     validarYActualizarSOAT(valorFiltrado);
   };
 
@@ -228,7 +225,7 @@ const VehicleDataModal: React.FC<Props> = ({ onNext, onClose }) => {
         {/* Campo Placa */}
         <div className="mb-4">
           <div className="relative flex items-center">
-            <img src="/placa.svg" alt="icono placa" className="absolute left-3 w-6 h-6" />
+            <Image src="/placa.svg" width={100} height={100} alt="icono placa" className="absolute left-3 w-6 h-6" />
             <input
               type="text"
               placeholder="Placa (ej. 1234ABC)"
@@ -251,7 +248,7 @@ const VehicleDataModal: React.FC<Props> = ({ onNext, onClose }) => {
         {/* Campo SOAT */}
         <div className="mb-4">
           <div className="relative flex items-center">
-            <img src="/seguro.svg" alt="icono seguro" className="absolute left-3 w-6 h-6" />
+            <Image src="/seguro.svg" width={100} height={100} alt="icono seguro" className="absolute left-3 w-6 h-6" />
             <input
               type="text"
               inputMode="numeric" 
@@ -314,7 +311,9 @@ const VehicleDataModal: React.FC<Props> = ({ onNext, onClose }) => {
                 const src = URL.createObjectURL(img);
                 return (
                   <div key={`${idx}-${img.name}`} className="relative w-20 h-20">
-                    <img
+                    <Image
+                      width={250}
+                      height={250}
                       src={src}
                       alt={`imagen-${idx}`}
                       onClick={() => setPreviewImg(src)}
@@ -359,7 +358,9 @@ const VehicleDataModal: React.FC<Props> = ({ onNext, onClose }) => {
           onClick={() => setPreviewImg(null)}
         >
           <div className="relative max-w-3xl w-full mx-4">
-            <img
+            <Image
+              width={250}
+              height={250}
               src={previewImg}
               alt="Previsualización"
               className="w-full h-auto rounded-xl shadow-xl"

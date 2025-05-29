@@ -2,11 +2,12 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { X, CreditCard, QrCode, DollarSign } from "lucide-react";
+import Image from "next/image"
 
 interface Props {
   onClose: () => Promise<void>;
   onNext: (data: {
-    tipo: "card" | "qr" | "cash";
+    tipo: "TARJETA_DEBITO" | "QR" | "EFECTIVO";
     cardNumber?: string;
     expiration?: string;
     cvv?: string;
@@ -17,7 +18,7 @@ interface Props {
 }
 
 export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
-  const [selectedOption, setSelectedOption] = useState<"card" | "qr" | "cash" | null>(null);
+  const [selectedOption, setSelectedOption] = useState<"TARJETA_DEBITO" | "QR" | "EFECTIVO" | null>(null);
   const [cardNumber, setCardNumber] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [cvv, setCvv] = useState("");
@@ -29,33 +30,31 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  const currentYear = new Date().getFullYear();
 
   // Validación en tiempo real para cada campo cuando cambia
   useEffect(() => {
-    if (selectedOption === "card" && touched.cardNumber) {
+    if (selectedOption === "TARJETA_DEBITO" && touched.cardNumber) {
       validateCardNumber(cardNumber);
     }
-  }, [cardNumber, touched.cardNumber]);
+  }, [cardNumber, touched.cardNumber, selectedOption]);
 
   useEffect(() => {
-    if (selectedOption === "card" && touched.expiryDate) {
+    if (selectedOption === "TARJETA_DEBITO" && touched.expiryDate) {
       validateExpiryDate(expiryDate);
     }
-  }, [expiryDate, touched.expiryDate]);
+  }, [expiryDate, touched.expiryDate, selectedOption]);
 
   useEffect(() => {
-    if (selectedOption === "card" && touched.cvv) {
+    if (selectedOption === "TARJETA_DEBITO" && touched.cvv) {
       validateCVV(cvv);
     }
-  }, [cvv, touched.cvv]);
+  }, [cvv, touched.cvv, selectedOption]);
 
   useEffect(() => {
-    if (selectedOption === "card" && touched.cardHolder) {
+    if (selectedOption === "TARJETA_DEBITO" && touched.cardHolder) {
       validateCardHolder(cardHolder);
     }
-  }, [cardHolder, touched.cardHolder]);
+  }, [cardHolder, touched.cardHolder, selectedOption]);
 
   // Funciones de validación individuales
   const validateCardNumber = (value: string) => {
@@ -242,7 +241,7 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
   // Validación completa antes de enviar
   const validate = () => {
     let isValid = true;
-    let newErrors: Record<string, string> = {};
+    const newErrors: Record<string, string> = {};
 
     if (!termsAccepted) {
       newErrors.terms = "Debes aceptar los términos";
@@ -254,7 +253,7 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
       isValid = false;
     }
 
-    if (selectedOption === "card") {
+    if (selectedOption === "TARJETA_DEBITO") {
       // Marcar todos los campos como tocados para mostrar todos los errores
       setTouched({
         cardNumber: true,
@@ -269,7 +268,7 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
       const isCardHolderValid = validateCardHolder(cardHolder);
       
       isValid = isCardNumberValid && isExpiryDateValid && isCVVValid && isCardHolderValid && termsAccepted;
-    } else if (selectedOption === "qr") {
+    } else if (selectedOption === "QR") {
       if (!qrImage) {
         setErrors(prev => ({ ...prev, qrImage: "Debes subir una imagen QR" }));
         isValid = false;
@@ -277,7 +276,7 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
         setErrors(prev => ({ ...prev, qrImage: "Formato inválido. Solo .jpg, .jpeg o .png" }));
         isValid = false;
       }
-    } else if (selectedOption === "cash") {
+    } else if (selectedOption === "EFECTIVO") {
       if (!cashDetail.trim()) {
         setErrors(prev => ({ ...prev, cashDetail: "Debes proporcionar una descripción para el efectivo" }));
         isValid = false;
@@ -295,22 +294,22 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
   const handleSubmit = () => {
     if (!validate()) return;
 
-    if (selectedOption === "card") {
+    if (selectedOption === "TARJETA_DEBITO") {
       onNext({
-        tipo: "card",
+        tipo: "TARJETA_DEBITO",
         cardNumber,
         expiration: expiryDate,
         cvv,
         cardHolder,
       });
-    } else if (selectedOption === "qr") {
+    } else if (selectedOption === "QR") {
       onNext({
-        tipo: "qr",
+        tipo: "QR",
         qrImage,
       });
-    } else if (selectedOption === "cash") {
+    } else if (selectedOption === "EFECTIVO") {
       onNext({
-        tipo: "cash",
+        tipo: "EFECTIVO",
         efectivoDetalle: cashDetail,
       });
     }
@@ -384,12 +383,12 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
 
         <div className="space-y-6">
           {/* TARJETA */}
-          <div className={`rounded-xl shadow-md border-[1.5px] ${selectedOption === "card" ? "border-[#11295B]" : "border-gray-300"}`}>
-            <div className="flex items-center pl-4 py-3 border-b cursor-pointer" onClick={() => setSelectedOption("card")}> 
-              <input type="radio" checked={selectedOption === "card"} readOnly className="mr-2 accent-[#11295B]" />
+          <div className={`rounded-xl shadow-md border-[1.5px] ${selectedOption === "TARJETA_DEBITO" ? "border-[#11295B]" : "border-gray-300"}`}>
+            <div className="flex items-center pl-4 py-3 border-b cursor-pointer" onClick={() => setSelectedOption("TARJETA_DEBITO")}> 
+              <input type="radio" checked={selectedOption === "TARJETA_DEBITO"} readOnly className="mr-2 accent-[#11295B]" />
               <label className="text-sm font-medium flex items-center"><CreditCard size={16} className="mr-1" /> Número de tarjeta</label>
             </div>
-            {selectedOption === "card" && (
+            {selectedOption === "TARJETA_DEBITO" && (
               <div className="p-4 space-y-3">
                 <div>
                   <input 
@@ -449,18 +448,18 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
           </div>
 
           {/* QR */}
-          <div className={`rounded-xl shadow-md border-[1.5px] ${selectedOption === "qr" ? "border-[#11295B]" : "border-gray-300"}`}>
+          <div className={`rounded-xl shadow-md border-[1.5px] ${selectedOption === "QR" ? "border-[#11295B]" : "border-gray-300"}`}>
             <div
               className="flex items-center pl-4 py-3 border-b cursor-pointer"
-              onClick={() => setSelectedOption("qr")}
+              onClick={() => setSelectedOption("QR")}
             >
-              <input type="radio" checked={selectedOption === "qr"} readOnly className="mr-2 accent-[#11295B]" />
+              <input type="radio" checked={selectedOption === "QR"} readOnly className="mr-2 accent-[#11295B]" />
               <label className="text-sm font-medium flex items-center">
                 <QrCode size={16} className="mr-1" /> Imagen de QR
               </label>
             </div>
 
-            {selectedOption === "qr" && (
+            {selectedOption === "QR" && (
               <div className="p-4">
                 <label className="block font-semibold mb-1 text-[#11295B]">Imagen QR</label>
                 <p className="text-sm text-gray-600 mb-2">Asegúrate que el código sea legible</p>
@@ -475,7 +474,7 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
                 >
                   {previewImg ? (
                     <>
-                      <img src={previewImg} alt="QR" className="w-full h-full object-contain rounded" />
+                      <Image src={previewImg} width={250} height={250} alt="QR" className="w-full h-full object-contain rounded" />
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -510,12 +509,12 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
           </div>
 
           {/* EFECTIVO */}
-          <div className={`rounded-xl shadow-md border-[1.5px] ${selectedOption === "cash" ? "border-[#11295B]" : "border-gray-300"}`}>
-            <div className="flex items-center pl-4 py-3 border-b cursor-pointer" onClick={() => setSelectedOption("cash")}> 
-              <input type="radio" checked={selectedOption === "cash"} readOnly className="mr-2 accent-[#11295B]" />
+          <div className={`rounded-xl shadow-md border-[1.5px] ${selectedOption === "EFECTIVO" ? "border-[#11295B]" : "border-gray-300"}`}>
+            <div className="flex items-center pl-4 py-3 border-b cursor-pointer" onClick={() => setSelectedOption("EFECTIVO")}> 
+              <input type="radio" checked={selectedOption === "EFECTIVO"} readOnly className="mr-2 accent-[#11295B]" />
               <label className="text-sm font-medium flex items-center"><DollarSign size={16} className="mr-1" /> Dinero efectivo</label>
             </div>
-            {selectedOption === "cash" && (
+            {selectedOption === "EFECTIVO" && (
               <div className="p-4">
                 <textarea 
                   value={cashDetail} 

@@ -1,8 +1,9 @@
 'use client';
 
+import { BASE_URL } from '@/libs/autoServices';
 import { useState } from 'react';
 
-const validDomains = ['@gmail.com', '@hotmail.com', '@outlook.com', '@yahoo.com']; // <-- Aquí defines los dominios válidos
+const validDomains = ['@gmail.com', '@hotmail.com', '@outlook.com', '@yahoo.com'];
 
 const PasswordRecoveryModal = ({
   onClose,
@@ -45,7 +46,7 @@ const PasswordRecoveryModal = ({
     }
 
     try {
-      const response = await fetch('http://localhost:3001/api/recover-password', {
+      const response = await fetch(`${BASE_URL}/api/recover-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

@@ -1,12 +1,14 @@
 // libs/userService.ts
+import { BASE_URL } from "@/libs/autoServices";
+
 export const updateUserField = async (campo: string, valor: string) => {
     const token = localStorage.getItem("token");
   
-    const res = await fetch("http://localhost:3001/api/user/update", {
+    const res = await fetch(`${BASE_URL}/api/user/update`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // asegúrate que sea Bearer
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ campo, valor }),
     });
@@ -23,7 +25,7 @@ export const updateUserField = async (campo: string, valor: string) => {
     const formData = new FormData();
     formData.append('foto_perfil', file); // el mismo nombre que usa multer 👈
   
-    const res = await fetch('http://localhost:3001/api/upload-profile-photo', {
+    const res = await fetch(`${BASE_URL}/api/upload-profile-photo`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -42,7 +44,7 @@ export const updateUserField = async (campo: string, valor: string) => {
   export const deleteProfilePhoto = async () => {
     const token = localStorage.getItem('token');
   
-    const res = await fetch('http://localhost:3001/api/delete-profile-photo', {
+    const res = await fetch(`${BASE_URL}/api/delete-profile-photo`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${token}`,

@@ -1,4 +1,6 @@
 import UserPerfilDriver from './UserPerfilDriver';
 
-export default UserPerfilDriver;
 
+export default function Page() {
+  return <UserPerfilDriver />;
+}

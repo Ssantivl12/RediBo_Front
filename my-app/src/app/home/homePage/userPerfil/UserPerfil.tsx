@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 
 import Inputlabel from "@/app/components/input/Inputlabel";
-import NavbarPerfilUsuario from "@/app/components/navbar/NavbarPerfilUsuario";
 import Button from "@/app/components/botons/botons";
 import FotoDePerfilEditable from "@/app/components/input/FotoDePerfilEditable";
 import NombreEditable from "@/app/components/input/NombreEditable";
@@ -12,27 +11,25 @@ import PerfilIcon from "@/app/components/Icons/Perfil";
 import FechaNacimientoEditable from "@/app/components/input/FechaNacimientoEditable";
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/hooks/useUser';
+import Image from "next/image"
 
 export default function UserPerfilPage() {
   const user = useUser();
   const router = useRouter();
 
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
-
-  const [campoEnEdicion, setCampoEnEdicion] = useState<string | null>(null); // 👈 NUEVO
-
+  const [campoEnEdicion, setCampoEnEdicion] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user?.foto_perfil) {
-      setImagePreviewUrl(`http://localhost:3001${user.foto_perfil}`);
-      console.log('✅ Foto cargada:', `http://localhost:3001${user.foto_perfil}`);
+    if (user?.fotoPerfil) {
+      setImagePreviewUrl(user.fotoPerfil);
     }
   }, [user]);
+  
   if (!user) return null;
+  
   return (
     <>
-      <NavbarPerfilUsuario />
-
       <div className="border-b border-gray-300"></div>
 
       <main className="min-h-screen bg-white text-gray-900 flex justify-center px-4 sm:px-8 lg:px-12 py-8">
@@ -41,10 +38,13 @@ export default function UserPerfilPage() {
           <div className="flex flex-col justify-center md:justify-start w-full md:w-1/3 items-center">
             <div className='border-2 rounded-3xl'>
               {imagePreviewUrl ? (
-                <img
+                <Image
                   src={imagePreviewUrl}
                   alt="Foto de perfil"
+                  width={128}
+                  height={128}
                   className="w-34 h-34 object-cover rounded-3xl"
+                  priority
                 />
               ) : (
                 <PerfilIcon className="w-32 h-32 text-black" />
@@ -65,10 +65,10 @@ export default function UserPerfilPage() {
               {/* Input Nombre */}
               {user && (
                 <NombreEditable
-                  initialValue={user.nombre_completo}
-                  campoEnEdicion={campoEnEdicion} // 👈 NUEVO
-                  setCampoEnEdicion={setCampoEnEdicion} // 👈 NUEVO
-                  edicionesUsadas={user.ediciones_nombre || 0}
+                  initialValue={user.nombreCompleto}
+                  campoEnEdicion={campoEnEdicion}
+                  setCampoEnEdicion={setCampoEnEdicion}
+                  edicionesUsadas={user.edicionesNombre || 0}
                 />
               )}
 
@@ -86,24 +86,24 @@ export default function UserPerfilPage() {
               {/* Inputs de Fecha y Teléfono */}
               <div className="flex flex-row gap-x-4">
                 <div className="flex-grow">
-                {user && (
-                  <FechaNacimientoEditable
-                  initialValue={user.fecha_nacimiento?.split("T")[0] || ""}
-                  campoEnEdicion={campoEnEdicion}
-                  setCampoEnEdicion={setCampoEnEdicion}
-                  setFechaVisual={(nuevaFecha) => user.fecha_nacimiento = nuevaFecha}
-                  edicionesUsadas={user.ediciones_fecha || 0} // ✅ CORRECTO
-                  />
-                )}
+                  {user && (
+                    <FechaNacimientoEditable
+                      initialValue={user.fechaNacimiento?.split("T")[0] || ""}
+                      campoEnEdicion={campoEnEdicion}
+                      setCampoEnEdicion={setCampoEnEdicion}
+                      setFechaVisual={(nuevaFecha) => user.fechaNacimiento = nuevaFecha}
+                      edicionesUsadas={user.edicionesFecha || 0}
+                    />
+                  )}
                 </div>
 
                 {/* Input Teléfono */}
                 {user && (
                   <TelefonoEditable
                     initialValue={user.telefono?.toString() || ''}
-                    campoEnEdicion={campoEnEdicion} // 👈 NUEVO
-                    setCampoEnEdicion={setCampoEnEdicion} // 👈 NUEVO
-                    edicionesUsadas={user.ediciones_telefono || 0}
+                    campoEnEdicion={campoEnEdicion}
+                    setCampoEnEdicion={setCampoEnEdicion}
+                    edicionesUsadas={user.edicionesTelefono || 0}
                   />
                 )}
               </div>
@@ -116,7 +116,7 @@ export default function UserPerfilPage() {
                   type="button"
                   Guardar="Salir"
                   deshabilitado={false}
-                  onClick={() => router.push('/home/homePage')}
+                  onClick={() => router.push('/home')}
                 />
               </div>
             </form>

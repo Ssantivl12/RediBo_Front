@@ -1,6 +1,5 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import Navbar from '@/app/components/navbar/Navbar';
 import LoginModal from '@/app/components/auth/authInicioSesion/LoginModal';
 import RegisterModal from '@/app/components/auth/authregistro/RegisterModal';
 
@@ -37,11 +36,6 @@ export default function Terminos() {
 
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background-principal)]">
-      <header>
-          <Navbar onLoginClick={() => setActiveModal('login')}
-          onRegisterClick={() => setActiveModal('register')}/>
-      </header>
-
 
       <main className="flex-1 bg-[var(--blanco)] pt-[1.7rem] px-4 md:px-12">
         <div className="flex flex-col md:flex-row items-start gap-8 max-w-[1200px] mx-auto">
@@ -374,11 +368,7 @@ export default function Terminos() {
       </main>
       
       <footer className="bg-[var(--hueso)] text-[var(--negro)] font-[var(--fuente-principal)] border-t-[1px] border-[rgba(0,0,0,0.2)] p-8 text-right rounded-t-[20px]">
-        {/*<a
-          className="underline cursor-pointer text-[rgba(0,0,0,0.64)]"
-        >
-          Términos y condiciones
-        </a>*/}
+        
       </footer>
       {activeModal === 'login' && (
         <LoginModal onClose={() => setActiveModal(null)} onRegisterClick={() =>setActiveModal('register')} onPasswordRecoveryClick={() => console.log('Recuperar contraseña')}/>

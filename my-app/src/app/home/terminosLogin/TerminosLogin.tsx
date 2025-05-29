@@ -1,7 +1,5 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import NavbarInicioSesion from '@/app/components/navbar/NavbarInicioSesion';
-
 
 export default function TerminosLogin() {
   const [activeSection, setActiveSection] = useState<string | null>(null);
@@ -22,7 +20,6 @@ export default function TerminosLogin() {
                         
       }
     );
-    
   
     sections.forEach(section => observer.observe(section));
   
@@ -30,18 +27,9 @@ export default function TerminosLogin() {
       sections.forEach(section => observer.unobserve(section));
     };
   }, []);
-  
 
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background-principal)]">
-      <header>
-          <NavbarInicioSesion onBecomeHost={function (): void {
-          throw new Error('Function not implemented.');
-        } } onBecomeDriver={function (): void {
-          throw new Error('Function not implemented.');
-        } }/>
-      </header>
-
 
       <main className="flex-1 bg-[var(--blanco)] pt-[1.7rem] px-4 md:px-12">
         <div className="flex flex-col md:flex-row items-start gap-8 max-w-[1200px] mx-auto">
@@ -372,14 +360,6 @@ export default function TerminosLogin() {
         </div>
         <div aria-hidden="true" className="mt-[300px] invisible" />
       </main>
-      
-      <footer className="bg-[var(--hueso)] text-[var(--negro)] font-[var(--fuente-principal)] border-t-[1px] border-[rgba(0,0,0,0.2)] p-8 text-right rounded-t-[20px]">
-        {/*<a
-          className="underline cursor-pointer text-[rgba(0,0,0,0.64)]"
-        >
-          Términos y condiciones
-        </a>*/}
-      </footer>
     </div>
   );
 }

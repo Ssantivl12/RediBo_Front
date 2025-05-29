@@ -1,4 +1,5 @@
 /* import { backendip } from "@/libs/authServices"; */
+import { BASE_URL } from "@/libs/autoServices";
 import styles from "./RegisterModal.module.css";
 import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
@@ -28,14 +29,16 @@ export default function CompleteProfileModal({
   const [phoneMessage, setPhoneMessage] = useState("");
   const [error, setError] = useState("");
   const userEmail = localStorage.getItem("google_email");
+<<<<<<< HEAD:my-app/src/app/components/auth/authregistro/CompleteProfileModal.tsx
   const [termsError, setTermsError] = useState(false); // Estado para manejar el error de aceptación
+=======
+  const [termsError, setTermsError] = useState(false);
+>>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256:my-app/src/app/components/auth/authregistro/CompleteProfileHost.tsx
 
   const daysInMonth =
     birthMonth && birthYear
       ? getDaysInMonth(Number(birthMonth), Number(birthYear))
       : 31;
-
-  //manejo de errores
 
   let hasErrors = false;
 
@@ -80,7 +83,7 @@ export default function CompleteProfileModal({
         setBirthDay("");
       }
     }
-  }, [birthMonth, birthYear]);
+  }, [birthDay, birthMonth, birthYear]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -149,6 +152,7 @@ export default function CompleteProfileModal({
       return;
     } else {
       try {
+<<<<<<< HEAD:my-app/src/app/components/auth/authregistro/CompleteProfileModal.tsx
         const token = localStorage.getItem("token");
         const res = await fetch(
           "http://localhost:3001/api/check-phone",
@@ -163,6 +167,13 @@ export default function CompleteProfileModal({
           body: JSON.stringify({ telefono: parseInt(cleanPhone) }),
         }
       );
+=======
+        const res = await fetch(`${BASE_URL}/api/check-phone`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ telefono: cleanPhone }),
+        });
+>>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256:my-app/src/app/components/auth/authregistro/CompleteProfileHost.tsx
 
         const data = await res.json();
         if (data.exists) {
@@ -180,15 +191,17 @@ export default function CompleteProfileModal({
         return;
       }
     }
-
     setError("");
-
     try {
+<<<<<<< HEAD:my-app/src/app/components/auth/authregistro/CompleteProfileModal.tsx
       const token = localStorage.getItem("token");
       console.log("Token a enviar (CompleteProfileModal):", token);
       const res = await fetch(
         "http://localhost:3001/api/update-profile",
         {
+=======
+      const res = await fetch(`${BASE_URL}/api/update-profile`, {
+>>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256:my-app/src/app/components/auth/authregistro/CompleteProfileHost.tsx
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -197,9 +210,9 @@ export default function CompleteProfileModal({
         credentials: "include",
         body: JSON.stringify({
           email: userEmail,
-          nombre_completo: name.trim(),
-          fecha_nacimiento: birthDate.toISOString(),
-          telefono: "+591" + cleanPhone,
+          nombreCompleto: name.trim(),
+          fechaNacimiento: birthDate.toISOString(),
+          telefono: cleanPhone,
         }),
       }
     );
@@ -211,7 +224,7 @@ export default function CompleteProfileModal({
           alert(
             "Esta cuenta ya fue registrada con correo y contraseña. Por favor inicia sesión manualmente."
           );
-          return; //No continuar ni cerrar el modal
+          return;
         }
 
         throw new Error(data.message || "No se pudo actualizar el perfil");
@@ -220,8 +233,12 @@ export default function CompleteProfileModal({
       onComplete({ name: name.trim(), birthDate: birthDate.toISOString() });
 
       if (onSuccess) {
-        onSuccess(); // ✅ activa el modal de éxito
+        onSuccess();
       }
+<<<<<<< HEAD:my-app/src/app/components/auth/authregistro/CompleteProfileModal.tsx
+=======
+
+>>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256:my-app/src/app/components/auth/authregistro/CompleteProfileHost.tsx
     } catch (err) {
       console.error("Error al guardar datos de perfil", err);
       setError("No se pudo guardar los datos. Intenta nuevamente.");
@@ -468,7 +485,7 @@ export default function CompleteProfileModal({
               const email = localStorage.getItem("google_email");
               if (email) {
                 await fetch(
-                  "http://localhost:3001/api/delete-incomplete-user",
+                  `${BASE_URL}/api/delete-incomplete-user`,
                   {
                     method: "DELETE",
                     headers: { "Content-Type": "application/json" },
