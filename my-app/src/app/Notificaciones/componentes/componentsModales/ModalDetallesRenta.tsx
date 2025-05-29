@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import ModalConfirmacionEliminar from './ModalConfirmacionEliminar';
+import ModalResena from './ModalResena';
 import { motion, AnimatePresence } from "framer-motion";
 import { ImageIcon } from 'lucide-react';
 
@@ -36,7 +37,16 @@ const ModalDetallesRenta = ({ isOpen, notification, onClose, onDelete }: ModalPr
   if (!isOpen) return null;
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
   const [mostrarFallback, setMostrarFallback] = useState(false);
+  const [mostrarModalResena, setMostrarModalResena] = useState(false);
 
+  // Función para manejar el submit de la reseña
+  const handleSubmitResena = (calificacion: number, comentario: string) => {
+    console.log('Reseña enviada:', { calificacion, comentario });
+    // Aquí puedes agregar lógica para enviar la reseña a un backend o actualizar estado
+
+    // Cerrar el modal de reseña
+    setMostrarModalResena(false);
+  };
 
   return (
     <div className="fixed inset-0 backdrop-blur-sm bg-white/50 flex items-center justify-center"
@@ -116,14 +126,23 @@ const ModalDetallesRenta = ({ isOpen, notification, onClose, onDelete }: ModalPr
           >
             Borrar
           </button>
-          
+
           {notification.titulo === 'Renta Cancelada' && (
-              <button
+            <button
               onClick={onClose}
               className="cursor-pointer bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-              >
-                Volver a rentar
-              </button>
+            >
+              Volver a rentar
+            </button>
+          )}
+
+          {notification.titulo === 'Renta Finalizada' && (
+            <button
+              onClick={() => setMostrarModalResena(true)}
+              className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Comentar
+            </button>
           )}
 
           <button
@@ -157,6 +176,25 @@ const ModalDetallesRenta = ({ isOpen, notification, onClose, onDelete }: ModalPr
                 setMostrarConfirmacion(false);
                 onClose();
               }}
+            />
+          </motion.div>
+        )}
+
+        {mostrarModalResena && (
+          <motion.div
+            key="modal-resena"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/30"
+          >
+            <ModalResena
+              isOpen={true}
+              onClose={() => setMostrarModalResena(false)}
+              onSubmit={handleSubmitResena}
+              imagenURL={notification.imagenURL}
+              nombreVehiculo={notification.titulo}
             />
           </motion.div>
         )}
