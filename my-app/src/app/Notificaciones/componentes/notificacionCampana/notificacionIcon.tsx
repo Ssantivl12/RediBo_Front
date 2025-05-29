@@ -37,6 +37,10 @@ import { useEffect, useState } from 'react';
            Icon = module.CreditCard;
            color = 'text-indigo-500';
            break;
+         case 'COMENTARIO_RECIBIDO':
+            Icon = module.MessageCircle;
+            color = 'text-black';
+            break;
          default:
            Icon = module.CheckCircle;
            color = 'text-gray-500';

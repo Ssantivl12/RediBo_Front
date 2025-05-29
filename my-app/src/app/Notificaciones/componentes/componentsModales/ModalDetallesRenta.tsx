@@ -74,23 +74,28 @@ const ModalDetallesRenta = ({ isOpen, notification, onClose, onDelete }: ModalPr
             <div className="flex-1">
               <p className="text-xs text-gray-800 mt-2">{formatDate(notification.fecha)}</p>
               <p className="text-gray-800 whitespace-pre-line mt-3" dangerouslySetInnerHTML={{ __html: notification.descripcion }}></p>
-              {notification.titulo === "Comentario recibido" && (
+              {notification.titulo === "Comentario recibido" && ( 
                 <div className="mt-4">
-                {/* Estrellas de calificación */}
+                  {/* Estrellas de calificación */}
                   <div className="flex gap-1 mb-2">
-                    {Array.from({ length: 5 }, (_, i) => (
-                      <svg
-                        key={i}
-                        xmlns="http://www.w3.org/2000/svg"
-                        className={`h-5 w-5 ${
-                          i < (notification.calificacion ?? 0) ? 'text-yellow-400' : 'text-gray-300'
-                        }`}
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.1 3.385a1 1 0 00.95.69h3.564c.969 0 1.371 1.24.588 1.81l-2.885 2.1a1 1 0 00-.364 1.118l1.1 3.385c.3.921-.755 1.688-1.538 1.118l-2.885-2.1a1 1 0 00-1.176 0l-2.885 2.1c-.783.57-1.838-.197-1.538-1.118l1.1-3.385a1 1 0 00-.364-1.118L2.847 8.812c-.783-.57-.38-1.81.588-1.81h3.564a1 1 0 00.95-.69l1.1-3.385z" />
-                      </svg>
-                    ))}
+                    {Array.from({ length: 5 }, (_, i) => {
+                      const isFilled = i < (notification.calificacion ?? 0);
+                      return (
+                        <svg
+                          key={i}
+                          xmlns="http://www.w3.org/2000/svg"
+                          className={`h-6 w-6 ${
+                            isFilled ? 'text-yellow-400 fill-yellow-400' : 'text-gray-400'
+                          }`}
+                          viewBox="0 0 24 24"
+                          fill={isFilled ? 'currentColor' : 'none'}
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                        >
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z" />
+                        </svg>
+                      );
+                    })}
                   </div>
 
                   {/* Comentario */}
