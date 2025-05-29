@@ -9,4 +9,6 @@ export interface Notificacion {
   imagenURL?: string;
   leida: boolean;
   creadoEn: Date | string;
+  calificacion?: number;   
+  comentario?: string;
 } 

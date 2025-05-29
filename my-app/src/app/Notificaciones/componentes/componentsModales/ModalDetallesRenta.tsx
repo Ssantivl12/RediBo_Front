@@ -14,6 +14,8 @@ interface ModalProps {
     tipo: string;
     tipoEntidad: string;
     imagenURL?: string;
+    calificacion?: number;
+    comentario?: string;
   };
   onClose: () => void;
   onDelete: () => void;
@@ -72,6 +74,32 @@ const ModalDetallesRenta = ({ isOpen, notification, onClose, onDelete }: ModalPr
             <div className="flex-1">
               <p className="text-xs text-gray-800 mt-2">{formatDate(notification.fecha)}</p>
               <p className="text-gray-800 whitespace-pre-line mt-3" dangerouslySetInnerHTML={{ __html: notification.descripcion }}></p>
+              {notification.titulo === "Comentario recibido" && (
+                <div className="mt-4">
+                {/* Estrellas de calificación */}
+                  <div className="flex gap-1 mb-2">
+                    {Array.from({ length: 5 }, (_, i) => (
+                      <svg
+                        key={i}
+                        xmlns="http://www.w3.org/2000/svg"
+                        className={`h-5 w-5 ${
+                          i < (notification.calificacion ?? 0) ? 'text-yellow-400' : 'text-gray-300'
+                        }`}
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.1 3.385a1 1 0 00.95.69h3.564c.969 0 1.371 1.24.588 1.81l-2.885 2.1a1 1 0 00-.364 1.118l1.1 3.385c.3.921-.755 1.688-1.538 1.118l-2.885-2.1a1 1 0 00-1.176 0l-2.885 2.1c-.783.57-1.838-.197-1.538-1.118l1.1-3.385a1 1 0 00-.364-1.118L2.847 8.812c-.783-.57-.38-1.81.588-1.81h3.564a1 1 0 00.95-.69l1.1-3.385z" />
+                      </svg>
+                    ))}
+                  </div>
+
+                  {/* Comentario */}
+                  <p className="text-sm font-semibold text-gray-700 mb-1">Comentario:</p>
+                  <div className="border rounded p-2 bg-gray-50 text-gray-800 text-sm whitespace-pre-line">
+                    {notification.comentario || "Sin comentario"}
+                  </div>
+                </div>
+              )}   
             </div>
           </div>
         </div>
@@ -83,7 +111,7 @@ const ModalDetallesRenta = ({ isOpen, notification, onClose, onDelete }: ModalPr
           >
             Borrar
           </button>
-
+          
           {notification.titulo === 'Renta Cancelada' && (
               <button
               onClick={onClose}

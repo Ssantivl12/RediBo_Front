@@ -11,6 +11,8 @@ export interface Notificacion {
   imagenURL?: string;
   leida: boolean;
   creadoEn: string;
+  calificacion?: number;   
+  comentario?: string;
 }
 
 export interface NotificacionFiltro {
