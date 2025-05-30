@@ -35,7 +35,11 @@ function NotificationIcon({ tipo }: { tipo: string }) {
           color = 'text-emerald-500';
           break;
         case 'DEPOSITO_RECIBIDO':
-          Icon = module.CreditCard;
+          Icon = module.CircleDollarSign;
+          color = 'text-indigo-500';
+          break;
+        case 'COMENTARIO_RECIBIDO':
+          Icon = module.MessageCircleMore;
           color = 'text-indigo-500';
           break;
         default:
