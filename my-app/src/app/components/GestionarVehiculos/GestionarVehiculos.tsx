@@ -182,50 +182,51 @@ const fetchComentarios = async (idAuto: number) => {
     }
   };
 
-  const getFilteredVehiculos = () => {
-    let filtered = vehiculos.filter((v) =>
-      v.placa.toLowerCase().includes(search.toLowerCase()) ||
-      `${v.marca} ${v.modelo}`.toLowerCase().includes(search.toLowerCase())
-    );
+ const getFilteredVehiculos = () => {
+  let filtered = vehiculos.filter((v) =>
+    v.placa.toLowerCase().includes(search.toLowerCase()) ||
+    `${v.marca} ${v.modelo}`.toLowerCase().includes(search.toLowerCase())
+  );
 
-    if (estadoFilter !== 'Todos los estados') {
-      filtered = filtered.filter((v) => {
-        switch (estadoFilter) {
-          case 'En renta':
-            return v.estadoActual.tipo === 'RENTA_ACTIVA' || 
-                   v.estadoActual.tipo === 'RENTA_FINALIZADA_POR_LIBERAR';
-          case 'Disponible':
-            return v.estadoActual.tipo === 'DISPONIBLE';
-          case 'Reservado':
-            return v.estadoActual.tipo === 'RENTA_ACTIVA' && 
-                   v.estadoActual.datos.estado === 'RESERVADO';
-          case 'No disponible':
-            return v.estadoActual.tipo === 'NO_DISPONIBLE' || 
-                   v.estadoActual.tipo === 'EN_MANTENIMIENTO';
-          default:
-            return true;
-        }
-      });
-    }
-
-    filtered = [...filtered].sort((a, b) => {
-      switch (ordenamiento) {
-        case 'Ordenar por nombre':
-          return `${a.marca} ${a.modelo}`.localeCompare(`${b.marca} ${b.modelo}`);
-        case 'Ordenar por placa':
-          return a.placa.localeCompare(b.placa);
-        case 'Ordenar por estado':
-          return a.estadoActual.tipo.localeCompare(b.estadoActual.tipo);
-        case 'Más recientes':
-          return new Date(b.fechaCreacion || 0).getTime() - new Date(a.fechaCreacion || 0).getTime();
-        case 'Más antiguos':
+  if (estadoFilter !== 'Todos los estados') {
+    filtered = filtered.filter((v) => {
+      switch (estadoFilter) {
+        case 'En renta':
+          return v.estadoActual.tipo === 'RENTA_ACTIVA' && 
+                 v.estadoActual.datos.estado === 'EN_CURSO';
+        case 'Disponible':
+          return v.estadoActual.tipo === 'DISPONIBLE';
+        case 'Reservado':
+          // CORREGIDO: Un vehículo está reservado cuando tiene RENTA_ACTIVA pero NO está EN_CURSO
+          return v.estadoActual.tipo === 'RENTA_ACTIVA' && 
+                 v.estadoActual.datos.estado !== 'EN_CURSO';
+        case 'No disponible':
+          return v.estadoActual.tipo === 'NO_DISPONIBLE' || 
+                 v.estadoActual.tipo === 'EN_MANTENIMIENTO';
         default:
-          return new Date(a.fechaCreacion || 0).getTime() - new Date(b.fechaCreacion || 0).getTime();
+          return true;
       }
     });
+  }
 
-    return filtered;
-  };
+    filtered = [...filtered].sort((a, b) => {
+    switch (ordenamiento) {
+      case 'Ordenar por nombre':
+        return `${a.marca} ${a.modelo}`.localeCompare(`${b.marca} ${b.modelo}`);
+      case 'Ordenar por placa':
+        return a.placa.localeCompare(b.placa);
+      case 'Ordenar por estado':
+        return a.estadoActual.tipo.localeCompare(b.estadoActual.tipo);
+      case 'Más recientes':
+        return new Date(b.fechaCreacion || 0).getTime() - new Date(a.fechaCreacion || 0).getTime();
+      case 'Más antiguos':
+      default:
+        return new Date(a.fechaCreacion || 0).getTime() - new Date(b.fechaCreacion || 0).getTime();
+    }
+  });
+
+  return filtered;
+};
 
   const handleLiberarRenta = (idAuto: number) => {
     setVehiculoSeleccionado(idAuto);
