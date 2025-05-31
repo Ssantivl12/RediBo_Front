@@ -34,8 +34,35 @@ export default function UserPerfilDriver() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const user = useUser();
-  //const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
-  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+
+  const [showRentersModal, setShowRentersModal] = useState(false);
+  const [filaActiva, setFilaActiva] = useState<number | null>(null);
+  const [sortField, setSortField] = useState<"fecha" | "nombre">("fecha");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
+  // Datos de prueba
+  const renters = [
+    { fecha_suscripcion: '2025-05-10', nombre: 'Maite', telefono: '777777777', email: 'suarezmaite355@gmail.com' },
+    { fecha_suscripcion: '2025-05-11', nombre: 'Rodrigo', telefono: '787878787', email: 'aaa@gmail.com' },
+  ];
+
+  // Ordenamiento
+  const rentersOrdenados = [...renters].sort((a, b) => {
+    if (sortField === "fecha") {
+      const dateA = new Date(a.fecha_suscripcion);
+      const dateB = new Date(b.fecha_suscripcion);
+      return sortOrder === "asc" ? dateA.getTime() - dateB.getTime() : dateB.getTime() - dateA.getTime();
+    } else {
+      const nameA = a.nombre.toLowerCase();
+      const nameB = b.nombre.toLowerCase();
+      if (nameA < nameB) return sortOrder === "asc" ? -1 : 1;
+      if (nameA > nameB) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    }
+  });
+
+
 
   useEffect(() => {
     const fetchDriver = async () => {
@@ -75,17 +102,10 @@ export default function UserPerfilDriver() {
     fetchDriver();
   }, []);
 
-  {/*useEffect(() => {
+  useEffect(() => {
     if (user?.fotoPerfil) {
       setImagePreviewUrl(`http://localhost:3001${user.fotoPerfil}`);
       console.log('✅ Foto cargada:', `http://localhost:3001${user.fotoPerfil}`);
-    }
-  }, [user]);*/}
-  useEffect(() => {
-    if (user?.fotoPerfil) {
-      setProfilePhotoUrl(user.fotoPerfil);
-    } else {
-      setProfilePhotoUrl(null);
     }
   }, [user]);
   if (!user) return null;
@@ -108,12 +128,12 @@ export default function UserPerfilDriver() {
             <main className="min-h-screen bg-white text-gray-900 flex justify-center px-4 sm:px-6 lg:px-6 py-6">
               <div className="flex flex-col md:flex-row w-full max-w-5xl items-start gap-10 mt-1">
       
-              {/* Imagen de perfil */}
-              <div className="w-full md:w-[160px] flex-shrink-0 flex justify-center md:justify-start">
+              {/* Imagen de perfil y botón Listar Renters*/}
+              <div className="w-full md:w-[160px] flex flex-col items-center gap-4">
                 <div className="border-2 border-gray-300 rounded-2xl overflow-hidden w-[120px] h-[120px]">
-                  {profilePhotoUrl ? (
+                  {imagePreviewUrl ? (
                     <img
-                      src={profilePhotoUrl}
+                      src={imagePreviewUrl}
                       alt="Foto de perfil"
                       className="w-full h-full object-cover"
                     />
@@ -121,6 +141,99 @@ export default function UserPerfilDriver() {
                     <PerfilIcon className="w-full h-full text-gray-500 p-4" />
                   )}
                 </div>
+
+                <button
+                  onClick={() => setShowRentersModal(true)}
+                  className="bg-[#FFB703] hover:bg-[#ffa200] text-white font-semibold px-4 py-2 rounded-full shadow-md text-center transition-all duration-300 w-[140px]"
+                >
+                  Lista de Renters
+                </button>
+
+                {showRentersModal && (
+                  <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+                    <div className="bg-white rounded-2xl shadow-2xl w-[90%] max-w-4xl p-6 border border-gray-300 relative">
+
+                      {/* Botón para cerrar */}
+                      <button
+                        onClick={() => setShowRentersModal(false)}
+                        className="absolute top-4 right-4 text-[#11295B] hover:text-red-600 text-2xl font-bold transition-transform duration-300 hover:rotate-90"
+                      >
+                        ×
+                      </button>
+
+                      <h2 className="text-2xl font-bold text-center mb-6 text-[#11295B]">
+                        Renters donde soy Driver
+                      </h2>
+
+                      {/* Tabla */}
+                      <div className="overflow-hidden rounded-[15px] border-4 border-[#11295B]">
+                        <table className="min-w-full text-center border-collapse">
+                          <thead>
+                            <tr className="bg-[#11295B] text-white">
+                              <th className="px-4 py-2 rounded-tl-[10px]">
+                                <button
+                                  onClick={() => {
+                                    if (sortField === "fecha") {
+                                      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                                    } else {
+                                      setSortField("fecha");
+                                      setSortOrder("asc");
+                                    }
+                                  }}
+                                  className="flex items-center gap-1"
+                                >
+                                  Fecha Suscripción
+                                  <span>{sortField === "fecha" ? (sortOrder === "asc" ? "▲" : "▼") : ""}</span>
+                                </button>
+                              </th>
+                              <th className="px-4 py-2">
+                                <button
+                                  onClick={() => {
+                                    if (sortField === "nombre") {
+                                      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                                    } else {
+                                      setSortField("nombre");
+                                      setSortOrder("asc");
+                                    }
+                                  }}
+                                  className="flex items-center gap-1"
+                                >
+                                  Nombre Completo
+                                  <span>{sortField === "nombre" ? (sortOrder === "asc" ? "▲" : "▼") : ""}</span>
+                                </button>
+                              </th>
+                              <th className="px-4 py-2">Teléfono</th>
+                              <th className="px-4 py-2 rounded-tr-[10px]">Correo Electrónico</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {rentersOrdenados.length === 0 ? (
+                              <tr>
+                                <td colSpan={4} className="py-4 text-gray-500">Sin registros</td>
+                              </tr>
+                            ) : (
+                              rentersOrdenados.map((renter, idx) => (
+                                <tr
+                                  key={idx}
+                                  onClick={() => setFilaActiva(idx)}
+                                  className={`border-t border-gray-300 hover:bg-gray-100 transition-colors cursor-pointer ${
+                                    filaActiva === idx ? 'bg-yellow-100' : ''
+                                  }`}
+                                >
+                                  <td className="px-4 py-2">{renter.fecha_suscripcion}</td>
+                                  <td className="px-4 py-2">{renter.nombre}</td>
+                                  <td className="px-4 py-2">{renter.telefono}</td>
+                                  <td className="px-4 py-2">{renter.email}</td>
+                                </tr>
+                              ))
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
               </div>
 
               {/* Formulario */}
@@ -300,6 +413,9 @@ export default function UserPerfilDriver() {
             />
           </div>
         )}
+      
+      
+
       </main>
     </>
   );
