@@ -41,18 +41,60 @@ export default function UserPerfilDriver() {
   const [sortField, setSortField] = useState<"fecha" | "nombre">("fecha");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
-  // Datos de prueba
-  const renters = [
-    { fecha_suscripcion: '2025-05-10', nombre: 'Maite', telefono: '777777777', email: 'suarezmaite355@gmail.com' },
-    { fecha_suscripcion: '2025-05-11', nombre: 'Rodrigo', telefono: '787878787', email: 'aaa@gmail.com' },
-  ];
+
+
+  type Renter = {
+  fecha_suscripcion: string;
+  nombre: string;
+  telefono: string;
+  email: string;
+};
+
+const [renters, setRenters] = useState<Renter[]>([]);
+
+  useEffect(() => {
+  const fetchRenters = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.warn("⚠️ No se encontró token en localStorage");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:3001/api/driver/renters", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        console.error("❌ Error al traer renters:", response.statusText);
+        return;
+      }
+
+      const data = await response.json();
+      console.log("📥 Renters recibidos desde el backend:", data);
+
+      setRenters(data);
+    } catch (error) {
+      console.error("❌ Error al conectar con el backend:", error);
+    }
+  };
+
+  fetchRenters();
+}, []);
+
+
+
 
   // Ordenamiento
   const rentersOrdenados = [...renters].sort((a, b) => {
     if (sortField === "fecha") {
       const dateA = new Date(a.fecha_suscripcion);
       const dateB = new Date(b.fecha_suscripcion);
-      return sortOrder === "asc" ? dateA.getTime() - dateB.getTime() : dateB.getTime() - dateA.getTime();
+      return sortOrder === "asc"
+        ? dateA.getTime() - dateB.getTime()
+        : dateB.getTime() - dateA.getTime();
     } else {
       const nameA = a.nombre.toLowerCase();
       const nameB = b.nombre.toLowerCase();
@@ -207,12 +249,12 @@ export default function UserPerfilDriver() {
                             </tr>
                           </thead>
                           <tbody>
-                            {rentersOrdenados.length === 0 ? (
+                            {renters.length === 0 ? (
                               <tr>
                                 <td colSpan={4} className="py-4 text-gray-500">Sin registros</td>
                               </tr>
                             ) : (
-                              rentersOrdenados.map((renter, idx) => (
+                              renters.map((renter, idx) => (
                                 <tr
                                   key={idx}
                                   onClick={() => setFilaActiva(idx)}
@@ -220,7 +262,7 @@ export default function UserPerfilDriver() {
                                     filaActiva === idx ? 'bg-yellow-100' : ''
                                   }`}
                                 >
-                                  <td className="px-4 py-2">{renter.fecha_suscripcion}</td>
+                                  <td className="px-4 py-2">{renter.fecha_suscripcion?.split("T")[0]}</td>
                                   <td className="px-4 py-2">{renter.nombre}</td>
                                   <td className="px-4 py-2">{renter.telefono}</td>
                                   <td className="px-4 py-2">{renter.email}</td>
@@ -228,6 +270,7 @@ export default function UserPerfilDriver() {
                               ))
                             )}
                           </tbody>
+
                         </table>
                       </div>
                     </div>
