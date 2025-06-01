@@ -8,10 +8,10 @@ import PhoneIcon from "@/app/components/Icons/Phone";
 import LicenciaConductorIcon from "@/app/components/Icons/LicenciaConductor";
 import CategoriaIcon from "@/app/components/Icons/Categoria";
 import CalendarIcon from "@/app/components/Icons/Calendar";
+import PencilIcon from "@/app/components/Icons/Pencil";
 import { SolarGalleryOutline } from "@/app/components/Icons/Gallery";
-import { useUser } from '@/hooks/useUser';
+import { useUser } from "@/hooks/useUser";
 
-// Tipo para los datos del driver
 type DriverData = {
   usuario: {
     nombreCompleto: string;
@@ -31,56 +31,30 @@ export default function UserPerfilDriver() {
   const [showGallery, setShowGallery] = useState(false);
   const [zoomUrl, setZoomUrl] = useState<string | null>(null);
   const [driverData, setDriverData] = useState<DriverData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [originalData, setOriginalData] = useState<DriverData | null>(null);
+  const [editMode, setEditMode] = useState(false);
+  const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const user = useUser();
-  //const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDriver = async () => {
       try {
         const token = localStorage.getItem("token");
-        if (!token) {
-          setError("No se encontró el token de autenticación.");
-          setLoading(false);
-          return;
-        }
-
         const res = await fetch("http://localhost:3001/api/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-
-        if (!res.ok) {
-          if (res.status === 404) {
-            setError("Aún no te has registrado como conductor.");
-          } else {
-            setError("Error al cargar los datos del perfil del conductor.");
-          }
-          setDriverData(null);
-        } else {
-          const data = await res.json();
-          setDriverData(data);
-        }
+        const data = await res.json();
+        setDriverData(data);
+        setOriginalData(data);
       } catch (err) {
-        console.error("Error al cargar perfil del driver:", err);
-        setError("Error inesperado al conectar con el servidor.");
-      } finally {
-        setLoading(false);
+        console.error("Error:", err);
       }
     };
-
     fetchDriver();
   }, []);
 
-  {/*useEffect(() => {
-    if (user?.fotoPerfil) {
-      setImagePreviewUrl(`http://localhost:3001${user.fotoPerfil}`);
-      console.log('✅ Foto cargada:', `http://localhost:3001${user.fotoPerfil}`);
-    }
-  }, [user]);*/}
   useEffect(() => {
     if (user?.fotoPerfil) {
       setProfilePhotoUrl(user.fotoPerfil);
@@ -88,192 +62,318 @@ export default function UserPerfilDriver() {
       setProfilePhotoUrl(null);
     }
   }, [user]);
-  if (!user) return null;
+
+  if (!user || !driverData) return null;
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setDriverData((prev) => (prev ? { ...prev, [name]: value } : prev));
+    setTouched((prev) => ({ ...prev, [name]: true }));
+  };
+
+  const validateFields = () => {
+    const newErrors: { [key: string]: string } = {};
+    const requiredFields = ["telefono", "licencia", "fechaEmision", "fechaExpiracion"];
+
+    requiredFields.forEach((field) => {
+      const value = driverData[field as keyof DriverData];
+      if (!value || value === "") {
+        newErrors[field] = "Este campo es obligatorio.";
+      }
+    });
+
+    if (!/^[67]\d{7}$/.test(driverData.telefono)) {
+      newErrors.telefono = "Debe tener 8 dígitos y empezar con 6 o 7.";
+    }
+
+    if (!/^[a-zA-Z0-9]{6,}$/.test(driverData.licencia)) {
+      newErrors.licencia = "Debe tener al menos 6 caracteres alfanuméricos.";
+    }
+
+    const today = new Date().toISOString().split("T")[0];
+    if (driverData.fechaEmision > today) {
+      newErrors.fechaEmision = "La fecha de emisión no puede ser futura.";
+    }
+    if (
+      driverData.fechaEmision &&
+      driverData.fechaExpiracion &&
+      new Date(driverData.fechaExpiracion) <= new Date(driverData.fechaEmision)
+    ) {
+      newErrors.fechaExpiracion = "Debe ser posterior a la fecha de emisión.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleCancelEdit = () => {
+    setDriverData(originalData);
+    setTouched({});
+    setErrors({});
+    setEditMode(false);
+  };
+
+  const handleSave = () => {
+    if (validateFields()) {
+      setOriginalData(driverData);
+      setEditMode(false);
+    }
+  };
 
   return (
     <>
       <NavbarPerfilUsuario />
-
       <main className="min-h-screen bg-white text-[#11295B] px-10 py-10">
         <h1 className="text-center text-2xl font-bold mb-10">
-          INFORMACION PERSONAL CONDUCTOR
+          INFORMACIÓN PERSONAL DRIVER
         </h1>
 
-        {loading ? (
-          <p className="text-center text-lg">Cargando datos...</p>
-        ) : error ? (
-          <p className="text-center text-red-500 text-lg">{error}</p>
-        ) : (
-          driverData && (
-            <main className="min-h-screen bg-white text-gray-900 flex justify-center px-4 sm:px-6 lg:px-6 py-6">
-              <div className="flex flex-col md:flex-row w-full max-w-5xl items-start gap-10 mt-1">
-      
-              {/* Imagen de perfil */}
-              <div className="w-full md:w-[160px] flex-shrink-0 flex justify-center md:justify-start">
-                <div className="border-2 border-gray-300 rounded-2xl overflow-hidden w-[120px] h-[120px]">
-                  {profilePhotoUrl ? (
-                    <img
-                      src={profilePhotoUrl}
-                      alt="Foto de perfil"
-                      className="w-full h-full object-cover"
+        <main className="flex justify-center">
+          <div className="flex flex-col md:flex-row w-full max-w-5xl items-start gap-10">
+            <div className="w-full md:w-[160px] flex-shrink-0 flex flex-col items-center md:items-start">
+              <div className="border-2 border-gray-300 rounded-2xl overflow-hidden w-[120px] h-[120px]">
+                {profilePhotoUrl ? (
+                  <img
+                    src={profilePhotoUrl}
+                    alt="Foto de perfil"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <PerfilIcon className="w-full h-full text-gray-500 p-4" />
+                )}
+              </div>
+
+              <button
+                onClick={() =>
+                  editMode ? handleCancelEdit() : setEditMode(true)
+                }
+                className="mt-4 bg-[#FFA500] hover:bg-[#e69500] text-white font-semibold py-2 px-4 rounded-full shadow"
+              >
+                {editMode ? "Cancelar" : "Editar perfil"}
+              </button>
+
+              {editMode && (
+                <button
+                  onClick={handleSave}
+                  className="mt-2 bg-[#FFA500] hover:bg-[#e69500] text-white font-semibold py-2 px-4 rounded-full shadow"
+                >
+                  Guardar cambios
+                </button>
+              )}
+            </div>
+            <div className="flex flex-col gap-6 w-full max-w-3xl ml-10">
+              {/* Nombre y sexo */}
+              <div className="flex gap-4">
+                <div className="w-full">
+                  <label className="text-sm font-semibold">Nombre Completo:</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={driverData.usuario.nombreCompleto}
+                      readOnly
+                      className="w-full pl-10 py-2 border-2 border-black rounded shadow text-[#11295B] font-semibold bg-gray-100"
                     />
+                    <UserIcon className="absolute left-2 top-2.5 w-5 h-5 text-[#11295B]" />
+                  </div>
+                </div>
+                <div className="w-48">
+                  <label className="text-sm font-semibold">Sexo</label>
+                  <input
+                    type="text"
+                    value={driverData.sexo}
+                    readOnly
+                    className="w-full py-2 px-4 border-2 border-black rounded shadow text-[#11295B] font-semibold bg-gray-100"
+                  />
+                </div>
+              </div>
+
+              {/* Teléfono */}
+              <div>
+                <label className="text-sm font-semibold">Teléfono</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    name="telefono"
+                    value={driverData.telefono}
+                    onChange={handleInputChange}
+                    readOnly={!editMode}
+                    className={`w-full pl-10 py-2 border-2 rounded shadow font-semibold ${
+                      errors.telefono && touched.telefono
+                        ? "border-red-500 text-red-500"
+                        : "border-black text-[#11295B]"
+                    }`}
+                  />
+                  <PhoneIcon
+                    className={`absolute left-2 top-2.5 w-5 h-5 ${
+                      errors.telefono && touched.telefono
+                        ? "text-red-500"
+                        : "text-[#11295B]"
+                    }`}
+                  />
+                  {editMode && (
+                    <PencilIcon className="absolute right-2 top-2.5 w-5 h-5 text-[#11295B]" />
+                  )}
+                </div>
+                {errors.telefono && touched.telefono && (
+                  <p className="text-red-500 text-sm mt-1">{errors.telefono}</p>
+                )}
+              </div>
+
+              {/* Licencia */}
+              <div className="flex gap-2 items-end">
+                <div className="w-full">
+                  <label className="text-sm font-semibold">No. de licencia de conducir</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      name="licencia"
+                      value={driverData.licencia}
+                      onChange={handleInputChange}
+                      readOnly={!editMode}
+                      className={`w-full pl-10 py-2 border-2 rounded shadow font-semibold ${
+                        errors.licencia && touched.licencia
+                          ? "border-red-500 text-red-500"
+                          : "border-black text-[#11295B]"
+                      }`}
+                    />
+                    <LicenciaConductorIcon
+                      className={`absolute left-2 top-2.5 w-5 h-5 ${
+                        errors.licencia && touched.licencia
+                          ? "text-red-500"
+                          : "text-[#11295B]"
+                      }`}
+                    />
+                    {editMode && (
+                      <PencilIcon className="absolute right-2 top-2.5 w-5 h-5 text-[#11295B]" />
+                    )}
+                  </div>
+                  {errors.licencia && touched.licencia && (
+                    <p className="text-red-500 text-sm mt-1">{errors.licencia}</p>
+                  )}
+                </div>
+                <button
+                  onClick={() => setShowGallery(true)}
+                  className="p-2 border-2 border-black rounded hover:bg-gray-100"
+                >
+                  <SolarGalleryOutline className="w-6 h-6 text-[#11295B]" />
+                </button>
+              </div>
+
+              {/* Categoría */}
+              <div>
+                <label className="text-sm font-semibold">Categoría</label>
+                <div className="relative">
+                  {editMode ? (
+                    <select
+                      name="tipoLicencia"
+                      value={driverData.tipoLicencia}
+                      onChange={handleInputChange}
+                      className="w-full pl-10 py-2 border-2 border-black rounded shadow text-[#11295B] font-semibold appearance-none"
+                    >
+                      <option value="">Seleccionar</option>
+                      <option value="P">Particular (P)</option>
+                      <option value="Profesional A">Profesional A</option>
+                      <option value="Profesional B">Profesional B</option>
+                      <option value="Profesional C">Profesional C</option>
+                      <option value="M">Motorista (M)</option>
+                      <option value="F">Especial (F)</option>
+                    </select>
                   ) : (
-                    <PerfilIcon className="w-full h-full text-gray-500 p-4" />
+                    <input
+                      type="text"
+                      value={driverData.tipoLicencia}
+                      readOnly
+                      className="w-full pl-10 py-2 border-2 border-black rounded shadow text-[#11295B] font-semibold bg-gray-100"
+                    />
+                  )}
+                  <CategoriaIcon className="absolute left-2 top-2.5 w-5 h-5 text-[#11295B]" />
+                  {editMode && (
+                    <PencilIcon className="absolute right-2 top-2.5 w-5 h-5 text-[#11295B]" />
                   )}
                 </div>
               </div>
 
-              {/* Formulario */}
-              <div className="flex flex-col gap-6 w-full max-w-3xl ml-10">
-                {/* Nombre y sexo */}
-                <div className="flex gap-4">
-                  <div className="w-full">
-                    <label className="text-sm font-semibold" htmlFor="nombre">
-                      Nombre Completo:
-                    </label>
-                    <div className="relative">
-                      <input
-                        id="nombre"
-                        type="text"
-                        value={driverData.usuario.nombreCompleto || ""}
-                        className="w-full pl-10 py-2 border-2 border-black rounded shadow-[0_4px_2px_-2px_rgba(0,0,0,0.6)] text-[#11295B] font-semibold"
-                        readOnly
-                      />
-                      <UserIcon className="absolute left-2 top-2.5 w-5 h-5 text-[#11295B]" />
-                    </div>
-                  </div>
-                  <div className="w-48">
-                    <label className="text-sm font-semibold" htmlFor="sexo">
-                      Sexo
-                    </label>
-                    <input
-                      id="sexo"
-                      type="text"
-                      value={driverData.sexo || ""}
-                      className="w-full py-2 px-4 border-2 border-black rounded shadow-[0_4px_2px_-2px_rgba(0,0,0,0.6)] text-[#11295B] font-semibold"
-                      readOnly
-                    />
-                  </div>
-                </div>
-
-                {/* Teléfono */}
-                <div>
-                  <label className="text-sm font-semibold">Teléfono</label>
+              {/* Fechas */}
+              <div className="flex gap-4">
+                <div className="w-full">
+                  <label className="text-sm font-semibold">Fecha de emisión</label>
                   <div className="relative">
                     <input
-                      type="text"
-                      value={user.telefono || ""}
-                      className="w-full pl-10 py-2 border-2 border-black rounded shadow-[0_4px_2px_-2px_rgba(0,0,0,0.6)] text-[#11295B] font-semibold"
-                      readOnly
+                      type="date"
+                      name="fechaEmision"
+                      value={driverData.fechaEmision?.split("T")[0] || ""}
+                      onChange={handleInputChange}
+                      readOnly={!editMode}
+                      className={`w-full pl-10 py-2 border-2 rounded shadow font-semibold ${
+                        errors.fechaEmision && touched.fechaEmision
+                          ? "border-red-500 text-red-500"
+                          : "border-black text-[#11295B]"
+                      }`}
                     />
-                    <PhoneIcon className="absolute left-2 top-2.5 w-5 h-5 text-[#11295B]" />
+                    <CalendarIcon
+                      className={`absolute left-2 top-2.5 w-5 h-5 ${
+                        errors.fechaEmision && touched.fechaEmision
+                          ? "text-red-500"
+                          : "text-[#11295B]"
+                      }`}
+                    />
                   </div>
+                  {errors.fechaEmision && touched.fechaEmision && (
+                    <p className="text-red-500 text-sm mt-1">{errors.fechaEmision}</p>
+                  )}
                 </div>
 
-                {/* Licencia de Conducir + botón galería */}
-                <div className="flex gap-2 items-end">
-                  <div className="w-full">
-                    <label className="text-sm font-semibold">
-                      Licencia de Conducir
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={driverData.licencia || ""}
-                        className="w-full pl-10 py-2 border-2 border-black rounded shadow-[0_4px_2px_-2px_rgba(0,0,0,0.6)] text-[#11295B] font-semibold"
-                        readOnly
-                      />
-                      <LicenciaConductorIcon className="absolute left-2 top-2.5 w-5 h-5 text-[#11295B]" />
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setShowGallery(true)}
-                    className="p-2 border-2 border-black rounded hover:bg-gray-100"
-                  >
-                    <SolarGalleryOutline className="w-6 h-6 text-[#11295B]" />
-                  </button>
-                </div>
-
-                {/* Categoría */}
-                <div>
-                  <label className="text-sm font-semibold">Categoría</label>
+                <div className="w-full">
+                  <label className="text-sm font-semibold">Fecha de vencimiento</label>
                   <div className="relative">
                     <input
-                      type="text"
-                      value={driverData.tipoLicencia || ""}
-                      className="w-full pl-10 py-2 border-2 border-black rounded shadow-[0_4px_2px_-2px_rgba(0,0,0,0.6)] text-[#11295B] font-semibold"
-                      readOnly
+                      type="date"
+                      name="fechaExpiracion"
+                      value={driverData.fechaExpiracion?.split("T")[0] || ""}
+                      onChange={handleInputChange}
+                      readOnly={!editMode}
+                      className={`w-full pl-10 py-2 border-2 rounded shadow font-semibold ${
+                        errors.fechaExpiracion && touched.fechaExpiracion
+                          ? "border-red-500 text-red-500"
+                          : "border-black text-[#11295B]"
+                      }`}
                     />
-                    <CategoriaIcon className="absolute left-2 top-2.5 w-5 h-5 text-[#11295B]" />
+                    <CalendarIcon
+                      className={`absolute left-2 top-2.5 w-5 h-5 ${
+                        errors.fechaExpiracion && touched.fechaExpiracion
+                          ? "text-red-500"
+                          : "text-[#11295B]"
+                      }`}
+                    />
                   </div>
-                </div>
-
-                {/* Fechas */}
-                <div className="flex gap-4">
-                  <div className="w-full">
-                    <label className="text-sm font-semibold">Fecha de Emisión</label>
-                    <div className="relative">
-                      <input
-                        type="date"
-                        value={driverData.fechaEmision?.split("T")[0] || ""}
-                        className="w-full pl-10 py-2 border-2 border-black rounded shadow-[0_4px_2px_-2px_rgba(0,0,0,0.6)] text-[#11295B] font-semibold"
-                        readOnly
-                      />
-                      <CalendarIcon className="absolute left-2 top-2.5 w-5 h-5 text-[#11295B]" />
-                    </div>
-                  </div>
-                  <div className="w-full">
-                    <label className="text-sm font-semibold">Fecha de Vencimiento</label>
-                    <div className="relative">
-                      <input
-                        type="date"
-                        value={driverData.fechaExpiracion?.split("T")[0] || ""}
-                        className="w-full pl-10 py-2 border-2 border-black rounded shadow-[0_4px_2px_-2px_rgba(0,0,0,0.6)] text-[#11295B] font-semibold"
-                        readOnly
-                      />
-                      <CalendarIcon className="absolute left-2 top-2.5 w-5 h-5 text-[#11295B]" />
-                    </div>
-                  </div>
+                  {errors.fechaExpiracion && touched.fechaExpiracion && (
+                    <p className="text-red-500 text-sm mt-1">{errors.fechaExpiracion}</p>
+                  )}
                 </div>
               </div>
             </div>
-          </main>
-          )
-        )}
+          </div>
+        </main>
 
-        {/* Modal Galería */}
         {showGallery && driverData && (
           <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="bg-white p-8 rounded-lg shadow-lg w-[80%] max-w-4xl">
-              <h2 className="text-xl font-bold mb-4 text-[#11295B]">
-                Galería de Licencia
-              </h2>
+              <h2 className="text-xl font-bold mb-4 text-[#11295B]">Galería de Licencia</h2>
               <div className="flex justify-around">
-                {driverData.anversoUrl ? (
-                  <img
-                    src={driverData.anversoUrl}
-                    alt="Anverso Licencia"
-                    className="w-60 h-60 object-contain rounded shadow cursor-pointer"
-                    onClick={() => setZoomUrl(driverData.anversoUrl)}
-                  />
-                ) : (
-                  <div className="w-60 h-60 bg-gray-200 flex items-center justify-center text-gray-400 text-4xl">
-                    IMG
-                  </div>
-                )}
-
-                {driverData.reversoUrl ? (
-                  <img
-                    src={driverData.reversoUrl}
-                    alt="Reverso Licencia"
-                    className="w-60 h-60 object-contain rounded shadow cursor-pointer"
-                    onClick={() => setZoomUrl(driverData.reversoUrl)}
-                  />
-                ) : (
-                  <div className="w-60 h-60 bg-gray-200 flex items-center justify-center text-gray-400 text-4xl">
-                    IMG
-                  </div>
-                )}
+                <img
+                  src={driverData.anversoUrl}
+                  alt="Anverso"
+                  className="w-60 h-60 object-contain rounded shadow cursor-pointer"
+                  onClick={() => setZoomUrl(driverData.anversoUrl)}
+                />
+                <img
+                  src={driverData.reversoUrl}
+                  alt="Reverso"
+                  className="w-60 h-60 object-contain rounded shadow cursor-pointer"
+                  onClick={() => setZoomUrl(driverData.reversoUrl)}
+                />
               </div>
               <div className="text-right mt-4">
                 <button
@@ -287,7 +387,6 @@ export default function UserPerfilDriver() {
           </div>
         )}
 
-        {/* Modal de zoom de imagen */}
         {zoomUrl && (
           <div
             className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[9999]"
