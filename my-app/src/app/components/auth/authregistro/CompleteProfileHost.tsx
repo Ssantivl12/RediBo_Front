@@ -29,11 +29,7 @@ export default function CompleteProfileModal({
   const [phoneMessage, setPhoneMessage] = useState("");
   const [error, setError] = useState("");
   const userEmail = localStorage.getItem("google_email");
-<<<<<<< HEAD:my-app/src/app/components/auth/authregistro/CompleteProfileModal.tsx
   const [termsError, setTermsError] = useState(false); // Estado para manejar el error de aceptación
-=======
-  const [termsError, setTermsError] = useState(false);
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256:my-app/src/app/components/auth/authregistro/CompleteProfileHost.tsx
 
   const daysInMonth =
     birthMonth && birthYear
@@ -152,7 +148,6 @@ export default function CompleteProfileModal({
       return;
     } else {
       try {
-<<<<<<< HEAD:my-app/src/app/components/auth/authregistro/CompleteProfileModal.tsx
         const token = localStorage.getItem("token");
         const res = await fetch(
           "http://localhost:3001/api/check-phone",
@@ -167,13 +162,6 @@ export default function CompleteProfileModal({
           body: JSON.stringify({ telefono: parseInt(cleanPhone) }),
         }
       );
-=======
-        const res = await fetch(`${BASE_URL}/api/check-phone`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ telefono: cleanPhone }),
-        });
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256:my-app/src/app/components/auth/authregistro/CompleteProfileHost.tsx
 
         const data = await res.json();
         if (data.exists) {
@@ -193,15 +181,11 @@ export default function CompleteProfileModal({
     }
     setError("");
     try {
-<<<<<<< HEAD:my-app/src/app/components/auth/authregistro/CompleteProfileModal.tsx
       const token = localStorage.getItem("token");
       console.log("Token a enviar (CompleteProfileModal):", token);
       const res = await fetch(
         "http://localhost:3001/api/update-profile",
         {
-=======
-      const res = await fetch(`${BASE_URL}/api/update-profile`, {
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256:my-app/src/app/components/auth/authregistro/CompleteProfileHost.tsx
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -235,10 +219,6 @@ export default function CompleteProfileModal({
       if (onSuccess) {
         onSuccess();
       }
-<<<<<<< HEAD:my-app/src/app/components/auth/authregistro/CompleteProfileModal.tsx
-=======
-
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256:my-app/src/app/components/auth/authregistro/CompleteProfileHost.tsx
     } catch (err) {
       console.error("Error al guardar datos de perfil", err);
       setError("No se pudo guardar los datos. Intenta nuevamente.");

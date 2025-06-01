@@ -2,11 +2,7 @@ import styles from "./RegisterModal.module.css";
 import { useState } from "react";
 import CompleteProfileModal from "./CompleteProfileHost";
 import { useEffect } from "react";
-<<<<<<< HEAD
-/* import { useRouter } from 'next/navigation'; */
-=======
 import { BASE_URL } from '@/libs/autoServices';
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
 
 export default function RegisterModal({
   onClose,
@@ -15,7 +11,6 @@ export default function RegisterModal({
   onClose: () => void;
   onLoginClick: () => void;
 }) {
-<<<<<<< HEAD
   const handleGoogleRegister = () => {
     try {
       setLoading(true);
@@ -36,29 +31,9 @@ export default function RegisterModal({
   };
 
   /* Parte de las const*/
-=======
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
   const [welcome, setWelcome] = useState("");
   const [showWelcome, setShowWelcome] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [nameError, setNameError] = useState(false);
-  const [nameMessage, setNameMessage] = useState("");
-  const [emailError, setEmailError] = useState(false);
-  const [emailMessage, setEmailMessage] = useState("");
-  const [passwordError, setPasswordError] = useState(false);
-  const [passwordMessage, setPasswordMessage] = useState("");
-  const [confirmPasswordError, setConfirmPasswordError] = useState(false);
-  const [confirmPasswordMessage, setConfirmPasswordMessage] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [birthError, setBirthError] = useState(false);
-  const [birthMessage, setBirthMessage] = useState("");
-  const [phoneError, setPhoneError] = useState(false);
-  const [phoneMessage, setPhoneMessage] = useState("");
-  const [termsError, setTermsError] = useState(false);
-  const [showCompleteProfile, setShowCompleteProfile] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const shouldOpen = localStorage.getItem("openCompleteProfileModal");
   const params = new URLSearchParams(window.location.search);
   const googleError = params.get("error");
@@ -77,7 +52,6 @@ export default function RegisterModal({
   const [phoneValue, setPhoneValue] = useState(
     localStorage.getItem("register_phone") || ""
   );
-<<<<<<< HEAD
 
   const [error, setError] = useState("");
 
@@ -110,11 +84,6 @@ export default function RegisterModal({
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-=======
-  const handleGoogleRegister = () => {
-    window.location.href = `${BASE_URL}/api/auth/google`
-  };
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
   const getLabelColor = (hasError: boolean) =>
     hasError ? "#E30000" : "var(--azul-oscuro)";
 
@@ -128,7 +97,6 @@ export default function RegisterModal({
     "@proton.me",
   ];
   useEffect(() => {
-<<<<<<< HEAD
     const params = new URLSearchParams(window.location.search);
 
   const autoLogin = params.get("googleAutoLogin");
@@ -172,34 +140,11 @@ export default function RegisterModal({
   // ✅ CASO 3: modal de perfil
   
   /* if (googleComplete === "true" && shouldOpen === "true") {
-=======
-    const message = localStorage.getItem("welcomeMessage");
-    if (message) {
-      setWelcome(message);
-      setShowWelcome(true);
-      localStorage.removeItem("welcomeMessage");
-      setTimeout(() => {
-        setShowWelcome(false);
-      }, 3000);
-    }
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get("error") === "cuentaExistente") {
-      alert(
-        "Este correo ya fue registrado de forma manual. Inicia sesión con tu contraseña."
-      );
-      return;
-    }
-    const googleComplete = window.location.search.includes(
-      "googleComplete=true"
-    );
-    if (googleComplete && shouldOpen === "true") {
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
       setShowCompleteProfile(true);
       localStorage.removeItem("openCompleteProfileModal");
     console.log("🧩 Mostrar modal CompleteProfileModal");
   } */
 
-<<<<<<< HEAD
   // ✅ CASO 4: error de cuenta ya registrada
   const googleError = params.get("error");
   if (googleError === "alreadyExists" || googleError === "cuentaExistente") {
@@ -219,13 +164,6 @@ export default function RegisterModal({
     }
 
     // ✅ Limpieza general
-=======
-    if (googleError === "alreadyExists") {
-      setError("Esta cuenta ya está registrada. Por favor, inicia sesión.");
-      onClose();
-      setTimeout(() => onLoginClick(), 100);
-    }
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
     const url = new URL(window.location.href);
     url.searchParams.delete("googleComplete");
     url.searchParams.delete("error");
@@ -251,12 +189,13 @@ export default function RegisterModal({
     const birthYear = (
       form.elements.namedItem("birthYear") as HTMLSelectElement
     ).value;
+
+    //manejo de errores
+
     let hasErrors = false;
     const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ'’\- ]+$/;
 
-<<<<<<< HEAD
     //validaciones de nombre de usuario
-    const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
 
 if (nameValue.trim().length < 3) {
   setNameError(true);
@@ -278,26 +217,6 @@ if (nameValue.trim().length < 3) {
 
     //validaciones de email
 
-=======
-    if (name.length < 3) {
-      setNameError(true);
-      setNameMessage("El nombre debe tener al menos 3 caracteres");
-      hasErrors = true;
-    } else if (name.length > 50) {
-      setNameError(true);
-      setNameMessage("El nombre no puede superar los 50 caracteres");
-      hasErrors = true;
-    } else if (!nameRegex.test(name)) {
-      setNameError(true);
-      setNameMessage(
-        "El nombre solo puede contener letras, tildes, espacios, guiones y apóstrofes"
-      );
-      hasErrors = true;
-    } else {
-      setNameError(false);
-      setNameMessage("");
-    }
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
     const emailDomain = email.slice(email.indexOf("@"));
 
     if (!email.includes("@") || !email.includes(".") || email.length < 5) {
@@ -316,6 +235,9 @@ if (nameValue.trim().length < 3) {
       setEmailError(false);
       setEmailMessage("");
     }
+
+    //validaciones de passwrod
+
     if (password.trim() === "") {
       setPasswordMessage("La contraseña no puede estar vacía");
       setPasswordError(true);
@@ -352,6 +274,9 @@ if (nameValue.trim().length < 3) {
       setPasswordError(false);
       setPasswordMessage("");
     }
+
+    // validacion de Confirmar contraseña
+
     if (confirmPassword.trim() === "") {
       setConfirmPasswordError(true);
       setConfirmPasswordMessage("Debes confirmar la contraseña");
@@ -364,6 +289,8 @@ if (nameValue.trim().length < 3) {
       setConfirmPasswordError(false);
       setConfirmPasswordMessage("");
     }
+
+    /*validacion de fecha*/
     const today = new Date();
     const selectedDate = new Date(
       Number(birthYear),
@@ -392,6 +319,8 @@ if (nameValue.trim().length < 3) {
       setBirthError(false);
       setBirthMessage("");
     }
+
+    //validacion de telefono
     const cleanPhone = phone.replace(/\D/g, "");
 
     if (!phone) {
@@ -406,16 +335,14 @@ if (nameValue.trim().length < 3) {
       setPhoneMessage("El número debe tener exactamente 8 dígitos");
       hasErrors = true;
     } else {
+      // Si pasa validaciones de formato, ahora verificamos si ya está en uso en BD
       try {
         const phoneCheckResponse = await fetch(
           `${BASE_URL}/api/check-phone`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-<<<<<<< HEAD
             credentials: "include",
-=======
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
             body: JSON.stringify({ telefono: cleanPhone }),
           }
         );
@@ -434,6 +361,8 @@ if (nameValue.trim().length < 3) {
         console.error("Error verificando teléfono:", error);
       }
     }
+
+    //validacion de terminos y condiciones
     const terms = (form.elements.namedItem("terms") as HTMLInputElement)
       .checked;
 
@@ -449,6 +378,7 @@ if (nameValue.trim().length < 3) {
       return;
     }
 
+    /*conexion con back end*/
     try {
       const fechaNacimiento = new Date(
         Number(birthYear),
@@ -457,24 +387,16 @@ if (nameValue.trim().length < 3) {
       ).toISOString();
 
       const user = {
-        nombreCompleto: nameValue.trim(),
+        nombreCompleto: name,
         email,
         contraseña: password,
-<<<<<<< HEAD
-        fecha_nacimiento: fechaNacimiento,
+        fechaNacimiento: fechaNacimiento,
         telefono: phone ? cleanPhone : null,
       };
 
       const res = await fetch(
         "http://localhost:3001/api/register",
         {
-=======
-        fechaNacimiento: fechaNacimiento,
-        telefono: phone ? cleanPhone : null,
-      };
-
-      const res = await fetch(`${BASE_URL}/api/register`, {
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -502,10 +424,6 @@ if (nameValue.trim().length < 3) {
     } finally {
       setLoading(false);
     }
-<<<<<<< HEAD
-
-=======
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
   };
   return (
     <div className={styles.overlay}>
@@ -612,11 +530,7 @@ if (nameValue.trim().length < 3) {
                     htmlFor="name"
                     style={{ color: getLabelColor(passwordError) }}
                   >
-<<<<<<< HEAD
                     {nameError ? "Nombre completo" : "Nombre completo"}
-=======
-                    {nameError ? "Nombre" : "Nombre"}
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
                   </label>
 
                   <input
@@ -624,10 +538,6 @@ if (nameValue.trim().length < 3) {
                     id="name"
                     name="name"
                     value={nameValue}
-                    onChange={(e) => {
-                      setNameValue(e.target.value);
-                      localStorage.setItem("register_name", e.target.value);
-                    }}
                     maxLength={50}
                     placeholder={
                       nameError
@@ -636,11 +546,29 @@ if (nameValue.trim().length < 3) {
                     }
                     className={`${styles.input} ${nameError ? styles.errorInput : ""
                       }`}
+                    onChange={(e) => {
+                      const input = e.target.value;
+                      const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/;
+
+                      if (regex.test(input) || input === "") {
+                        setNameValue(input);
+                        localStorage.setItem("register_name", input);
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (/\d/.test(e.key)) {
+                        e.preventDefault(); // Bloquea ingreso de números
+                      }
+                    }}
+                    onPaste={(e) => {
+                      const paste = e.clipboardData.getData("text");
+                      if (/\d/.test(paste)) {
+                        e.preventDefault(); // Bloquea pegado de números
+                      }
+                    }}
+                    required
                   />
-<<<<<<< HEAD
                   
-=======
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
                   {nameError && nameMessage && (
                     <p
                       style={{
@@ -1082,14 +1010,9 @@ if (nameValue.trim().length < 3) {
             <button
               onClick={() => {
                 setShowSuccessModal(false);
-<<<<<<< HEAD
                 onClose(); // Cierra el modal de registro
                 setTimeout(() =>  window.location.href = "/", 100); 
                 /* onClose(); */
-=======
-                onClose();
-                setTimeout(() => onLoginClick(), 100);
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
               }}
               className={styles.successButton}
             >

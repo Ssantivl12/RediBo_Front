@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 "use client";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation"; // ✅
@@ -11,36 +10,25 @@ import NewPasswordModal from "../components/auth/authRecuperarContrasena/NewPass
 import LoginModal from "../components/auth/authInicioSesion/LoginModal";
 import styles from "./Home.module.css";
 import RegisterModal from "../components/auth/authregistro/RegisterModal";
-import CompleteProfileModal from "@/app/components/auth/authregistro/CompleteProfileModal";
-
-=======
-'use client';
-import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import PasswordRecoveryModal from '../components/auth/authRecuperarContrasena/PasswordRecoveryModal';
-import CodeVerificationModal from '../components/auth/authRecuperarContrasena/CodeVerificationModal';
-import NewPasswordModal from '../components/auth/authRecuperarContrasena/NewPasswordModal';
-import LoginModal from '../components/auth/authInicioSesion/LoginModal';
-import RegisterModal from '../components/auth/authregistro/RegisterModal';
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
-import ModalLoginExitoso from '@/app/components/modals/ModalLoginExitoso';
-import CompleteProfileModal from '@/app/components/auth/authregistro/CompleteProfileHost';
-import { jwtDecode } from 'jwt-decode';
+import ModalLoginExitoso from "@/app/components/modals/ModalLoginExitoso";
+import CompleteProfileHost from "@/app/components/auth/authregistro/CompleteProfileHost";
+/* import { jwtDecode } from "jwt-decode"; */
 
 // Componente separado que maneja useSearchParams
-function SearchParamsHandler({
+/* function SearchParamsHandler({
   setActiveModal,
   setShowCompleteProfileModal
 }: {
   setActiveModal: (modal: 'login' | 'register' | null) => void;
   setShowCompleteProfileModal: (show: boolean) => void;
-}) {
+}) { */
+
+export default function HomePage() {
   const searchParams = useSearchParams();
-const [showCompleteProfileModal, setShowCompleteProfileModal] =
+  const [showCompleteProfileModal, setShowCompleteProfileModal] =
     useState(false);
   const [hasRedirected, setHasRedirected] = useState(false); // 👈 Evita doble redirect
 
-<<<<<<< HEAD
   const [activeModal, setActiveModal] = useState<"login" | "register" | null>(
     null
   );
@@ -49,7 +37,7 @@ const [showCompleteProfileModal, setShowCompleteProfileModal] =
   >(null);
   const [showToast, setShowToast] = useState(false);
   const [showToast2, setShowToast2] = useState(false); // Para el mensaje de usuario bloqueado
-  
+
   const handleLoginSubmit = () => {
     setModalState("passwordRecovery");
   };
@@ -72,7 +60,7 @@ const [showCompleteProfileModal, setShowCompleteProfileModal] =
   };
 
   useEffect(() => {
-     /* const params = new URLSearchParams(window.location.search); */
+    /* const params = new URLSearchParams(window.location.search); */
     const autoLogin = searchParams.get("googleAutoLogin");
     const token = searchParams.get("token");
     const email = searchParams.get("email");
@@ -110,108 +98,34 @@ const [showCompleteProfileModal, setShowCompleteProfileModal] =
       cleanUrl.searchParams.delete("email");
       window.history.replaceState({}, "", cleanUrl.toString());
     }
-
   }, [searchParams, hasRedirected]);
-=======
-  useEffect(() => {
-    if (searchParams?.get('googleComplete') === 'true') {
-      setActiveModal('register');
-    }
-  }, [searchParams, setActiveModal]);
-
-  useEffect(() => {
-    const token = searchParams.get('token');
-    if (token) {
-      try {
-        const decoded = jwtDecode(token) as {
-          idUsuario: number,
-          email: string,
-          nombreCompleto?: string,
-          fechaNacimiento?: string
-        };
-  
-        if (decoded.idUsuario === -1) {
-          localStorage.setItem('google_email', decoded.email);
-          setShowCompleteProfileModal(true);
-        } else {
-          // LIMPIAR DATOS OBSOLETOS ANTES DE GUARDAR NUEVOS
-          localStorage.removeItem('userDriverStatus');
-          localStorage.removeItem('userHostStatus');
-          
-          localStorage.setItem('token', token);
-          localStorage.setItem('nombreCompleto', decoded.nombreCompleto || '');
-          localStorage.setItem('loginSuccess', 'true');
-  
-          const url = new URL(window.location.href);
-          url.searchParams.delete('token');
-          window.history.replaceState({}, '', url.toString());
-          window.location.reload();
-        }
-      } catch (error) {
-        console.error('Error al decodificar el token:', error);
-      }
-    }
-  }, [searchParams, setShowCompleteProfileModal]);
-
-  return null;
-}
-
-// Componente principal del contenido
-function HomePageContent() {
-  const [activeModal, setActiveModal] = useState<'login' | 'register' | null>(null);
-  const [modalState, setModalState] = useState<'passwordRecovery' | 'codeVerification' | 'newPassword' | null>(null);
-
-  const [showToast, setShowToast] = useState(false);
-  const [showToast2, setShowToast2] = useState(false);
-  const [showCompleteProfileModal, setShowCompleteProfileModal] = useState(false);
-
-  const handleLoginSubmit = () => setModalState('passwordRecovery');
-  const handlePasswordRecoverySubmit = () => setModalState('codeVerification');
-  const handleCodeVerificationSubmit = () => setModalState('newPassword');
-  const handleClose = () => {
-    setModalState(null);
-    setActiveModal('login');
-  };
-  const handleBackToPasswordRecovery = () => setModalState('passwordRecovery');
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
 
   const [showLoginSuccessModal, setShowLoginSuccessModal] = useState(false);
 
   useEffect(() => {
-    const registroDriver = localStorage.getItem('registroDriver');
-    if(registroDriver === '1'){
-      localStorage.removeItem('registroDriver');
+    const registroDriver = localStorage.getItem("registroDriver");
+    if (registroDriver === "1") {
+      localStorage.removeItem("registroDriver");
       window.location.reload();
     }
   });
 
   useEffect(() => {
-    const loginSuccess = localStorage.getItem('loginSuccess');
-    if (loginSuccess === 'true') {
+    const loginSuccess = localStorage.getItem("loginSuccess");
+    if (loginSuccess === "true") {
       setShowLoginSuccessModal(true);
-      localStorage.removeItem('loginSuccess');
+      localStorage.removeItem("loginSuccess");
     }
   }, []);
   return (
-<<<<<<< HEAD
-    
     <div className={styles.container}>
       <header className={styles.headerTop}>
-        <Navbar 
+        <Navbar
           onLoginClick={() => setActiveModal("login")}
           onRegisterClick={() => setActiveModal("register")}
-=======
-    <>
-      {/* Envolver SearchParamsHandler en Suspense */}
-      <Suspense fallback={null}>
-        <SearchParamsHandler 
-          setActiveModal={setActiveModal}
-          setShowCompleteProfileModal={setShowCompleteProfileModal}
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
         />
-      </Suspense>
+      </header>
 
-<<<<<<< HEAD
       <header className={styles.headerFilters}>
         <FiltersBar />
       </header>
@@ -231,9 +145,6 @@ function HomePageContent() {
         <LoginModal onClose={handleClose} onLoginSubmit={handleLoginSubmit} />
       )}*/}
       {modalState === "passwordRecovery" && (
-=======
-      {modalState === 'passwordRecovery' && (
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
         <PasswordRecoveryModal
           onClose={handleClose}
           onPasswordRecoverySubmit={handlePasswordRecoverySubmit}
@@ -241,25 +152,16 @@ function HomePageContent() {
       )}
       {modalState === "codeVerification" && (
         <CodeVerificationModal
-<<<<<<< HEAD
-        onClose={handleBackToPasswordRecovery}
-        onCodeVerificationSubmit={handleCodeVerificationSubmit}
-        onBlocked={() => {
-          setModalState(null);
-          setActiveModal("login"); // Redirige al Login al finalizar
-          setShowToast2(true); // muestra el pop-up
-
-            // Ocultar el toast automáticamente después de 3 segundos
-=======
           onClose={handleBackToPasswordRecovery}
           onCodeVerificationSubmit={handleCodeVerificationSubmit}
           onBlocked={() => {
             setModalState(null);
-            setActiveModal('login');
-            setShowToast2(true);
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
+            setActiveModal("login"); // Redirige al Login al finalizar
+            setShowToast2(true); // muestra el pop-up
+
+            // Ocultar el toast automáticamente después de 3 segundos
             setTimeout(() => setShowToast2(false), 10000);
-          }}
+          }} // ✅ Redirige al login si el backend dice "bloqueado"
         />
       )}
       {modalState === "newPassword" && (
@@ -268,30 +170,25 @@ function HomePageContent() {
           code="exampleCode"
           onNewPasswordSubmit={() => {
             setModalState(null);
-<<<<<<< HEAD
             setActiveModal("login"); // Redirige al Login al finalizar
             setShowToast(true); // muestra el pop-up
 
             // Ocultar el toast automáticamente después de 3 segundos
-=======
-            setActiveModal('login');
-            setShowToast(true);
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
             setTimeout(() => setShowToast(false), 10000);
           }}
         />
       )}
-      {activeModal === 'login' && (
+      {activeModal === "login" && (
         <LoginModal
           onClose={() => setActiveModal(null)}
-          onRegisterClick={() => setActiveModal('register')}
+          onRegisterClick={() => setActiveModal("register")}
           onPasswordRecoveryClick={handleLoginSubmit}
         />
       )}
-      {activeModal === 'register' && (
+      {activeModal === "register" && (
         <RegisterModal
           onClose={() => setActiveModal(null)}
-          onLoginClick={() => setActiveModal('login')}
+          onLoginClick={() => setActiveModal("login")}
         />
       )}
 
@@ -305,19 +202,16 @@ function HomePageContent() {
           Usuario bloqueado temporalmente. Intenta nuevamente más tarde.
         </div>
       )}
-<<<<<<< HEAD
       {showLoginSuccessModal && (
-              <ModalLoginExitoso onClose={() => setShowLoginSuccessModal(false)} />
-            )}
+        <ModalLoginExitoso onClose={() => setShowLoginSuccessModal(false)} />
+      )}
 
-=======
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
       {showLoginSuccessModal && (
         <ModalLoginExitoso onClose={() => setShowLoginSuccessModal(false)} />
       )}
 
       {showCompleteProfileModal && (
-        <CompleteProfileModal
+        <CompleteProfileHost
           onComplete={() => {
             setShowCompleteProfileModal(false);
             window.location.href = "/home";
@@ -328,17 +222,24 @@ function HomePageContent() {
           }}
         />
       )}
-<<<<<<< HEAD
 
- {activeModal === "register" && (
+{/*       {activeModal === "login" && (
+        <LoginModal
+          onClose={() => setActiveModal(null)}
+          onRegisterClick={() => setActiveModal("register")}
+          onPasswordRecoveryClick={handleLoginSubmit} // 👈 Aquí usas la función
+        />
+      )}
+
+      {activeModal === "register" && (
         <RegisterModal
           onClose={() => setActiveModal(null)}
           onLoginClick={() => setActiveModal("login")}
         />
-      )}
+      )} */}
 
-      {showCompleteProfileModal && (
-        <CompleteProfileModal
+      {/* {{showCompleteProfileModal && (
+        <CompleteProfileHost
           onComplete={(data) => {
             console.log("✅ Perfil completado:", data);
           }}
@@ -355,18 +256,15 @@ function HomePageContent() {
           }}
           onClose={() => setShowCompleteProfileModal(false)}
         />
-      )}
+      )}} */}
     </div>
-=======
-    </>
->>>>>>> a08fe236ade62a22768ba9abbdab165dd3a2a256
   );
 }
 
-export default function HomePage() {
+/* export default function HomePage() {
   return (
     <Suspense fallback={<div>Cargando...</div>}>
       <HomePageContent />
     </Suspense>
   );
-}
+} */

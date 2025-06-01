@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback  } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
-import LoginModal from '@/app/components/auth/authInicioSesion/LoginModal';
-import RegisterModal from '@/app/components/auth/authregistro/RegisterModal';
-import PasswordRecoveryModal from '../auth/authRecuperarContrasena/PasswordRecoveryModal';
-import VehicleDataModal from '@/app/components/auth/authRegistroHost/VehicleDataModal';
-import PaymentRegistrationModal from '@/app/components/auth/authRegistroHost/PaymentModal';
-import CompleteProfileModal from '@/app/components/auth/authRegistroHost/CompleteProfileModal';
-import { useUser } from '@/hooks/useUser';
-import CodeVerificationModal from '../auth/authRecuperarContrasena/CodeVerificationModal';
-import NewPasswordModal from '../auth/authRecuperarContrasena/NewPasswordModal';
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import LoginModal from "@/app/components/auth/authInicioSesion/LoginModal";
+import RegisterModal from "@/app/components/auth/authregistro/RegisterModal";
+import PasswordRecoveryModal from "../auth/authRecuperarContrasena/PasswordRecoveryModal";
+import VehicleDataModal from "@/app/components/auth/authRegistroHost/VehicleDataModal";
+import PaymentRegistrationModal from "@/app/components/auth/authRegistroHost/PaymentModal";
+import CompleteProfileModal from "@/app/components/auth/authRegistroHost/CompleteProfileModal";
+import { useUser } from "@/hooks/useUser";
+import CodeVerificationModal from "../auth/authRecuperarContrasena/CodeVerificationModal";
+import NewPasswordModal from "../auth/authRecuperarContrasena/NewPasswordModal";
 import { BASE_URL } from "@/libs/autoServices";
 
 interface DynamicNavbarProps {
@@ -29,35 +29,40 @@ const isValidUrl = (url: string): boolean => {
   }
 };
 
-const buildImageUrl = (fotoPerfil: string | null | undefined): string | null => {
+const buildImageUrl = (
+  fotoPerfil: string | null | undefined
+): string | null => {
   if (!fotoPerfil) return null;
 
   if (isValidUrl(fotoPerfil)) {
     return fotoPerfil;
   }
 
-  const fullUrl = fotoPerfil.startsWith('/')
+  const fullUrl = fotoPerfil.startsWith("/")
     ? `${BASE_URL}${fotoPerfil}`
     : `${BASE_URL}/${fotoPerfil}`;
 
   return isValidUrl(fullUrl) ? fullUrl : null;
 };
 
-export default function DynamicNavbar({ onBecomeHost, onBecomeDriver }: DynamicNavbarProps) {
+export default function DynamicNavbar({
+  onBecomeHost,
+  onBecomeDriver,
+}: DynamicNavbarProps) {
   const [activeBtn, setActiveBtn] = useState(0);
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [showRecuperarPassword, setShowRecuperarPassword] = useState(false);
   const [showCodeVerification, setShowCodeVerification] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
-  const [verificationCode, setVerificationCode] = useState<string>('');
+  const [verificationCode, setVerificationCode] = useState<string>("");
   const [showVehicleModal, setShowVehicleModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [userName, setUserName] = useState<string>('');
+  const [userName, setUserName] = useState<string>("");
   const [vehicleData, setVehicleData] = useState<{
     placa: string;
     soat: string;
@@ -79,13 +84,13 @@ export default function DynamicNavbar({ onBecomeHost, onBecomeDriver }: DynamicN
   const user = useUser();
 
   const updateAuthState = useCallback(() => {
-    const token = localStorage.getItem('token');
-    const nombreCompleto = localStorage.getItem('nombreCompleto');
-    const userPicture = localStorage.getItem('userPicture');
-  
+    const token = localStorage.getItem("token");
+    const nombreCompleto = localStorage.getItem("nombreCompleto");
+    const userPicture = localStorage.getItem("userPicture");
+
     setIsLoggedIn(!!token);
-    setUserName(nombreCompleto || '');
-  
+    setUserName(nombreCompleto || "");
+
     if (userPicture) {
       const validUrl = buildImageUrl(userPicture);
       if (validUrl) {
@@ -93,7 +98,7 @@ export default function DynamicNavbar({ onBecomeHost, onBecomeDriver }: DynamicN
         return;
       }
     }
-  
+
     if (user?.fotoPerfil) {
       const validUrl = buildImageUrl(user.fotoPerfil);
       setProfilePhotoUrl(validUrl);
@@ -111,17 +116,17 @@ export default function DynamicNavbar({ onBecomeHost, onBecomeDriver }: DynamicN
       updateAuthState();
     };
 
-    window.addEventListener('authChange', handleAuthChange);
-    window.addEventListener('storage', handleAuthChange);
+    window.addEventListener("authChange", handleAuthChange);
+    window.addEventListener("storage", handleAuthChange);
 
     return () => {
-      window.removeEventListener('authChange', handleAuthChange);
-      window.removeEventListener('storage', handleAuthChange);
+      window.removeEventListener("authChange", handleAuthChange);
+      window.removeEventListener("storage", handleAuthChange);
     };
   }, [updateAuthState]);
 
   useEffect(() => {
-    const userPicture = localStorage.getItem('userPicture');
+    const userPicture = localStorage.getItem("userPicture");
     const hasValidLocalImage = userPicture && buildImageUrl(userPicture);
 
     if (!hasValidLocalImage) {
@@ -129,7 +134,7 @@ export default function DynamicNavbar({ onBecomeHost, onBecomeDriver }: DynamicN
         const validUrl = buildImageUrl(user.fotoPerfil);
         setProfilePhotoUrl(validUrl);
       }
-      if (user?.nombreCompleto && !localStorage.getItem('nombreCompleto')) {
+      if (user?.nombreCompleto && !localStorage.getItem("nombreCompleto")) {
         setUserName(user.nombreCompleto);
       }
     }
@@ -139,21 +144,21 @@ export default function DynamicNavbar({ onBecomeHost, onBecomeDriver }: DynamicN
     localStorage.clear();
 
     setIsLoggedIn(false);
-    setUserName('');
+    setUserName("");
     setProfilePhotoUrl(null);
     setIsMenuOpen(false);
 
-    window.dispatchEvent(new Event('authChange'));
+    window.dispatchEvent(new Event("authChange"));
 
-    router.push('/');
+    router.push("/");
   };
 
   const handleNavigation = (index: number) => {
     setActiveBtn(index);
     if (index === 0) {
-      router.push('/home');
+      router.push("/home");
     } else if (index === 1) {
-      router.push('/autos');
+      router.push("/autos");
     }
   };
 
@@ -168,23 +173,23 @@ export default function DynamicNavbar({ onBecomeHost, onBecomeDriver }: DynamicN
   const handlePasswordRecoverySubmit = () => {
     setShowRecuperarPassword(false);
     setShowCodeVerification(true);
-  }
+  };
 
   const handleNewPasswordSuccess = () => {
     setShowNewPassword(false);
-    setVerificationCode('');
+    setVerificationCode("");
     setShowLogin(true);
-  }
+  };
 
   const handleCodeVerificationSubmit = (code: string) => {
     setVerificationCode(code);
     setShowNewPassword(true);
     setShowCodeVerification(false);
-  }
+  };
 
   const handleUserBlocked = () => {
     setShowCodeVerification(false);
-  }
+  };
   // Función para manejar los datos del vehículo
   const handleVehicleDataNext = (data: {
     placa: string;
@@ -192,7 +197,7 @@ export default function DynamicNavbar({ onBecomeHost, onBecomeDriver }: DynamicN
     imagenes: File[];
     idAuto: number;
   }) => {
-    console.log('Datos del vehículo:', data);
+    console.log("Datos del vehículo:", data);
     setVehicleData(data);
     setShowVehicleModal(false);
     setShowPaymentModal(true);
@@ -208,7 +213,7 @@ export default function DynamicNavbar({ onBecomeHost, onBecomeDriver }: DynamicN
     qrImage?: File | null;
     efectivoDetalle?: string;
   }) => {
-    console.log('Datos de pago:', data);
+    console.log("Datos de pago:", data);
     setPaymentData(data); // Guardar los datos de pago
     setShowPaymentModal(false);
     setShowCompleteModal(true); // Mostrar el modal de confirmación
@@ -251,16 +256,16 @@ export default function DynamicNavbar({ onBecomeHost, onBecomeDriver }: DynamicN
 
           {/* Botones de navegación */}
           <div className="flex overflow-x-auto md:overflow-visible relative w-full md:w-auto justify-start md:justify-center">
-            {['Home', 'Autos', 'Botón3', 'Botón4', 'Botón5'].map((label, i) => (
+            {["Home", "Autos", "Botón3", "Botón4", "Botón5"].map((label, i) => (
               <button
                 key={i}
                 onClick={() => handleNavigation(i)}
                 className={`relative px-6 md:px-12 py-[0.2rem] border border-[#00000033] text-[var(--azul-oscuro)] 
                   font-[var(--tamaño-regular)] bg-[var(--blanco)] shadow-[var(--sombra)] text-sm md:text-base
-                  ${i === 0 ? 'rounded-l-full border-r-0' : ''}
-                  ${i === 4 ? 'rounded-r-full border-l-0' : ''}
-                  ${i !== 0 && i !== 4 ? 'border-x-0' : ''}
-                  ${activeBtn === i ? 'font-semibold' : ''}
+                  ${i === 0 ? "rounded-l-full border-r-0" : ""}
+                  ${i === 4 ? "rounded-r-full border-l-0" : ""}
+                  ${i !== 0 && i !== 4 ? "border-x-0" : ""}
+                  ${activeBtn === i ? "font-semibold" : ""}
                 `}
               >
                 {label}
@@ -282,7 +287,7 @@ export default function DynamicNavbar({ onBecomeHost, onBecomeDriver }: DynamicN
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
                   className="flex-1 md:flex-none px-4 md:px-8 py-[0.4rem] font-[var(--tamaña-bold)] text-[var(--blanco)] text-sm md:text-base whitespace-nowrap"
                 >
-                  {userName || user?.nombreCompleto || 'Usuario'}
+                  {userName || user?.nombreCompleto || "Usuario"}
                 </button>
                 <div className="flex items-center justify-center px-3 md:px-4">
                   {profilePhotoUrl ? (
@@ -293,21 +298,26 @@ export default function DynamicNavbar({ onBecomeHost, onBecomeDriver }: DynamicN
                       height={32}
                       className="w-6 h-6 md:w-8 md:h-8 object-cover rounded-full border border-white"
                       onError={() => {
-                        console.error('Error loading profile image:', profilePhotoUrl);
+                        console.error(
+                          "Error loading profile image:",
+                          profilePhotoUrl
+                        );
                         setProfilePhotoUrl(null);
                       }}
                     />
                   ) : (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
                       viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="w-5 h-5 md:w-6 md:h-6 text-[var(--blanco)]"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="w-6 h-6 text-[var(--blanco)]"
                     >
                       <path
-                        fillRule="evenodd"
-                        d="M18.685 19.097A9.723 9.723 0 0 0 21.75 12c0-5.385-4.365-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 0 0 3.065 7.097A9.716 9.716 0 0 0 12 21.75a9.716 9.716 0 0 0 6.685-2.653Zm-12.54-1.285A7.486 7.486 0 0 1 12 15a7.486 7.486 0 0 1 5.855 2.812A8.224 8.224 0 0 1 12 20.25a8.224 8.224 0 0 1-5.855-2.438ZM15.75 9a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
-                        clipRule="evenodd"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0"
                       />
                     </svg>
                   )}
@@ -319,7 +329,7 @@ export default function DynamicNavbar({ onBecomeHost, onBecomeDriver }: DynamicN
                     onLogout={handleLogout}
                     router={router}
                     onBecomeHost={handleHostRegistration}
-                    onBecomeDriver={onBecomeDriver || (() => { })}
+                    onBecomeDriver={onBecomeDriver || (() => {})}
                     user={user}
                   />
                 )}
@@ -364,8 +374,7 @@ export default function DynamicNavbar({ onBecomeHost, onBecomeDriver }: DynamicN
           onClose={() => setShowRecuperarPassword(false)}
           onPasswordRecoverySubmit={handlePasswordRecoverySubmit}
         />
-      )
-      }
+      )}
       {!isLoggedIn && showCodeVerification && (
         <CodeVerificationModal
           onClose={() => {
@@ -381,7 +390,7 @@ export default function DynamicNavbar({ onBecomeHost, onBecomeDriver }: DynamicN
           code={verificationCode}
           onClose={() => {
             setShowNewPassword(false);
-            setVerificationCode('');
+            setVerificationCode("");
           }}
           onNewPasswordSubmit={handleNewPasswordSuccess}
         />
@@ -429,7 +438,7 @@ function ProfileMenu({
   onLogout,
   router,
   onBecomeHost,
-  user
+  user,
 }: {
   onLogout: () => void;
   router: ReturnType<typeof useRouter>;
@@ -441,7 +450,7 @@ function ProfileMenu({
     <div className="absolute right-0 top-full mt-2 w-40 bg-[var(--blanco)] border rounded-lg shadow-lg z-[9999] font-[var(--tamaña-bold)]">
       <button
         className="block w-full text-left px-4 py-2 text-[var(--naranja)] hover:bg-[var(--naranja-46)] rounded-t-lg"
-        onClick={() => router.push('/home/homePage/userPerfil')}
+        onClick={() => router.push("/home/homePage/userPerfil")}
       >
         <h2 className="hover:text-[var(--blanco)]">Ver perfil</h2>
       </button>
@@ -449,7 +458,7 @@ function ProfileMenu({
       {user?.driverBool && (
         <button
           className="block w-full text-left px-4 py-2 text-[var(--naranja)] hover:bg-[var(--naranja-46)]"
-          onClick={() => router.push('/home/homePage/userPerfilDriver')}
+          onClick={() => router.push("/home/homePage/userPerfilDriver")}
         >
           <h2 className="hover:text-[var(--blanco)]">Perfil de Conductor</h2>
         </button>
@@ -467,7 +476,7 @@ function ProfileMenu({
       {!user?.driverBool && (
         <button
           className="block w-full text-left px-4 py-2 text-[var(--naranja)] hover:bg-[var(--naranja-46)]"
-          onClick={() => router.push('/home/Driver')}
+          onClick={() => router.push("/home/Driver")}
         >
           <h2 className="hover:text-[var(--blanco)]">Quiero ser Conductor</h2>
         </button>
