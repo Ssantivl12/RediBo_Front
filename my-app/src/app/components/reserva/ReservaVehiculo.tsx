@@ -1,3 +1,4 @@
+// ReservaVehiculo.tsx - con tipo y año visibles correctamente sobre la imagen
 "use client";
 
 import { useEffect, useState } from "react";
@@ -93,9 +94,10 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
           {vehiculo.marca} {vehiculo.modelo}
         </h1>
 
+        {/* Etiquetas: Sedán - 2014 */}
         <div className="flex gap-2 mb-4">
-          <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">{vehiculo.tipo}</span>
-          <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">{vehiculo.anio}</span>
+          <span className="bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm">{vehiculo.tipo || "Tipo no definido"}</span>
+          <span className="bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm">{vehiculo.anio || "Año no definido"}</span>
         </div>
 
         <div className="w-full h-64 bg-gray-200 rounded-lg mb-4 overflow-hidden">
@@ -109,7 +111,6 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
         <h2 className="text-xl font-bold text-blue-900 mb-1">Acerca de este auto</h2>
         <p className="text-gray-600 mb-4">{vehiculo.descripcion}</p>
 
-        {/* Iconos de características */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm text-gray-700 mt-4">
           <div className="flex items-center">
             <FaUsers className="mr-2 text-black" />
@@ -124,13 +125,11 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
             {vehiculo.combustible || "Gasolina"}
           </div>
           <div className="flex items-center">
-            <FaShieldAlt className="mr-2 text-black" />
-            Garantía
+            <FaShieldAlt className="mr-2 text-black" /> Garantía
           </div>
         </div>
       </div>
 
-      {/* Tarjeta lateral de resumen de pago */}
       <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
         <div className="flex items-end mb-4">
           <div className="text-2xl font-bold text-blue-900">{vehiculo.tarifa} Bs</div>
@@ -168,7 +167,6 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
         </button>
       </div>
 
-      {/* Tiempo restante */}
       <div className="md:col-span-3 text-center mt-8">
         <p className="font-semibold text-lg">Tiempo Restante</p>
         <p className="text-4xl font-mono text-gray-800 mt-2">{formatoTiempo(estadoTiempo)}</p>
