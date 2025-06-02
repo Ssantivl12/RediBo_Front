@@ -191,7 +191,7 @@ export default function PanelComentarios({ mostrar, onClose, comentarios, marca,
                 <div className="flex items-center gap-3">
                   <Image src="/imagenesIconos/usuario.png" alt="Usuario" className="w-10 h-10 rounded-full" width={50} height={50} unoptimized />
                   <div>
-                    <strong className="text-black font-semibold">{comentario.usuario.nombreCompleto}</strong>
+                    <strong className="text-black font-semibold">{comentario.usuario.nombre}{comentario.usuario.apellido}</strong>
                     <div className="text-sm text-gray-500">{fecha}</div>
                   </div>
                 </div>

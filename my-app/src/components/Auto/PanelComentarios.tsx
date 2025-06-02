@@ -19,14 +19,15 @@ function resaltarCoincidencias(texto: string, termino: string) {
 
   return partes.map((parte, index) =>
     parte.toLowerCase() === termino.toLowerCase() ? (
-      <mark key={index} className="bg-yellow-200 text-black font-semibold">
+      <span key={index} className="font-bold text-black">
         {parte}
-      </mark>
+      </span>
     ) : (
       <span key={index}>{parte}</span>
     )
   );
 }
+
 
 function escapeRegExp(string: string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
