@@ -1,4 +1,3 @@
-// ReservaVehiculo.tsx - incluye descripción estática estilo referencia
 "use client";
 
 import { useEffect, useState } from "react";
@@ -177,16 +176,17 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
 
         <button
           onClick={() => router.push(`/pago?id=${id}&monto=${total}`)}
-          className="w-full bg-[#FFA500] hover:bg-[#e69500] text-white py-3 rounded-md font-medium"
+          className="w-full bg-[#FFA500] hover:bg-[#e69500] text-white py-3 rounded-md font-medium mb-3"
         >
           Pagar el 100% ahora
         </button>
+
         <button
-  onClick={cancelarReserva}
-  className="w-full bg-gray-100 hover:bg-gray-200 text-black py-3 rounded-md font-medium border"
->
-  Cancelar Reserva
-</button>
+          onClick={cancelarReserva}
+          className="w-full bg-gray-100 hover:bg-gray-200 text-black py-3 rounded-md font-medium border"
+        >
+          Cancelar Reserva
+        </button>
       </div>
 
       <div className="md:col-span-3 text-center mt-8">
