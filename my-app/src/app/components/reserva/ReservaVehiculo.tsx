@@ -1,4 +1,4 @@
-// ReservaVehiculo.tsx - con tarjeta de propietario estilo Kia Rio
+// ReservaVehiculo.tsx - incluye descripción estática estilo referencia
 "use client";
 
 import { useEffect, useState } from "react";
@@ -103,9 +103,12 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
           <img src={vehiculo.imagen} alt="imagen" className="w-full h-full object-cover" />
         </div>
 
-        {/* Tarjeta de propietario estilo imagen referencia */}
         <div className="flex items-center mb-6 pb-6 border-b border-gray-200">
-          <div className="w-12 h-12 bg-gray-300 rounded-full mr-4"></div>
+          <img
+            src={vehiculo.imagen}
+            alt="Avatar vehículo"
+            className="w-12 h-12 rounded-full object-cover mr-4 border"
+          />
           <div>
             <p className="font-semibold text-black">
               Auto ofrecido por Sergio Campos Noriega
@@ -120,7 +123,9 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
         </div>
 
         <h2 className="text-xl font-bold text-blue-900 mb-1">Acerca de este auto</h2>
-        <p className="text-gray-600 mb-4">{vehiculo.descripcion}</p>
+        <p className="text-gray-600 mb-4">
+          Kia Rio 2014 en excelentes condiciones. A/C, radio, USB. Bajo consumo de combustible.
+        </p>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm text-gray-700 mt-4">
           <div className="flex items-center">
