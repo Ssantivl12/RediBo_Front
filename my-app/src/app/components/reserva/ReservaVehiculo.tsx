@@ -1,11 +1,11 @@
-// ReservaVehiculo.tsx - con tipo y año visibles correctamente sobre la imagen
+// ReservaVehiculo.tsx - con tarjeta de propietario estilo Kia Rio
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { HiOutlineCalendar } from "react-icons/hi";
-import { FaUsers, FaCog, FaGasPump, FaShieldAlt } from "react-icons/fa";
+import { FaUsers, FaCog, FaGasPump, FaShieldAlt, FaStar } from "react-icons/fa";
 
 interface ReservaVehiculoProps {
   id: number | null;
@@ -94,7 +94,6 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
           {vehiculo.marca} {vehiculo.modelo}
         </h1>
 
-        {/* Etiquetas: Sedán - 2014 */}
         <div className="flex gap-2 mb-4">
           <span className="bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm">{vehiculo.tipo || "Tipo no definido"}</span>
           <span className="bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm">{vehiculo.anio || "Año no definido"}</span>
@@ -104,8 +103,20 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
           <img src={vehiculo.imagen} alt="imagen" className="w-full h-full object-cover" />
         </div>
 
-        <div className="text-gray-800 font-medium mb-2">
-          Auto ofrecido por {vehiculo.propietario?.nombreCompleto || "Desconocido"}
+        {/* Tarjeta de propietario estilo imagen referencia */}
+        <div className="flex items-center mb-6 pb-6 border-b border-gray-200">
+          <div className="w-12 h-12 bg-gray-300 rounded-full mr-4"></div>
+          <div>
+            <p className="font-semibold text-black">
+              Auto ofrecido por Sergio Campos Noriega
+            </p>
+            <div className="flex items-center">
+              <FaStar className="text-yellow-400" />
+              <span className="ml-1 text-sm font-semibold text-black">
+                3 (1 reseña)
+              </span>
+            </div>
+          </div>
         </div>
 
         <h2 className="text-xl font-bold text-blue-900 mb-1">Acerca de este auto</h2>
