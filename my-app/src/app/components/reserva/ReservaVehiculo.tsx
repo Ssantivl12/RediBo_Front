@@ -1,3 +1,4 @@
+// ReservaVehiculo.tsx - Estilo replicado del formato Kia Rio
 "use client";
 
 import { useEffect, useState } from "react";
@@ -23,7 +24,6 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
           if (response.data.success) {
             setVehiculo(response.data.data);
             setIdReserva(response.data.data.reserva.idreserva);
-
             const fechaFin = new Date(response.data.data.reserva.fecha_fin);
             const tiempoRestante = Math.floor((fechaFin.getTime() - Date.now()) / 1000);
             setEstadoTiempo(tiempoRestante > 0 ? tiempoRestante : 0);
@@ -82,74 +82,71 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
   const fechaFin = new Date(vehiculo.reserva.fecha_fin);
   const tiempoMs = fechaFin.getTime() - fechaInicio.getTime();
   const dias = Math.ceil(tiempoMs / (1000 * 60 * 60 * 24));
-
   const precioTotal = vehiculo.tarifa * dias;
   const garantia = vehiculo.garantia || 0;
   const total = precioTotal + garantia;
 
   return (
-    <div className="max-w-7xl mx-auto mt-10 p-8 bg-white rounded-xl shadow-lg space-y-6">
-      <h2 className="text-3xl font-bold text-gray-800">Detalles de tu Reserva</h2>
+    <div className="max-w-6xl mx-auto mt-8 px-4 md:px-8 grid md:grid-cols-3 gap-6">
+      <div className="md:col-span-2">
+        <h1 className="text-3xl font-bold text-blue-900 mb-2">
+          {vehiculo.marca} {vehiculo.modelo}
+        </h1>
+        <div className="flex gap-2 mb-4">
+          <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">{vehiculo.tipo}</span>
+          <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">{vehiculo.anio}</span>
+        </div>
+        <div className="w-full h-64 bg-gray-200 rounded-lg mb-4 overflow-hidden">
+          <img src={vehiculo.imagen} alt="imagen" className="w-full h-full object-cover" />
+        </div>
+        <div className="text-gray-800 font-medium mb-2">
+          Auto ofrecido por {vehiculo.propietario?.nombreCompleto || "Desconocido"}
+        </div>
+        <h2 className="text-xl font-bold text-blue-900 mb-1">Acerca de este auto</h2>
+        <p className="text-gray-600 mb-4">{vehiculo.descripcion}</p>
+      </div>
 
-      <div className="flex flex-col md:flex-row bg-gray-100 rounded-lg p-6 gap-6 items-center">
-        <div className="w-full md:w-2/3">
-          <h3 className="text-2xl font-semibold text-gray-800">
-            {vehiculo.marca} {vehiculo.modelo}
-          </h3>
-          <p className="text-gray-500">Placa: {vehiculo.placa}</p>
-          <p className="text-gray-600 mt-2">{vehiculo.descripcion}</p>
+      {/* Lado derecho - Detalles del pago */}
+      <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+        <div className="flex items-end mb-4">
+          <div className="text-2xl font-bold text-blue-900">{vehiculo.tarifa} Bs</div>
+          <div className="text-sm text-gray-600 ml-1">/por día</div>
+        </div>
 
-          <p className="font-semibold text-xl mt-4">Bs {vehiculo.tarifa} / por día</p>
+        <div className="border border-gray-300 rounded-md p-3 flex items-center mb-4">
+          <HiOutlineCalendar className="text-black mr-2" />
+          <span className="text-sm">
+            {fechaInicio.toLocaleDateString()} - {fechaFin.toLocaleDateString()}
+          </span>
+        </div>
 
-          <div className="mt-3 border border-gray-300 rounded-md p-3 flex items-center">
-            <HiOutlineCalendar className="text-black mr-2" />
-            <span className="text-sm">
-              {fechaInicio.toLocaleDateString()} - {fechaFin.toLocaleDateString()}
-            </span>
+        <div className="border-t border-gray-200 pt-4 mb-4">
+          <h3 className="font-bold mb-2 text-black">Detalles del precio</h3>
+          <div className="flex justify-between text-sm mb-1">
+            <span>{vehiculo.tarifa} Bs × {dias} días</span>
+            <span>{precioTotal} Bs</span>
           </div>
-
-          <div className="mt-5 border-t border-gray-300 pt-4 text-sm">
-            <h4 className="font-bold mb-2 text-black text-base">Detalles del precio</h4>
-            <div className="flex justify-between">
-              <span>{vehiculo.tarifa} Bs × {dias} días</span>
-              <span>{precioTotal} Bs</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Garantía (reembolsable)</span>
-              <span>{garantia} Bs</span>
-            </div>
-            <div className="flex justify-between font-bold border-t border-gray-200 pt-3 mt-2">
-              <span>Total</span>
-              <span>{total} Bs</span>
-            </div>
+          <div className="flex justify-between text-sm mb-1">
+            <span>Garantía (reembolsable)</span>
+            <span>{garantia} Bs</span>
+          </div>
+          <div className="flex justify-between font-bold pt-2 border-t border-gray-200 text-base">
+            <span>Total</span>
+            <span>{total} Bs</span>
           </div>
         </div>
 
-        <img
-          src={vehiculo.imagen}
-          alt={vehiculo.marca}
-          className="w-full md:w-48 h-auto rounded-lg shadow-md object-cover"
-        />
-      </div>
-
-      <div className="text-center mt-6">
-        <p className="font-semibold text-lg">Tiempo Restante</p>
-        <p id="countdown" className="text-4xl font-mono text-gray-800">{formatoTiempo(estadoTiempo)}</p>
-      </div>
-
-      <div className="flex justify-center gap-4 mt-8">
         <button
           onClick={() => router.push(`/pago?id=${id}&monto=${total}`)}
-          className="bg-[#FCA311] hover:bg-[#e2910f] text-white px-6 py-3 rounded-xl shadow-lg transition duration-200 transform hover:scale-105"
+          className="w-full bg-[#FFA500] hover:bg-[#e69500] text-white py-3 rounded-md font-medium"
         >
           Pagar el 100% ahora
         </button>
-        <button
-          onClick={cancelarReserva}
-          className="bg-[#FCA311] hover:bg-[#e2910f] text-white px-6 py-3 rounded-xl shadow-lg transition duration-200 transform hover:scale-105"
-        >
-          Cancelar Reserva
-        </button>
+      </div>
+
+      <div className="md:col-span-3 text-center mt-8">
+        <p className="font-semibold text-lg">Tiempo Restante</p>
+        <p className="text-4xl font-mono text-gray-800 mt-2">{formatoTiempo(estadoTiempo)}</p>
       </div>
     </div>
   );
