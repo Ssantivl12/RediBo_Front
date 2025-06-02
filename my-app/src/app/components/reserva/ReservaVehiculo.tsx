@@ -1,3 +1,4 @@
+// ReservaVehiculo.tsx - tiempo restante encima del precio
 "use client";
 
 import { useEffect, useState } from "react";
@@ -146,6 +147,11 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
       </div>
 
       <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+        <div className="text-center mb-2">
+          <p className="text-xs text-gray-500">Tiempo restante</p>
+          <p className="text-lg font-mono text-black">{formatoTiempo(estadoTiempo)}</p>
+        </div>
+
         <div className="flex items-end mb-4">
           <div className="text-2xl font-bold text-blue-900">{vehiculo.tarifa} Bs</div>
           <div className="text-sm text-gray-600 ml-1">/por día</div>
@@ -187,11 +193,6 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
         >
           Cancelar Reserva
         </button>
-      </div>
-
-      <div className="md:col-span-3 text-center mt-8">
-        <p className="font-semibold text-lg">Tiempo Restante</p>
-        <p className="text-4xl font-mono text-gray-800 mt-2">{formatoTiempo(estadoTiempo)}</p>
       </div>
     </div>
   );
