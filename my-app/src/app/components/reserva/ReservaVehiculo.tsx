@@ -181,6 +181,12 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
         >
           Pagar el 100% ahora
         </button>
+        <button
+  onClick={cancelarReserva}
+  className="w-full bg-gray-100 hover:bg-gray-200 text-black py-3 rounded-md font-medium border"
+>
+  Cancelar Reserva
+</button>
       </div>
 
       <div className="md:col-span-3 text-center mt-8">
