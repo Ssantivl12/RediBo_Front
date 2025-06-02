@@ -28,7 +28,7 @@ export default function CompleteProfileModal({
   const [phoneError, setPhoneError] = useState(false);
   const [phoneMessage, setPhoneMessage] = useState("");
   const [error, setError] = useState("");
-  const userEmail = localStorage.getItem("google_email");
+  /* const userEmail = localStorage.getItem("google_email"); */
   const [termsError, setTermsError] = useState(false); // Estado para manejar el error de aceptación
 
   const daysInMonth =
@@ -193,7 +193,6 @@ export default function CompleteProfileModal({
         },
         credentials: "include",
         body: JSON.stringify({
-          email: userEmail,
           nombreCompleto: name.trim(),
           fechaNacimiento: birthDate.toISOString(),
           telefono: cleanPhone,
