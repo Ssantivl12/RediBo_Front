@@ -129,7 +129,7 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
           onClick={() => router.push(`/pago?id=${id}&monto=${vehiculo.tarifa * vehiculo.reserva.dias + vehiculo.garantia}`)}
           className="bg-[#FCA311] hover:bg-[#e2910f] text-white px-6 py-3 rounded-xl shadow-lg transition duration-200 transform hover:scale-105"
         >
-          ConfirmarPago
+          pagar el 100% ahora
         </button>
         <button
           onClick={cancelarReserva}
