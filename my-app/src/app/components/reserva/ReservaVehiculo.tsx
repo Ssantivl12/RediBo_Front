@@ -1,10 +1,10 @@
-// ReservaVehiculo.tsx - Estilo replicado del formato Kia Rio
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { HiOutlineCalendar } from "react-icons/hi";
+import { FaUsers, FaCog, FaGasPump, FaShieldAlt } from "react-icons/fa";
 
 interface ReservaVehiculoProps {
   id: number | null;
@@ -92,21 +92,45 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
         <h1 className="text-3xl font-bold text-blue-900 mb-2">
           {vehiculo.marca} {vehiculo.modelo}
         </h1>
+
         <div className="flex gap-2 mb-4">
           <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">{vehiculo.tipo}</span>
           <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">{vehiculo.anio}</span>
         </div>
+
         <div className="w-full h-64 bg-gray-200 rounded-lg mb-4 overflow-hidden">
           <img src={vehiculo.imagen} alt="imagen" className="w-full h-full object-cover" />
         </div>
+
         <div className="text-gray-800 font-medium mb-2">
           Auto ofrecido por {vehiculo.propietario?.nombreCompleto || "Desconocido"}
         </div>
+
         <h2 className="text-xl font-bold text-blue-900 mb-1">Acerca de este auto</h2>
         <p className="text-gray-600 mb-4">{vehiculo.descripcion}</p>
+
+        {/* Iconos de características */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm text-gray-700 mt-4">
+          <div className="flex items-center">
+            <FaUsers className="mr-2 text-black" />
+            {vehiculo.asientos || "5"} Asientos
+          </div>
+          <div className="flex items-center">
+            <FaCog className="mr-2 text-black" />
+            {vehiculo.transmision || "Manual"}
+          </div>
+          <div className="flex items-center">
+            <FaGasPump className="mr-2 text-black" />
+            {vehiculo.combustible || "Gasolina"}
+          </div>
+          <div className="flex items-center">
+            <FaShieldAlt className="mr-2 text-black" />
+            Garantía
+          </div>
+        </div>
       </div>
 
-      {/* Lado derecho - Detalles del pago */}
+      {/* Tarjeta lateral de resumen de pago */}
       <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
         <div className="flex items-end mb-4">
           <div className="text-2xl font-bold text-blue-900">{vehiculo.tarifa} Bs</div>
@@ -144,6 +168,7 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
         </button>
       </div>
 
+      {/* Tiempo restante */}
       <div className="md:col-span-3 text-center mt-8">
         <p className="font-semibold text-lg">Tiempo Restante</p>
         <p className="text-4xl font-mono text-gray-800 mt-2">{formatoTiempo(estadoTiempo)}</p>
