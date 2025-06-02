@@ -77,8 +77,13 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
     return <p className="text-center mt-8">Cargando información del vehículo...</p>;
   }
 
+  const dias = vehiculo.reserva.dias || 0;
+  const precioTotal = vehiculo.tarifa * dias;
+  const garantia = vehiculo.garantia || 0;
+  const total = precioTotal + garantia;
+
   return (
-    <div className="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-lg space-y-6">
+    <div className="max-w-7xl mx-auto mt-10 p-8 bg-white rounded-xl shadow-lg space-y-6">
       <h2 className="text-3xl font-bold text-gray-800">Detalles de tu Reserva</h2>
 
       <div className="flex flex-col md:flex-row bg-gray-100 rounded-lg p-6 gap-6 items-center">
@@ -86,28 +91,29 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
           <h3 className="text-2xl font-semibold text-gray-800">{vehiculo.marca} {vehiculo.modelo}</h3>
           <p className="text-gray-500">Placa: {vehiculo.placa}</p>
           <p className="text-gray-600 mt-2">{vehiculo.descripcion}</p>
+
           <p className="font-semibold text-xl mt-4">Bs {vehiculo.tarifa} / por día</p>
 
-          <div className="mt-4 border border-gray-300 rounded-md p-3 flex items-center">
+          <div className="mt-3 border border-gray-300 rounded-md p-3 flex items-center">
             <HiOutlineCalendar className="text-black mr-2" />
             <span className="text-sm">
               {new Date(vehiculo.reserva.fecha_inicio).toLocaleDateString()} - {new Date(vehiculo.reserva.fecha_fin).toLocaleDateString()}
             </span>
           </div>
 
-          <div className="mt-4 border-t border-gray-200 pt-4">
-            <h4 className="font-bold mb-2 text-black">Detalles del precio</h4>
+          <div className="mt-5 border-t border-gray-300 pt-4 text-sm">
+            <h4 className="font-bold mb-2 text-black text-base">Detalles del precio</h4>
             <div className="flex justify-between">
-              <span>{vehiculo.tarifa} Bs × {vehiculo.reserva.dias} días</span>
-              <span>{vehiculo.tarifa * vehiculo.reserva.dias} Bs</span>
+              <span>{vehiculo.tarifa} Bs × {dias} días</span>
+              <span>{precioTotal || "-"} Bs</span>
             </div>
             <div className="flex justify-between">
               <span>Garantía (reembolsable)</span>
-              <span>{vehiculo.garantia} Bs</span>
+              <span>{garantia || "-"} Bs</span>
             </div>
-            <div className="flex justify-between font-bold pt-2 border-t border-gray-200 mt-2">
+            <div className="flex justify-between font-bold border-t border-gray-200 pt-3 mt-2">
               <span>Total</span>
-              <span>{vehiculo.tarifa * vehiculo.reserva.dias + vehiculo.garantia} Bs</span>
+              <span>{total || "-"} Bs</span>
             </div>
           </div>
         </div>
@@ -126,10 +132,10 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
 
       <div className="flex justify-center gap-4 mt-8">
         <button
-          onClick={() => router.push(`/pago?id=${id}&monto=${vehiculo.tarifa * vehiculo.reserva.dias + vehiculo.garantia}`)}
+          onClick={() => router.push(`/pago?id=${id}&monto=${total}`)}
           className="bg-[#FCA311] hover:bg-[#e2910f] text-white px-6 py-3 rounded-xl shadow-lg transition duration-200 transform hover:scale-105"
         >
-          pagar el 100% ahora
+          Pagar el 100% ahora
         </button>
         <button
           onClick={cancelarReserva}
