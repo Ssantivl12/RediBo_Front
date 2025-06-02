@@ -34,6 +34,8 @@ interface Vehiculo {
   imagen?: string;
   estado?: string;
   fechaCreacion?: string;
+  promedioCalificacion?: number; // Nuevo campo
+  totalComentarios?: number; // Nuevo campo
   estadoActual: {
     tipo: string;
     datos: {
@@ -88,8 +90,9 @@ const fetchComentarios = async (idAuto: number) => {
     const response = await fetch(`${API_URL}/comentarios/auto/${idAuto}`);
     if (!response.ok) throw new Error("No se pudieron cargar los comentarios");
     const data = await response.json();
-    console.log("Comentarios cargados:", data);
-    setComentarios(data);
+    console.log("Datos del vehículo:", vehiculos.find(v => v.idAuto === idAuto)); // Verifica esto
+    setComentarios(data.comentarios || []);
+    setVehiculoSeleccionado(idAuto); // Asegúrate que esto se ejecute
     setMostrarModalComentarios(true);
   } catch (error) {
     console.error("Error al obtener comentarios:", error);
@@ -160,27 +163,76 @@ const fetchComentarios = async (idAuto: number) => {
     cargarVehiculos();
   }, []);
 
-  const cargarVehiculos = async () => {
-    setCargando(true);
-    setError("");
-    const idArrendador = params.idArrendador;
+  const renderPromedioCalificacion = (vehiculo: Vehiculo) => {
+  if (!vehiculo.promedioCalificacion || vehiculo.promedioCalificacion === 0) {
+    return null;
+  }
+
+  return (
+    <div className="flex items-center mt-2">
+      <div className="flex mr-1">
+        {[...Array(5)].map((_, i) => (
+          <span
+            key={i}
+            className={i < Math.round(vehiculo.promedioCalificacion!) ? "text-yellow-400" : "text-gray-300"}
+          >
+            ★
+          </span>
+        ))}
+      </div>
+      <span className="text-sm font-medium text-gray-700">
+        {vehiculo.promedioCalificacion.toFixed(1)}
+        {vehiculo.totalComentarios && (
+          <span className="text-gray-500">({vehiculo.totalComentarios})</span>
+        )}
+      </span>
+    </div>
+  );
+};
+
+ const cargarVehiculos = async () => {
+  setCargando(true);
+  setError("");
+  const idArrendador = params.idArrendador;
+  
+  try {
+    const response = await fetch(`${API_URL}/autos/arrendador/${idArrendador}`);
     
-    try {
-      const response = await fetch(`${API_URL}/autos/arrendador/${idArrendador}`);
-      
-      if (!response.ok) {
-        throw new Error(`Error al cargar vehículos: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      setVehiculos(data.autos);
-    } catch (err) {
-      console.error("Error al cargar los vehículos:", err);
-      setError("No se pudieron cargar los vehículos. Por favor, intente nuevamente.");
-    } finally {
-      setCargando(false);
+    if (!response.ok) {
+      throw new Error(`Error al cargar vehículos: ${response.status}`);
     }
-  };
+    
+    const data = await response.json();
+    // Obtener calificaciones para cada vehículo
+    const vehiculosConCalificaciones = await Promise.all(
+      data.autos.map(async (vehiculo: Vehiculo) => {
+        try {
+          const resComentarios = await fetch(`${API_URL}/comentarios/auto/${vehiculo.idAuto}`);
+          if (resComentarios.ok) {
+            const comentarios = await resComentarios.json();
+            const promedio = comentarios.reduce((acc: number, curr: Comentario) => acc + curr.puntuacion, 0) / comentarios.length;
+            return {
+              ...vehiculo,
+              promedioCalificacion: isNaN(promedio) ? 0 : parseFloat(promedio.toFixed(1)),
+              totalComentarios: comentarios.length
+            };
+          }
+          return vehiculo;
+        } catch (error) {
+          console.error(`Error al cargar comentarios para auto ${vehiculo.idAuto}:`, error);
+          return vehiculo;
+        }
+      })
+    );
+    
+    setVehiculos(vehiculosConCalificaciones);
+  } catch (err) {
+    console.error("Error al cargar los vehículos:", err);
+    setError("No se pudieron cargar los vehículos. Por favor, intente nuevamente.");
+  } finally {
+    setCargando(false);
+  }
+};
 
  const getFilteredVehiculos = () => {
   let filtered = vehiculos.filter((v) =>
@@ -466,7 +518,13 @@ const fetchComentarios = async (idAuto: number) => {
         <div className="flex items-center w-full">
         <div className="ml-auto flex gap-2">
           <button
-            onClick={() => fetchComentarios(vehiculo.idAuto)}
+            onClick={() => {
+              const vehiculoActual = vehiculos.find(v => v.idAuto === vehiculo.idAuto);
+              if (vehiculoActual) {
+                fetchComentarios(vehiculo.idAuto);
+                setVehiculoSeleccionado(vehiculo.idAuto);
+              }
+            }}
             className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
           >
             Ver comentarios
@@ -490,8 +548,14 @@ const fetchComentarios = async (idAuto: number) => {
             Liberar Auto
           </button>
           <div className="ml-auto flex gap-2">
-            <button
-              onClick={() => fetchComentarios(vehiculo.idAuto)}
+           <button
+              onClick={() => {
+                const vehiculoActual = vehiculos.find(v => v.idAuto === vehiculo.idAuto);
+                if (vehiculoActual) {
+                  fetchComentarios(vehiculo.idAuto);
+                  setVehiculoSeleccionado(vehiculo.idAuto);
+                }
+              }}
               className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
             >
               Ver comentarios
@@ -517,7 +581,13 @@ const fetchComentarios = async (idAuto: number) => {
           </button>
           <div className="ml-auto flex gap-2">
             <button
-              onClick={() => fetchComentarios(vehiculo.idAuto)}
+              onClick={() => {
+                const vehiculoActual = vehiculos.find(v => v.idAuto === vehiculo.idAuto);
+                if (vehiculoActual) {
+                  fetchComentarios(vehiculo.idAuto);
+                  setVehiculoSeleccionado(vehiculo.idAuto);
+                }
+              }}
               className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
             >
               Ver comentarios
@@ -535,12 +605,18 @@ const fetchComentarios = async (idAuto: number) => {
       return (
         <div className="flex items-center w-full">
           <div className="ml-auto flex gap-2">
-            <button
-              onClick={() => fetchComentarios(vehiculo.idAuto)}
-              className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-            >
-              Ver comentarios
-            </button>
+          <button
+            onClick={() => {
+              const vehiculoActual = vehiculos.find(v => v.idAuto === vehiculo.idAuto);
+              if (vehiculoActual) {
+                fetchComentarios(vehiculo.idAuto);
+                setVehiculoSeleccionado(vehiculo.idAuto);
+              }
+            }}
+            className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
+          >
+            Ver comentarios
+          </button>
             <button
               onClick={() => setModalKilometraje(true)}
               className="ml-auto bg-[#FCA311] hover:bg-yellow-500 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
@@ -561,7 +637,13 @@ const fetchComentarios = async (idAuto: number) => {
           </button>
           <div className="ml-auto flex gap-2">
             <button
-              onClick={() => fetchComentarios(vehiculo.idAuto)}
+              onClick={() => {
+                const vehiculoActual = vehiculos.find(v => v.idAuto === vehiculo.idAuto);
+                if (vehiculoActual) {
+                  fetchComentarios(vehiculo.idAuto);
+                  setVehiculoSeleccionado(vehiculo.idAuto);
+                }
+              }}
               className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
             >
               Ver comentarios
@@ -586,7 +668,13 @@ const fetchComentarios = async (idAuto: number) => {
           </button>
           <div className="ml-auto flex gap-2">
             <button
-              onClick={() => fetchComentarios(vehiculo.idAuto)}
+              onClick={() => {
+                const vehiculoActual = vehiculos.find(v => v.idAuto === vehiculo.idAuto);
+                if (vehiculoActual) {
+                  fetchComentarios(vehiculo.idAuto);
+                  setVehiculoSeleccionado(vehiculo.idAuto);
+                }
+              }}
               className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
             >
               Ver comentarios
@@ -672,7 +760,7 @@ const fetchComentarios = async (idAuto: number) => {
                       {vehiculo.placa}
                     </span>
                   </div>
-                  
+                  {renderPromedioCalificacion(vehiculo)}
                   <div>
                     {renderEstadoVehiculo(vehiculo)}
                   </div>
@@ -783,6 +871,10 @@ const fetchComentarios = async (idAuto: number) => {
         isOpen={mostrarModalComentarios}
         onClose={() => setMostrarModalComentarios(false)}
         comentarios={comentarios}
+        vehiculoInfo={
+          vehiculos.find(v => v.idAuto === vehiculoSeleccionado) || 
+          { marca: '', modelo: '', anio: '' }
+        }
       />
     </div>
   );

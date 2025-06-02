@@ -14,12 +14,14 @@ interface ComentariosModalProps {
   isOpen: boolean;
   onClose: () => void;
   comentarios: Comentario[];
+  vehiculoInfo: { marca: string; modelo: string; anio?: string };
 }
 
 export const VerComentarios: React.FC<ComentariosModalProps> = ({
   isOpen,
   onClose,
   comentarios,
+  vehiculoInfo,
 }) => {
   const [orden, setOrden] = useState<
     "recientes" | "antiguos" | "mayor" | "menor"
@@ -80,7 +82,12 @@ export const VerComentarios: React.FC<ComentariosModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <Modal isOpen={isOpen} onClose={onClose} title="Comentarios del vehículo" width="xl">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={`Comentarios del vehículo: ${vehiculoInfo.marca} ${vehiculoInfo.modelo}${vehiculoInfo.anio ? ` ${vehiculoInfo.anio}` : ''}`}
+      width="xl"
+    >
         <div className="space-y-6">
           <div className="flex flex-wrap gap-2 mb-4">
             {botones.map(({ label, value }) => (
