@@ -41,8 +41,8 @@ export default function InformacionHost() {
       <div className="space-y-2 mb-5">
         <p><span className="font-bold">Edad:</span> {edad} Años</p>
         <p><span className="font-bold">Teléfono:</span> {telefono}</p>
-        <p><span className="font-bold">Dirección:</span> {direccion}</p>
-        <p><span className="font-bold">Correo electrónico:</span> {email}</p>
+        <p><span className="font-bold">Ciudad:</span> {direccion}</p>
+        <p><span className="font-bold">Ceo electrónico:</span> {email}</p>
       </div>
 
       <div className="mt-4">

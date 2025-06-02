@@ -33,6 +33,24 @@ export default function PanelComentariosHost({
       );
   }, [comentarios]);
 
+  function resaltarCoincidencias(texto: string, termino: string) {
+  if (!termino) return texto;
+
+  const regex = new RegExp(`(${termino})`, 'gi');
+  const partes = texto.split(regex);
+
+  return partes.map((parte, index) =>
+    regex.test(parte) ? (
+      <mark key={index} className="bg-yellow-200 text-black font-semibold">
+        {parte}
+      </mark>
+    ) : (
+      <span key={index}>{parte}</span>
+    )
+  );
+}
+
+
   const promedioCalificacion = comentariosValidos.length > 0
     ? parseFloat((comentariosValidos.reduce((acc, c) => acc + c.calificacion, 0) / comentariosValidos.length).toFixed(1))
     : 0;
@@ -339,7 +357,11 @@ export default function PanelComentariosHost({
             })
           ) : (
             <div className="text-center py-8">
-              <p className="text-gray-500">No hay reseñas disponibles</p>
+              <p className="text-gray-500">
+                {terminoBusqueda
+                  ? `No hay resultados para '${terminoBusqueda}'`
+                  : 'No hay reseñas disponibles'}
+              </p>
             </div>
           )}
         </div>

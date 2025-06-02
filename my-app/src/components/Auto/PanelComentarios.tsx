@@ -11,11 +11,34 @@ interface PanelComentariosProps {
   marca: string;
   modelo: string;
 }
+function resaltarCoincidencias(texto: string, termino: string) {
+  if (!termino || !texto) return texto;
+
+  const regex = new RegExp(`(${escapeRegExp(termino)})`, 'gi'); // con escapeRegExp para evitar errores
+  const partes = texto.split(regex);
+
+  return partes.map((parte, index) =>
+    parte.toLowerCase() === termino.toLowerCase() ? (
+      <mark key={index} className="bg-yellow-200 text-black font-semibold">
+        {parte}
+      </mark>
+    ) : (
+      <span key={index}>{parte}</span>
+    )
+  );
+}
+
+function escapeRegExp(string: string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 
 export default function PanelComentarios({ mostrar, onClose, comentarios, marca, modelo }: PanelComentariosProps) {
   const [comentariosExpandidos, setComentariosExpandidos] = useState<Record<number, boolean>>({});
   const refsComentarios = useRef<Record<number, HTMLParagraphElement | null>>({});
   const [comentariosConOverflow, setComentariosConOverflow] = useState<Record<number, boolean>>({});
+  const [terminoBusqueda, setTerminoBusqueda] = useState('');
+
   const comentariosValidos = comentarios.filter(
     c => c.calificacion > 0 && c.contenido?.trim() !== ''
   );
@@ -173,8 +196,22 @@ export default function PanelComentarios({ mostrar, onClose, comentarios, marca,
         ))}
         
         <h3 className="text-xl mt-4 mb-2 text-black font-semibold">Comentarios</h3>
+        <input
+            type="text"
+            placeholder="Buscar en comentarios..."
+            className="border border-gray-300 rounded px-3 py-1 mb-4 w-full"
+            value={terminoBusqueda}
+            onChange={(e) => setTerminoBusqueda(e.target.value)}
+          />
+
         <div className="space-y-4">
-        {comentariosValidos.map((comentario) => {
+        {comentariosValidos
+  .filter((comentario) =>
+    (comentario.contenido || comentario.comentario)
+      .toLowerCase()
+      .includes(terminoBusqueda.toLowerCase())
+  )
+  .map((comentario) => {
           const fecha = new Date(comentario.fechaCreacion).toLocaleDateString('es-ES', {
             day: 'numeric',
             month: 'long',
@@ -212,8 +249,9 @@ export default function PanelComentarios({ mostrar, onClose, comentarios, marca,
                 }}
                 className={`${!estaExpandido ? 'line-clamp-3' : ''} text-black`}
               >
-                {comentario.contenido}
+                {resaltarCoincidencias(comentario.contenido || comentario.comentario, terminoBusqueda)}
               </p>
+
 
               {mostrarBoton && (
                 <button

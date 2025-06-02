@@ -93,7 +93,7 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales,auto
     <div>
 
       <main className="max-w-6xl mx-auto p-4 md:p-6">
-        <h1 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6 text-[#11295b] text-center md:text-left">
+        <h1 className="text-lg md:text-2xl font-bold mb-4 md:mb-1 text-[#11295b] text-left md:ml-106">
           Acerca del Anfitrión
         </h1>
         
@@ -160,12 +160,16 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales,auto
                         </p>
                       </div>
                     </div>
-                    
+                     <div className="flex items-center text-yellow-400 text-xl">
+                      {'★'.repeat(comentario.puntuacion)}
+                      {'☆'.repeat(5 - comentario.puntuacion)}
+                    </div>
+
                     <p
                       ref={(el) => {
                         refsComentarios.current[comentario.idCalificacion] = el;
                       }}
-                      className={`text-sm text-gray-600 mb-3 ${!estaExpandido ? 'line-clamp-4' : ''}`}
+                      className={`text-sm text-gray-600 mb-3 ${!estaExpandido ? 'line-clamp-3' : ''}`}
                     >
                       {comentario.comentario}
                     </p>
@@ -179,10 +183,7 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales,auto
                       </button>
                     )}
                     
-                    <div className="flex items-center text-yellow-400 text-xl">
-                      {'★'.repeat(comentario.puntuacion)}
-                      {'☆'.repeat(5 - comentario.puntuacion)}
-                    </div>
+                   
                   </div>
                 );
               })}
@@ -211,7 +212,7 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales,auto
           />
         )}
         <section className="mt-10">
-        <h2 className="text-2xl font-bold mb-6 text-[#11295b]">Autos del Host</h2>
+        <h2 className="text-2xl font-bold mb-6 text-[#11295b]">Autos</h2>
         <AutosDelHost autos={autos ?? []} />
       </section>
       </main>
