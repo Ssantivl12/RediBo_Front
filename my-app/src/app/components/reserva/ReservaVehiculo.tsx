@@ -23,6 +23,7 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
           if (response.data.success) {
             setVehiculo(response.data.data);
             setIdReserva(response.data.data.reserva.idreserva);
+
             const fechaFin = new Date(response.data.data.reserva.fecha_fin);
             const tiempoRestante = Math.floor((fechaFin.getTime() - Date.now()) / 1000);
             setEstadoTiempo(tiempoRestante > 0 ? tiempoRestante : 0);
@@ -77,7 +78,11 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
     return <p className="text-center mt-8">Cargando información del vehículo...</p>;
   }
 
-  const dias = vehiculo.reserva.dias || 0;
+  const fechaInicio = new Date(vehiculo.reserva.fecha_inicio);
+  const fechaFin = new Date(vehiculo.reserva.fecha_fin);
+  const tiempoMs = fechaFin.getTime() - fechaInicio.getTime();
+  const dias = Math.ceil(tiempoMs / (1000 * 60 * 60 * 24));
+
   const precioTotal = vehiculo.tarifa * dias;
   const garantia = vehiculo.garantia || 0;
   const total = precioTotal + garantia;
@@ -88,7 +93,9 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
 
       <div className="flex flex-col md:flex-row bg-gray-100 rounded-lg p-6 gap-6 items-center">
         <div className="w-full md:w-2/3">
-          <h3 className="text-2xl font-semibold text-gray-800">{vehiculo.marca} {vehiculo.modelo}</h3>
+          <h3 className="text-2xl font-semibold text-gray-800">
+            {vehiculo.marca} {vehiculo.modelo}
+          </h3>
           <p className="text-gray-500">Placa: {vehiculo.placa}</p>
           <p className="text-gray-600 mt-2">{vehiculo.descripcion}</p>
 
@@ -97,7 +104,7 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
           <div className="mt-3 border border-gray-300 rounded-md p-3 flex items-center">
             <HiOutlineCalendar className="text-black mr-2" />
             <span className="text-sm">
-              {new Date(vehiculo.reserva.fecha_inicio).toLocaleDateString()} - {new Date(vehiculo.reserva.fecha_fin).toLocaleDateString()}
+              {fechaInicio.toLocaleDateString()} - {fechaFin.toLocaleDateString()}
             </span>
           </div>
 
@@ -105,15 +112,15 @@ export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
             <h4 className="font-bold mb-2 text-black text-base">Detalles del precio</h4>
             <div className="flex justify-between">
               <span>{vehiculo.tarifa} Bs × {dias} días</span>
-              <span>{precioTotal || "-"} Bs</span>
+              <span>{precioTotal} Bs</span>
             </div>
             <div className="flex justify-between">
               <span>Garantía (reembolsable)</span>
-              <span>{garantia || "-"} Bs</span>
+              <span>{garantia} Bs</span>
             </div>
             <div className="flex justify-between font-bold border-t border-gray-200 pt-3 mt-2">
               <span>Total</span>
-              <span>{total || "-"} Bs</span>
+              <span>{total} Bs</span>
             </div>
           </div>
         </div>
