@@ -25,33 +25,22 @@ import CompleteProfileHost from "@/app/components/auth/authregistro/CompleteProf
 
 export default function HomePage() {
   const searchParams = useSearchParams();
-  const [showCompleteProfileModal, setShowCompleteProfileModal] =
-    useState(false);
+  const [showCompleteProfileModal, setShowCompleteProfileModal] = useState(false);
   const [hasRedirected, setHasRedirected] = useState(false); // 👈 Evita doble redirect
 
-  const [activeModal, setActiveModal] = useState<"login" | "register" | null>(
-    null
-  );
-  const [modalState, setModalState] = useState<
-    "passwordRecovery" | "codeVerification" | "newPassword" | null
-  >(null);
+  const [activeModal, setActiveModal] = useState<"login" | "register" | null>(null);
+  const [modalState, setModalState] = useState<"passwordRecovery" | "codeVerification" | "newPassword" | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [showToast2, setShowToast2] = useState(false); // Para el mensaje de usuario bloqueado
 
-  const handleLoginSubmit = () => {
-    setModalState("passwordRecovery");
-  };
+  const handleLoginSubmit = () => {setModalState("passwordRecovery");};
 
-  const handlePasswordRecoverySubmit = () => {
-    setModalState("codeVerification");
-  };
+  const handlePasswordRecoverySubmit = () => { setModalState("codeVerification");};
 
-  const handleCodeVerificationSubmit = () => {
-    setModalState("newPassword");
-  };
+  const handleCodeVerificationSubmit = () => { setModalState("newPassword");};
 
   const handleClose = () => {
-    setModalState(null); // Cierra cualquier modal de recuperación
+ setModalState(null); // Cierra cualquier modal de recuperación
     setActiveModal("login"); // Abre el login modal
   };
 

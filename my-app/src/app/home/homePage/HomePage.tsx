@@ -21,10 +21,11 @@ function SearchParamsHandler({
     const registroExitoso = searchParams.get("registroExitoso");
     if (registroExitoso === "1") {
       setShowSuccessModal(true);
-
+      
       const newUrl = window.location.pathname;
       window.history.replaceState(null, "", newUrl);
     }
+    
   }, [searchParams, setShowSuccessModal]);
 
   return null;

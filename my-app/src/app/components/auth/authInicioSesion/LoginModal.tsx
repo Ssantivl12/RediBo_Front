@@ -3,7 +3,7 @@
 ////////////back///////////
 import { useState } from 'react';
 import { login } from '@/libs/authServices'; 
-import { useRouter } from 'next/navigation';
+//import { useRouter } from 'next/navigation';
 
 ///////////////////////////
 
@@ -49,7 +49,7 @@ export default function LoginModal({ onClose, onRegisterClick, onPasswordRecover
   //Efecto de boton de activar o desactivar poder ver la contraseña
   const [showPassword, setShowPassword] = useState(false);
 
-  const router = useRouter();
+  //const router = useRouter();
 
   const handleLogin = async () => {
     setError('');
@@ -124,7 +124,7 @@ export default function LoginModal({ onClose, onRegisterClick, onPasswordRecover
       setError('');
       setHasLoginError(false);
       // Puedes hacer algo con el resultado aquí, como guardar el token o redirigir
-      router.push('/home/homePage');
+      window.location.href = '/home';
     }  catch (error) {
       console.error('Error al iniciar sesión:', error);
       /*setError(error?.response?.data?.message || 'Error al iniciar sesión.');

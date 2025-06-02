@@ -873,7 +873,7 @@ export default function RegistroDriver() {
                 <button
                   onClick={() => {
                     localStorage.removeItem("registroDriverPaso1");
-                    router.push('/home/homePage');
+                    router.push('/home');
                   }}
                   className="px-6 py-2 bg-[#E0E0E0] text-[#11295B] rounded-full text-sm font-semibold hover:bg-[#d6d6d6] transition"
                 >
