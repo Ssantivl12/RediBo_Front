@@ -155,8 +155,6 @@ export default function PanelComentarios({ mostrar, onClose, comentarios, marca,
           </div>
         </div>
 
-
-
         {([5, 4, 3, 2, 1] as const).map((estrella) => (
           <div key={estrella} className="flex items-center gap-2 mb-1">
             <div className="bg-[#002a5c] text-white w-8 h-8 flex items-center justify-center rounded">{estrella}</div>
@@ -191,7 +189,7 @@ export default function PanelComentarios({ mostrar, onClose, comentarios, marca,
                 <div className="flex items-center gap-3">
                   <Image src="/imagenesIconos/usuario.png" alt="Usuario" className="w-10 h-10 rounded-full" width={50} height={50} unoptimized />
                   <div>
-                    <strong className="text-black font-semibold">{comentario.usuario.nombre}{comentario.usuario.apellido}</strong>
+                    <strong className="text-black font-semibold">{comentario.usuario.nombreCompleto}</strong>
                     <div className="text-sm text-gray-500">{fecha}</div>
                   </div>
                 </div>

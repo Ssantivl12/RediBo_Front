@@ -9,6 +9,7 @@ import RegisterModal from '../components/auth/authregistro/RegisterModal';
 import ModalLoginExitoso from '@/app/components/modals/ModalLoginExitoso';
 import CompleteProfileModal from '@/app/components/auth/authregistro/CompleteProfileHost';
 import { jwtDecode } from 'jwt-decode';
+import Carousel from '../components/carousel/Carrusel';
 
 // Componente separado que maneja useSearchParams
 function SearchParamsHandler({
@@ -101,6 +102,9 @@ function HomePageContent() {
 
   return (
     <>
+    <div>
+      <Carousel/>
+    </div>
       {/* Envolver SearchParamsHandler en Suspense */}
       <Suspense fallback={null}>
         <SearchParamsHandler 

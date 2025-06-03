@@ -178,16 +178,14 @@ export interface HistorialMantenimiento {
 export interface Comentario {
   idComentario: number;
   idCalificador: number;
-  nombre: string;
-  apellido: string;
+  nombreCompleto: string;
   contenido: string;
   comentario: string;
   calificacion: number;
   puntuacion: number;
   fechaCreacion: string;
   usuario: {
-  nombre: string;
-  apellido: string;
+  nombreCompleto: string;
 };
 }
 
@@ -209,6 +207,6 @@ export interface CalificacionUsuario {
 }
 
 // Tipos utilitarios para relaciones parciales
-export type UsuarioPreview = Pick<Usuario, 'idUsuario' | 'nombre' | 'apellido' | 'email'>;
+export type UsuarioPreview = Pick<Usuario, 'idUsuario' | 'nombreCompleto' | 'email'>;
 export type AutoPreview = Pick<Auto, 'idAuto' | 'marca' | 'modelo' | 'precioRentaDiario' | 'imagenes'>;
 export type ReservaPreview = Pick<Reserva, 'idReserva' | 'fechaInicio' | 'fechaFin' | 'estado'>;

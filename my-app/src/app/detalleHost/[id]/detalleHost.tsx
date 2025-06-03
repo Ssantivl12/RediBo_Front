@@ -28,6 +28,7 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales,auto
   const [comentariosExpandidos, setComentariosExpandidos] = useState<{[key: number]: boolean}>({});
   const [comentariosConOverflow, setComentariosConOverflow] = useState<{[key: number]: boolean}>({});
   const refsComentarios = useRef<{[key: number]: HTMLParagraphElement | null}>({});
+  const primerosTresComentarios = comentarios.slice(0, 3);
   
   useEffect(() => {
     const cargarDatos = async () => {
@@ -75,7 +76,7 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales,auto
       // Pequeño delay para asegurar que el DOM esté renderizado
       setTimeout(detectarOverflow, 100);
     }
-  }, [comentarios, cargando]);
+  }, [comentarios, cargando, primerosTresComentarios]);
 
   const handleMostrarPanel = () => setMostrarPanel(true);
   const handleCerrarPanel = () => setMostrarPanel(false);
@@ -86,8 +87,6 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales,auto
       [idComentario]: !prev[idComentario]
     }));
   };
-
-  const primerosTresComentarios = comentarios.slice(0, 3);
 
   return (
     <div>

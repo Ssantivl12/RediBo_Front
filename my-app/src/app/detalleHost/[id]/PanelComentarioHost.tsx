@@ -100,7 +100,7 @@ export default function PanelComentariosHost({
       setNombresUsuarios(prev => ({ ...prev, ...nuevosNombres }));
     };
     cargarNombres();
-  }, [comentariosValidos]);
+  }, [comentariosValidos, nombresUsuarios]);
 
   useEffect(() => {
     let mounted = false;
