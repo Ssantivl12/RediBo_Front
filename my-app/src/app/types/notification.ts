@@ -8,6 +8,7 @@ export interface Notificacion {
   fecha: string;
   tipo: string;
   tipoEntidad: string;
+  entidadId: string;
   imagenURL?: string;
   leida: boolean;
   creadoEn: string;

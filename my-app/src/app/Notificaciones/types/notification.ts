@@ -5,6 +5,7 @@ export interface Notificacion {
   mensaje: string;
   fecha: Date | string;
   tipo: string;
+  entidadId: string;
   tipoEntidad: string;
   imagenURL?: string;
   leida: boolean;

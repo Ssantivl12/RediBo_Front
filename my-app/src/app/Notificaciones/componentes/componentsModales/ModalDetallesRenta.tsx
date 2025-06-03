@@ -14,6 +14,7 @@ interface ModalProps {
     fecha: string;
     tipo: string;
     tipoEntidad: string;
+    entidadId: string;
     imagenURL?: string;
     calificacion?: number;
     comentario?: string;
@@ -33,12 +34,36 @@ function formatDate(dateString: Date | string) {
   return `${dia}/${mes}/${año}, ${hora}:${minutos}`;
 }
 
+//simulado porque deberian ser por peticion del back
+
+function extraerNombreVehiculo(descripcion: string): string {
+  const match = descripcion.match(/vehículo ([^ ]+(?: [^ ]+)*) del modelo/i);
+  return match ? match[1] : "Vehículo";
+}
+
+function extraerModeloVehiculo(descripcion: string): string {
+  const match = descripcion.match(/del modelo ([^ ]+(?: [^ ]+)*) y con placa/i);
+  return match ? match[1] : "Modelo";
+}
+
+function extraerPlacaVehiculo(descripcion: string): string {
+  const match = descripcion.match(/placa ([A-Z0-9]+)/i);
+  return match ? match[1] : "Placa";
+}
+
 const ModalDetallesRenta = ({ isOpen, notification, onClose, onDelete }: ModalProps) => {
   if (!isOpen) return null;
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
   const [mostrarFallback, setMostrarFallback] = useState(false);
   const [mostrarModalResena, setMostrarModalResena] = useState(false);
 
+  const infoVehiculo = {
+    nombre: extraerNombreVehiculo(notification.descripcion),
+    modelo: extraerModeloVehiculo(notification.descripcion),
+    placa: extraerPlacaVehiculo(notification.descripcion),
+  };
+
+  const descripcionVehiculo = infoVehiculo.nombre + ` (modelo ${infoVehiculo.modelo} y placa ${infoVehiculo.placa})`;
   // Función para manejar el submit de la reseña
   const handleSubmitResena = (calificacion: number, comentario: string) => {
     console.log('Reseña enviada:', { calificacion, comentario });
@@ -136,7 +161,7 @@ const ModalDetallesRenta = ({ isOpen, notification, onClose, onDelete }: ModalPr
             </button>
           )}
 
-          {notification.titulo === 'Renta Finalizada' && (
+          {notification.titulo === 'Tiempo de Renta Concluido' && (
             <button
               onClick={() => setMostrarModalResena(true)}
               className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
@@ -194,7 +219,8 @@ const ModalDetallesRenta = ({ isOpen, notification, onClose, onDelete }: ModalPr
               onClose={() => setMostrarModalResena(false)}
               onSubmit={handleSubmitResena}
               imagenURL={notification.imagenURL}
-              nombreVehiculo={notification.titulo}
+              nombreVehiculo={descripcionVehiculo}
+              rentaId={notification.entidadId}
             />
           </motion.div>
         )}

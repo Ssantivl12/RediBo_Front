@@ -1,16 +1,19 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ImageIcon, X } from 'lucide-react';
+import { toast } from "react-hot-toast";
+import api from '@/libs/axiosConfig';
 
 interface ModalResenaProps {
   isOpen: boolean;
   imagenURL?: string;
   nombreVehiculo?: string;
+  rentaId: string;
   onClose: () => void;
   onSubmit: (calificacion: number, comentario: string) => void;
 }
 
-const ModalResena = ({ isOpen, imagenURL, nombreVehiculo, onClose, onSubmit }: ModalResenaProps) => {
+const ModalResena = ({ isOpen, imagenURL, nombreVehiculo, rentaId, onClose, onSubmit }: ModalResenaProps) => {
   const [calificacion, setCalificacion] = useState(0);
   const [comentario, setComentario] = useState('');
   const [mostrarFallback, setMostrarFallback] = useState(false);
@@ -18,6 +21,29 @@ const ModalResena = ({ isOpen, imagenURL, nombreVehiculo, onClose, onSubmit }: M
   if (!isOpen) return null;
 
   const fechaActual = new Date().toLocaleString('es-ES');
+
+  const handleEnviarComentario = async () => {
+    if (!comentario.trim()) {
+      alert("El comentario no puede estar vacío.");
+      return;
+    }
+
+    try {
+      console.log(comentario);
+      await api.post("/calificaciones/crear-calificacion", {
+        rentaId: rentaId, // Asegúrate de que notification.tipoEntidad es el id correcto
+        puntuacion: calificacion,                     // Cambia esto si tienes un input para la puntuación
+        comentario: comentario             // El backend lo recibe como 'comentario'
+      });
+
+      toast.success('Comentario enviado correctamente');
+      setComentario("");
+      onClose();
+    } catch (error) {
+      toast.error('Error al enviar el comentario');
+      console.error(error);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -110,7 +136,7 @@ const ModalResena = ({ isOpen, imagenURL, nombreVehiculo, onClose, onSubmit }: M
                 cancelar
               </button>
               <button
-                onClick={() => onSubmit(calificacion, comentario)}
+                onClick={handleEnviarComentario}
                 className="px-4 py-2 bg-[#FCA311] text-white rounded hover:bg-orange-600"
               >
                 Enviar

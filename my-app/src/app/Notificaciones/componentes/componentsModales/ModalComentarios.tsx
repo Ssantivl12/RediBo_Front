@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import api from '@/libs/axiosConfig';
 
 interface ModalComentarioProps {
   isOpen: boolean;
@@ -24,19 +25,27 @@ const ModalComentario = ({ isOpen, notification, onClose, onDelete }: ModalComen
   };
 
   // Verificación al enviar comentario
-  const handleEnviarComentario = () => {
+  const handleEnviarComentario = async () => {
     if (!comentario.trim()) {
       alert("El comentario no puede estar vacío.");
       return;
     }
 
-    // Aquí va la lógica de envío del comentario (se puede extender para interacción con la API)
-    console.log("Comentario enviado:", comentario);
+    try {
+      console.log("esta es la id renta: ", notification.tipoEntidad);
+      await api.post("/api/calificaciones/crear-calificacion", {
+        rentaId: notification.tipoEntidad,      // Asegúrate de que notification tenga rentaId
+        puntuacion: 5,                      // Cambia esto si tienes un input para la puntuación
+        comentario: comentario              // El backend lo recibe como 'comentario'
+      });
 
-    // Limpiar el comentario después de enviarlo y cerrar el modal
-    setComentario("");
-    onClose(); 
-    toast.success('Comentario enviado correctamente');
+      toast.success('Comentario enviado correctamente');
+      setComentario("");
+      onClose();
+    } catch (error) {
+      toast.error('Error al enviar el comentario');
+      console.error(error);
+    }
   };
 
   if (!isOpen) return null;

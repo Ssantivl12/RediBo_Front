@@ -21,7 +21,7 @@ export default function PanelDashBoard({ usuarioId }: PanelDashBoardProps) {
   const [mensajeExito, setMensajeExito] = useState("");
   const [toastNotification, setToastNotification] = useState<Notificacion | null>(null);
   const [nuevasNotificaciones, setNuevasNotificaciones] = useState<Set<string>>(new Set());
-  const { notifications: sseNotifications, refreshNotifications } = useNotifications();
+  const {notifications: sseNotifications, refreshNotifications } = useNotifications();
 
   const transformarNotificaciones = (data: unknown[]): Notificacion[] => {
     return data.map((item: any) => ({
@@ -31,6 +31,7 @@ export default function PanelDashBoard({ usuarioId }: PanelDashBoardProps) {
       mensaje: item.mensaje || item.descripcion,
       fecha: item.creadoEn || item.fecha,
       tipo: item.tipo || "No especificado",
+      entidadId: item.entidadId || "No especificado",
       tipoEntidad: item.tipoEntidad || "No especificado",
       imagenURL: item.imagenAuto || item.imagenURL || undefined,
       leida: item.leido || item.leida || false,
