@@ -160,7 +160,7 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales,auto
                         </p>
                       </div>
                     </div>
-                     <div className="flex items-center text-yellow-400 text-xl">
+                    <div className="flex items-center text-yellow-400 text-xl">
                       {'★'.repeat(comentario.puntuacion)}
                       {'☆'.repeat(5 - comentario.puntuacion)}
                     </div>
@@ -183,7 +183,7 @@ export default function DetalleHost({ id, comentarios: comentariosIniciales,auto
                       </button>
                     )}
                     
-                   
+                  
                   </div>
                 );
               })}

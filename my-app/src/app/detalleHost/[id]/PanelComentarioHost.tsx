@@ -41,7 +41,7 @@ export default function PanelComentariosHost({
 
   return partes.map((parte, index) =>
     regex.test(parte) ? (
-     <span key={index} className="font-bold text-black">
+      <span key={index} className="font-bold text-black">
         {parte}
       </span>
     ) : (
@@ -251,7 +251,10 @@ export default function PanelComentariosHost({
 
                     {comentariosValidos.length > 0 && (
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-10">
-                <div className="flex items-center w-full sm:w-auto border border-gray-400 rounded-full px-3 py-1 bg-white">
+                <div className="flex items-center w-full sm:w-auto border border-gray-400 rounded-full px-3 py-1 bg-white"
+                style={{ minWidth: '300px' }}
+                >
+                  
                   <input
                     type="text"
                     placeholder="Buscar comentarios..."
@@ -260,15 +263,30 @@ export default function PanelComentariosHost({
                     maxLength={20}
                     onChange={(e) => {
                       const value = e.target.value;
-                      setTerminoBusqueda(value);
+                      const caracteresNoPermitidos = /[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/;
 
-                      if (value.length === 20) {
-                        setAdvertencia('búsqueda máxima permitida: 20 caracteres');
+                      if (caracteresNoPermitidos.test(value)) {
+                        setAdvertencia('No se permiten caracteres especiales en la búsqueda.');
+                      } else if (value.length === 20) {
+                        setAdvertencia('Búsqueda máxima permitida: 20 caracteres');
                       } else {
                         setAdvertencia('');
                       }
+
+                      // Actualizar solo si el valor es válido
+                      if (!caracteresNoPermitidos.test(value)) {
+                        setTerminoBusqueda(value);
+                      }
                     }}
                   />
+                  {terminoBusqueda && (
+                    <button
+                      className="text-gray-500 hover:text-red-600 px-1"
+                      onClick={() => setTerminoBusqueda('')}
+                    >
+                      ✕
+                    </button>
+                  )}
                   <button className="text-[#002a5c] hover:text-[#fca311]" type="button">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -286,6 +304,7 @@ export default function PanelComentariosHost({
                     </svg>
                   </button>
                 </div>
+
                 
                 <div className="relative">
                   <select
@@ -360,8 +379,12 @@ export default function PanelComentariosHost({
                     }}
                     className={`${!estaExpandido ? 'line-clamp-3' : ''} text-black`}
                   >
-                    {comentario.contenido || comentario.comentario}
+                    {resaltarCoincidencias(
+                      comentario.contenido || comentario.comentario || '',
+                      terminoBusqueda
+                    )}
                   </p>
+
 
                   {mostrarBoton && (
                     <button
