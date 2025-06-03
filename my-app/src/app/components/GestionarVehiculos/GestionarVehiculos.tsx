@@ -45,8 +45,7 @@ interface Vehiculo {
       fechaInicio?: Date;
       fechaFin?: Date;
       cliente?: {
-        nombre: string;
-        apellido: string;
+        nombreCompleto: string;
         email: string;
       };
       idHistorial?: number;
@@ -396,7 +395,7 @@ export default function GestionarVehiculos() {
               <span className="font-semibold" style={{ color: "#11295B" }}>
                 Rentado a:
               </span>{" "}
-              {estadoActual.datos.cliente?.nombre} {estadoActual.datos.cliente?.apellido}
+              {estadoActual.datos.cliente?.nombreCompleto}
             </p>
             <p>
               <span className="font-semibold" style={{ color: "#11295B" }}>
@@ -442,7 +441,7 @@ export default function GestionarVehiculos() {
               <span className="font-semibold" style={{ color: "#11295B" }}>
                 Rentado a:
               </span>{" "}
-              {estadoActual.datos.cliente?.nombre} {estadoActual.datos.cliente?.apellido}
+              {estadoActual.datos.cliente?.nombreCompleto}
             </p>
             <p>
               <span className="font-semibold" style={{ color: "#11295B" }}>
