@@ -77,7 +77,7 @@ export default function ModalDetallesRenta({ isOpen, notification, onClose, onDe
               />
             ) : (
               <div className="h-48 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 text-gray-500">
-                <ImageIcon className="h-12 w-12 mb-2" />
+                <ImageIcon className="h-60 w-60 mb-2" />
                 <span className="text-sm">imagen.jpg</span>
               </div>
             )}
