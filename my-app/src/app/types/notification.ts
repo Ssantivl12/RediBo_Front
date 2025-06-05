@@ -8,11 +8,14 @@ export interface Notificacion {
   fecha: string;
   tipo: string;
   tipoEntidad: string;
+  entidadId: string;
   imagenURL?: string;
   leido: boolean;
   creadoEn: string;
-  imagenAuto?: string;
+  calificacion?: number;   
+  comentario?: string;
 }
+
 
 export interface NotificacionFiltro {
   usuarioId?: string;
@@ -25,6 +28,7 @@ export interface NotificacionFiltro {
   limit?: number;
   offset?: number;
 }
+
 
 export interface NotificacionResponse {
   notificaciones: Notificacion[];
@@ -60,6 +64,7 @@ export interface NotificationResponse {
   leido: boolean;
   imagenAuto?: string;
   imagenURL?: string;
+  entidadId: string;
 }
 
 export interface NotificationError {

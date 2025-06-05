@@ -141,6 +141,7 @@ export function NotificacionesCampana() {
       imagenURL: 'imagenAuto' in item ? item.imagenAuto : undefined,
       leido: 'leido' in item ? item.leido ?? false : false,
       creadoEn: item.creadoEn,
+      entidadId: item.entidadId
     };
   };
 

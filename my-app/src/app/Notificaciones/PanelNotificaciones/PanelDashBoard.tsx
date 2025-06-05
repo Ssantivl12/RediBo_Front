@@ -38,6 +38,7 @@ export default function PanelDashBoard({ usuarioId }: PanelDashBoardProps) {
       imagenURL: item.imagenAuto,
       leido: item.leido,
       creadoEn: item.creadoEn,
+      entidadId: item.entidadId
     }));
   };
 

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import ModalConfirmacionEliminar from './ModalConfirmacionEliminar';
+import ModalResena from '@/app/Notificaciones/componentes/componentsModales/ModalResena';
 import { motion , AnimatePresence} from 'framer-motion';
 import type { Notificacion } from '@/app/types/notification';
 import { Trash2, ImageIcon } from 'lucide-react';
@@ -14,9 +15,33 @@ interface ModalDetallesRentaProps {
   onDelete: () => void;
 }
 
+function extraerNombreVehiculo(descripcion: string): string {
+  const match = descripcion.match(/vehículo ([^ ]+(?: [^ ]+)*) del modelo/i);
+  return match ? match[1] : "Vehículo";
+}
+
+function extraerModeloVehiculo(descripcion: string): string {
+  const match = descripcion.match(/del modelo ([^ ]+(?: [^ ]+)*) y con placa/i);
+  return match ? match[1] : "Modelo";
+}
+
+function extraerPlacaVehiculo(descripcion: string): string {
+  const match = descripcion.match(/placa ([A-Z0-9]+)/i);
+  return match ? match[1] : "Placa";
+}
+
 export default function ModalDetallesRenta({ isOpen, notification, onClose, onDelete }: ModalDetallesRentaProps) {
   const [mostrarFallBack, setMostrarFallBack] = useState(false);
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
+  const [mostrarModalResena, setMostrarModalResena] = useState(false);
+
+  const infoVehiculo = {
+    nombre: extraerNombreVehiculo(notification.descripcion),
+    modelo: extraerModeloVehiculo(notification.descripcion),
+    placa: extraerPlacaVehiculo(notification.descripcion),
+  };
+
+  const descripcionVehiculo = infoVehiculo.nombre + ` (modelo ${infoVehiculo.modelo} y placa ${infoVehiculo.placa})`;
 
   if (!isOpen) return null;
 
@@ -81,6 +106,15 @@ export default function ModalDetallesRenta({ isOpen, notification, onClose, onDe
               </button>
           )}
 
+          {notification.titulo === 'Tiempo de Renta Concluido' && (
+              <button
+              onClick={() => setMostrarModalResena(true)}
+              className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              >
+                Comentar
+              </button>
+          )}
+
           <button
             onClick={onClose}
             className="cursor-pointer bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
@@ -112,6 +146,25 @@ export default function ModalDetallesRenta({ isOpen, notification, onClose, onDe
                 setMostrarConfirmacion(false);
                 onClose();
               }}
+            />
+          </motion.div>
+        )}
+
+         {mostrarModalResena && (
+          <motion.div
+            key="modal-resena"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/30"
+          >
+            <ModalResena
+              isOpen={true}
+              onClose={() => setMostrarModalResena(false)}
+              imagenURL={notification.imagenURL}
+              nombreVehiculo={descripcionVehiculo}
+              rentaId={notification.entidadId}
             />
           </motion.div>
         )}

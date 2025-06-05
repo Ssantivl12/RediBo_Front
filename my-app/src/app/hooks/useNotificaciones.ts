@@ -36,6 +36,7 @@ export function useNotifications() {
           descripcion: n.mensaje,
           mensaje: n.mensaje,
           fecha: n.creadoEn,
+          entidadId: n.entidadId,
           tipo: n.tipo || "No especificado",
           tipoEntidad: n.tipoEntidad || "No especificado",
           imagenURL: n.imagenAuto,
