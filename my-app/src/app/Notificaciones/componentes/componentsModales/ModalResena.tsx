@@ -98,12 +98,19 @@ const ModalResena = ({ isOpen, imagenURL, nombreVehiculo, rentaId, onClose }: Mo
 
                 {/* Comentario */}
                 <textarea
-                  className="w-full border rounded p-2 text-sm text-gray-800"
+                  className="w-full border rounded p-2 text-sm text-gray-800 resize-none"
                   rows={4}
                   placeholder="Escribe aquí...."
                   value={comentario}
                   onChange={(e) => setComentario(e.target.value)}
+                  maxLength={500}
                 />
+
+                <div className="text-right text-xs text-gray-500 mt-1">
+                  {comentario.length}/500
+                </div>
+
+
               </div>
 
               {/* Columna derecha: Imagen */}
