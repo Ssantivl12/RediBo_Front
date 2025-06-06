@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { X, Check } from "lucide-react";
-import { BASE_URL } from "@/libs/autoServices";
 
 interface Props {
   onComplete: () => void;
@@ -54,15 +53,15 @@ const CompleteProfileModal: React.FC<Props> = ({
 
       // Método de pago
       if (paymentData.cardNumber) {
-        formData.append("tipo", "TARJETA_DEBITO");
+        formData.append("tipo", "card");
         
-        // Elimina espacios en blanco y formatea el número de tarjeta
+        // Elimina espacios en blanco y formatea el número de TARJETA_DEBITO
         const cleanCardNumber = paymentData.cardNumber.replace(/\s/g, "");
-        formData.append("numero_tarjeta", cleanCardNumber);
+        formData.append("numeroTarjeta", cleanCardNumber);
         
         // Asegúrate de que la fecha de expiración tenga el formato correcto
         if (paymentData.expiration) {
-          formData.append("fecha_expiracion", paymentData.expiration);
+          formData.append("fechaExpiracion", paymentData.expiration);
         }
         
         // El CVV podría ser problemático por razones de seguridad
@@ -71,7 +70,7 @@ const CompleteProfileModal: React.FC<Props> = ({
           formData.append("cvv", paymentData.cvv);
         }
         
-        // Enviar el titular de la tarjeta
+        // Enviar el titular de la TARJETA_DEBITO
         if (paymentData.cardHolder) {
           formData.append("titular", paymentData.cardHolder);
         }
@@ -79,21 +78,21 @@ const CompleteProfileModal: React.FC<Props> = ({
         formData.append("tipo", "QR");
         formData.append("qrImage", paymentData.qrImage);
       } else if (paymentData.efectivoDetalle) {
-        formData.append("tipo", "EFECTIVO");
+        formData.append("tipo", "cash");
         formData.append("detalles_metodo", paymentData.efectivoDetalle);
       }
 
       // Para debugging - ver qué datos estamos enviando
       console.log("Enviando datos de pago:", {
-        tipo: paymentData.cardNumber ? "TARJETA_DEBITO" : paymentData.qrImage ? "QR" : "EFECTIVO",
+        tipo: paymentData.cardNumber ? "card" : paymentData.qrImage ? "QR" : "cash",
         ...(paymentData.cardNumber && {
-          numero_tarjeta: paymentData.cardNumber.replace(/\s/g, ""),
-          fecha_expiracion: paymentData.expiration,
+          numeroTarjeta: paymentData.cardNumber.replace(/\s/g, ""),
+          fechaExpiracion: paymentData.expiration,
           titular: paymentData.cardHolder
         })
       });
 
-      const response = await fetch(`${BASE_URL}/api/registro-host`, {
+      const response = await fetch("http://localhost:3001/api/registro-host", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -113,10 +112,11 @@ const CompleteProfileModal: React.FC<Props> = ({
         localStorage.setItem("registroExitosoHost", "true");
 
         setTimeout(() => {
+          // 👇 Recarga solo si estás en homePage
           if (window.location.pathname.includes("/home")) {
             window.location.reload();
           } else {
-            onComplete(); 
+            onComplete(); // fallback por si estás en otra ruta
           }
         }, 2000);
       }
@@ -232,7 +232,7 @@ const CompleteProfileModal: React.FC<Props> = ({
               ) : paymentData.qrImage ? (
                 <p className="font-semibold text-sm">Pago con QR</p>
               ) : (
-                <p className="font-semibold text-sm">Pago en efectivo</p>
+                <p className="font-semibold text-sm">Pago en EFECTIVO</p>
               )}
             </div>
 
