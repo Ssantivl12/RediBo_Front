@@ -60,7 +60,10 @@ export default function UserPerfilDriver() {
   const [anversoPreview, setAnversoPreview] = useState<string | null>(null);
   const [reversoPreview, setReversoPreview] = useState<string | null>(null);
   const [uploadingImages, setUploadingImages] = useState(false);
-    const [showCancelConfirm, setShowCancelConfirm] = useState(false); // 🆕 Modal confirmación
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false); // 🆕 Modal confirmación
 
   // Estados para el modo edición - AHORA incluye tipoLicencia (categoría)
   const [isEditing, setIsEditing] = useState(false);
@@ -404,12 +407,7 @@ const [renters, setRenters] = useState<Renter[]>([]);
     fetchDriver();
   }, []);
 
-  {/*useEffect(() => {
-    if (user?.fotoPerfil) {
-      setImagePreviewUrl(`http://localhost:3001${user.fotoPerfil}`);
-      console.log('✅ Foto cargada:', `http://localhost:3001${user.fotoPerfil}`);
-    }
-  }, [user]);*/}
+  
   useEffect(() => {
     if (user?.fotoPerfil) {
       setProfilePhotoUrl(user.fotoPerfil);
@@ -417,6 +415,7 @@ const [renters, setRenters] = useState<Renter[]>([]);
       setProfilePhotoUrl(null);
     }
   }, [user]);
+  
 
   // Función para activar modo edición
   const handleEditProfile = () => {
@@ -450,7 +449,8 @@ const [renters, setRenters] = useState<Renter[]>([]);
   // Función para guardar cambios
   const handleSaveChanges = async () => {
   if (!validateAllFields()) {
-    alert("Por favor, corrige los errores antes de guardar");
+    setShowErrorModal(true);
+    setTimeout(() => setShowErrorModal(false), 3000); // Oculta el modal automáticamente a los 3 segundos
     return;
   }
 
@@ -506,7 +506,9 @@ const [renters, setRenters] = useState<Renter[]>([]);
     setIsEditing(false);
     setHasUnsavedChanges(false);
     setValidationErrors({});
-    alert("Perfil actualizado exitosamente");
+    setShowSuccessModal(true);
+    setTimeout(() => setShowSuccessModal(false), 3000); // ocultar después de 3s
+
   } catch (err) {
     console.error("Error al guardar cambios:", err);
     alert("Error al guardar los cambios");
@@ -596,7 +598,37 @@ const [renters, setRenters] = useState<Renter[]>([]);
   );
 
   return (
+    
     <>
+    {showErrorModal && (
+  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div className="bg-white p-6 rounded-xl shadow-xl text-center max-w-md w-[90%]">
+      <p className="text-lg font-semibold text-[#11295B] mb-4">
+        Por favor, corrige los errores antes de guardar
+      </p>
+      <button
+        onClick={() => setShowErrorModal(false)}
+        className="bg-[#FFB703] hover:bg-[#ffa200] text-white font-semibold px-6 py-2 rounded transition-all"
+      >
+        Aceptar
+      </button>
+    </div>
+  </div>
+)}
+    {showSuccessModal && (
+  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div className="bg-white p-6 rounded-xl shadow-xl text-center max-w-md w-[90%]">
+      <h2 className="text-lg font-semibold text-green-600 mb-4">✅ Perfil actualizado exitosamente</h2>
+      <button
+        onClick={() => setShowSuccessModal(false)}
+        className="bg-[#FFB703] hover:bg-[#ffa200] text-white font-semibold px-6 py-2 rounded transition-all"
+      >
+        Aceptar
+      </button>
+    </div>
+  </div>
+)}
+
       {showCancelConfirm && (
   <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center">
     <div className="bg-white p-6 rounded-xl shadow-xl text-center max-w-md w-[90%]">
@@ -633,7 +665,9 @@ const [renters, setRenters] = useState<Renter[]>([]);
       </div>
     </div>
   </div>
+  
 )}
+
 
       <NavbarPerfilUsuario />
 
@@ -1079,7 +1113,7 @@ const [renters, setRenters] = useState<Renter[]>([]);
                           ? 'bg-[#FFB703] hover:bg-[#ffa200] text-white cursor-pointer'
                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                         }`}  
->
+                        >
                         {uploadingImages ? 'Guardando...' : 'Guardar Cambios'}
                        </button>
                   </div>
@@ -1230,6 +1264,7 @@ const [renters, setRenters] = useState<Renter[]>([]);
           </div>
         </div>
       )}
+      
 
       {/* Modal de Zoom (si tienes esta funcionalidad) */}
       {zoomUrl && (
