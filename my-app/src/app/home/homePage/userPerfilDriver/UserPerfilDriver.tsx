@@ -117,12 +117,12 @@ export default function UserPerfilDriver() {
 
   // Función para validar licencia
   const validateLicencia = (licencia: string): string | null => {
-  if (!licencia) return "El número de licencia es obligatorio";
-  if (!/^\d+$/.test(licencia)) return "La licencia solo debe contener números";
-  if (licencia.length < 6) return "La licencia debe tener al menos 6 dígitos";
-  if (licencia.length > 9) return "La licencia no debe tener más de 9 dígitos";
-  return null;
-};
+    if (!licencia) return "El número de licencia es obligatorio";
+    if (!/^\d+$/.test(licencia)) return "La licencia solo debe contener números";
+    if (licencia.length < 6) return "La licencia debe tener al menos 6 dígitos";
+    if (licencia.length > 9) return "La licencia no debe tener más de 9 dígitos";
+    return null;
+  };
 
   // Función para validar resolución de imagen
   const validateImageResolution = (file: File): Promise<boolean> => {
@@ -969,36 +969,53 @@ export default function UserPerfilDriver() {
                   </div>
 
                   {/* Licencia de Conducir + botón galería */}
-                  <div className="flex gap-2 items-end">
-                    <div className="w-full">
-                      <label className="text-sm font-semibold">
-                        Licencia de Conducir
-                      </label>
-                      <div className="relative">
-                        <input
-  type="text"
-  inputMode="numeric"
-  maxLength={9}
-  pattern="\d*"
-  value={isEditing ? editFormData.licencia : (driverData.licencia || "")}
-  onChange={(e) => {
-    const value = e.target.value.replace(/\D/g, ''); // Solo números
-    if (value.length <= 9) {
-      handleInputChange('licencia', value);
-    }
-  }}
-  className={`w-full pl-10 pr-10 py-2 border-2 rounded shadow-[0_4px_2px_-2px_rgba(0,0,0,0.6)] font-semibold text-[#11295B] 
-    ${isEditing ? 'bg-white' : 'bg-gray-100'} 
-    ${validationErrors.licencia ? 'border-red-500' : 'border-black'}`}
-/>
+<div className="flex gap-2 items-end">
+  <div className="w-full">
+    <label className="text-sm font-semibold">
+      Licencia de Conducir
+    </label>
+    <div className="relative">
+      <input
+        type="text"
+        value={isEditing ? editFormData.licencia : (driverData.licencia || "")}
+        onChange={(e) => {
+          const rawValue = e.target.value;
+          const numericValue = rawValue.replace(/\D/g, "");
 
-                        <LicenciaConductorIcon className="absolute left-2 top-2.5 w-5 h-5 text-[#11295B]" />
-                        {isEditing && (
-                          <div className="absolute right-2 top-2.5">
-                            <EditIcon className="w-5 h-5" />
-                          </div>
-                        )}
-                      </div>
+          let error = "";
+
+          if (numericValue.length > 9) {
+            error = "No se permiten más de 9 dígitos";
+          } else if (numericValue.length > 0 && numericValue.length < 6) {
+            error = "La licencia debe tener al menos 6 dígitos";
+          }
+
+          if (numericValue.length <= 9) {
+            setEditFormData(prev => ({ ...prev, licencia: numericValue }));
+          }
+
+          setValidationErrors(prev => ({ ...prev, licencia: error }));
+        }}
+        className={`w-full pl-10 pr-10 py-2 border-2 ${
+          validationErrors.licencia ? 'border-red-500' : 'border-black'
+        } rounded shadow-[0_4px_2px_-2px_rgba(0,0,0,0.6)] text-[#11295B] font-semibold ${isEditing ? 'bg-white' : 'bg-gray-100'}`}
+        readOnly={!isEditing}
+      />
+      <LicenciaConductorIcon className="absolute left-2 top-2.5 w-5 h-5 text-[#11295B]" />
+      {isEditing && (
+        <div className="absolute right-2 top-2.5">
+          <EditIcon className="w-5 h-5" />
+        </div>
+      )}
+    </div>
+
+    {/* Mensaje de error debajo del input */}
+    {isEditing && validationErrors.licencia && (
+      <p className="text-red-500 text-sm mt-1">
+        {validationErrors.licencia}
+      </p>
+    )}
+
                     </div>
                     <button
                       onClick={() => setShowGallery(true)}
