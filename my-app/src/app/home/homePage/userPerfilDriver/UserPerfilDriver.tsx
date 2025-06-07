@@ -65,7 +65,8 @@ export default function UserPerfilDriver() {
   const [uploadingImages, setUploadingImages] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
-
+  const [anversoOriginal, setAnversoOriginal] = useState<string | null>(null);
+  const [reversoOriginal, setReversoOriginal] = useState<string | null>(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false); // 🆕 Modal confirmación
 
   // Estados para el modo edición - AHORA incluye tipoLicencia (categoría)
@@ -337,6 +338,12 @@ export default function UserPerfilDriver() {
 
     fetchRenters();
   }, []);
+  useEffect(() => {
+    if (showGallery && driverData) {
+      setAnversoOriginal(driverData.anversoUrl || null);
+      setReversoOriginal(driverData.reversoUrl || null);
+    }
+  }, [showGallery, driverData]);
 
 
 
@@ -425,36 +432,45 @@ export default function UserPerfilDriver() {
     setIsEditing(true);
     setHasUnsavedChanges(false);
     setValidationErrors({});
+     // ✅ Guardar copia de seguridad de las imágenes actuales ANTES de que el usuario edite
+  setAnversoOriginal(driverData?.anversoUrl || null);
+  setReversoOriginal(driverData?.reversoUrl || null);
   };
 
-  // Función para cancelar edición
   const handleCancelEdit = () => {
-    if (hasUnsavedChanges) {
-      setShowCancelConfirm(true); // 🆕 Muestra modal de confirmación
-      return;
-    }
+  if (hasUnsavedChanges) {
+    setShowCancelConfirm(true);
+    return;
+  }
 
-    setIsEditing(false);
-    setHasUnsavedChanges(false);
-    setValidationErrors({});
-    // Restaurar datos originales INCLUYENDO tipoLicencia
-    if (driverData) {
-      setEditFormData({
-        telefono: driverData.telefono || "",
-        licencia: driverData.licencia || "",
-        tipoLicencia: driverData.tipoLicencia || "", // Agregado campo categoría
-        fechaEmision: driverData.fechaEmision?.split("T")[0] || "",
-        fechaExpiracion: driverData.fechaExpiracion?.split("T")[0] || "",
-      });
-      // 🧼 Limpiar previews y archivos de imagen temporal
-      if (anversoPreview) URL.revokeObjectURL(anversoPreview);
-      if (reversoPreview) URL.revokeObjectURL(reversoPreview);
-      setAnversoPreview(null);
-      setReversoPreview(null);
-      setAnversoFile(null);
-      setReversoFile(null);
-    }
-  };
+  descartarCambios();
+};
+const descartarCambios = () => {
+  setIsEditing(false);
+  setHasUnsavedChanges(false);
+  setValidationErrors({});
+
+  if (driverData) {
+    setEditFormData({
+      telefono: driverData.telefono || "",
+      licencia: driverData.licencia || "",
+      tipoLicencia: driverData.tipoLicencia || "",
+      fechaEmision: driverData.fechaEmision?.split("T")[0] || "",
+      fechaExpiracion: driverData.fechaExpiracion?.split("T")[0] || "",
+    });
+
+    if (anversoPreview) URL.revokeObjectURL(anversoPreview);
+    if (reversoPreview) URL.revokeObjectURL(reversoPreview);
+
+    setAnversoPreview(anversoOriginal);
+    setReversoPreview(reversoOriginal);
+    setAnversoFile(null);
+    setReversoFile(null);
+  }
+};
+
+
+   
 
   // Función para guardar cambios
   const handleSaveChanges = async () => {
@@ -653,25 +669,14 @@ export default function UserPerfilDriver() {
                 No, volver
               </button>
               <button
-                onClick={() => {
-                  setShowCancelConfirm(false);
-                  setIsEditing(false);
-                  setHasUnsavedChanges(false);
-                  setValidationErrors({});
-                  if (driverData) {
-                    setEditFormData({
-                      telefono: driverData.telefono || "",
-                      licencia: driverData.licencia || "",
-                      tipoLicencia: driverData.tipoLicencia || "",
-                      fechaEmision: driverData.fechaEmision?.split("T")[0] || "",
-                      fechaExpiracion: driverData.fechaExpiracion?.split("T")[0] || "",
-                    });
-                  }
-                }}
-                className="bg-[#FFB703] hover:bg-[#ffa200] text-white font-semibold px-4 py-2 rounded transition-all"
-              >
-                Sí, descartar
-              </button>
+  onClick={() => {
+    setShowCancelConfirm(false);
+    descartarCambios(); // 👈 sin pasar por la validación de hasUnsavedChanges
+  }}
+  className="bg-[#FFB703] hover:bg-[#ffa200] text-white font-semibold px-4 py-2 rounded transition-all"
+>
+  Sí, descartar
+</button>
             </div>
           </div>
         </div>
@@ -1303,4 +1308,4 @@ export default function UserPerfilDriver() {
       )}
     </>
   );
-} 
+}
