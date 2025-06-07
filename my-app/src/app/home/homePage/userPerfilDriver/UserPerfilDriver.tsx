@@ -446,6 +446,13 @@ export default function UserPerfilDriver() {
         fechaEmision: driverData.fechaEmision?.split("T")[0] || "",
         fechaExpiracion: driverData.fechaExpiracion?.split("T")[0] || "",
       });
+      // 🧼 Limpiar previews y archivos de imagen temporal
+      if (anversoPreview) URL.revokeObjectURL(anversoPreview);
+      if (reversoPreview) URL.revokeObjectURL(reversoPreview);
+      setAnversoPreview(null);
+      setReversoPreview(null);
+      setAnversoFile(null);
+      setReversoFile(null);
     }
   };
 
