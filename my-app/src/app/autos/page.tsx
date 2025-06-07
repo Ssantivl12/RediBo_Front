@@ -26,7 +26,45 @@ const OptimizedImage = ({
   sizes = "100vw"
 }: OptimizedImageProps) => {
   const [isLoading, setIsLoading] = useState(true)
-  const placeholderSrc = "/placeholder.svg"
+  const [hasError, setHasError] = useState(false)
+  
+  //imagen de fallback
+  const fallbackImage = "/imagenesIconos/default.png"
+  
+  // Validar src y usar fallback si está vacío
+  const validSrc = src && src.trim() !== "" ? src : fallbackImage
+  const [imgSrc, setImgSrc] = useState(validSrc)
+  
+  const handleError = () => {
+    if (!hasError && imgSrc !== fallbackImage) {
+      console.log(`Error cargando imagen: ${src}, usando fallback`)
+      setHasError(true)
+      setImgSrc(fallbackImage)
+    }
+  }
+  
+  const handleLoadComplete = () => {
+    setIsLoading(false)
+  }
+  
+  // resetear error cuando src cambia
+  useEffect(() => {
+    const newValidSrc = src && src.trim() !== "" ? src : fallbackImage
+    if (newValidSrc !== imgSrc) {
+      setImgSrc(newValidSrc)
+      setHasError(newValidSrc === fallbackImage)
+    }
+  }, [src, imgSrc, fallbackImage])
+  // No renderizar si no hay src válida
+  if (!imgSrc || imgSrc.trim() === "") {
+    return (
+      <div className="relative w-full h-full">
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg">
+          <span className="text-gray-500 text-sm">Sin imagen</span>
+        </div>
+      </div>
+    )
+  }
   
   return (
     <div className="relative w-full h-full">
@@ -36,7 +74,7 @@ const OptimizedImage = ({
         </div>
       )}
       <Image
-        src={src || placeholderSrc}
+        src={imgSrc}
         alt={alt}
         fill
         sizes={sizes}
@@ -44,9 +82,18 @@ const OptimizedImage = ({
         priority={priority}
         placeholder="blur"
         blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjFmMWYxIi8+PC9zdmc+"
-        className={`rounded-lg object-cover transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'} ${className}`}
-        onLoadingComplete={() => setIsLoading(false)}
+        className={`rounded-lg object-cover transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'} ${
+          imgSrc === fallbackImage ? 'scale-75' : ''
+        } ${className}`}
+        onLoadingComplete={handleLoadComplete}
+        onError={handleError}
       />
+      {/*Indicador opcional pa saber que es img de fallback*/}
+      {hasError && (
+        <div className="absolute top-2 right-2 bg-red-500/80 text-white text-xs px-2 py-1 rounded z-20">
+          Imagen no disponible
+        </div>
+      )}
     </div>
   )
 }
@@ -239,18 +286,12 @@ export default function AutosPage() {
                   <div className="flex flex-col w-full md:w-[350px] flex-shrink-0">
                     {/* Solo la imagen */}
                     <div className="relative w-full h-[250px] bg-[#f1f1f1] rounded-lg">
-                      {auto.imagenes && auto.imagenes.length > 0 && auto.imagenes[0]?.direccionImagen ? (
-                        <OptimizedImage
-                          src={auto.imagenes[0].direccionImagen}
-                          alt={`${auto.marca} ${auto.modelo}`}
-                          priority={index < 2} // Priorizar solo las primeras imágenes
-                          sizes="(max-width: 768px) 100vw, 350px"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-xs text-gray-500">
-                          Sin imagen
-                        </div>
-                      )}
+                      <OptimizedImage
+                        src={auto.imagenes?.[0]?.direccionImagen || ""}
+                        alt={`${auto.marca} ${auto.modelo}`}
+                        priority={index < 2} // Priorizar solo las primeras imágenes
+                        sizes="(max-width: 768px) 100vw, 350px"
+                      />
                     </div>
 
                     {/* Promedio y estrellas - Debajo de la imagen */}
