@@ -43,7 +43,7 @@ const toBase64 = (file: File): Promise<string> => {
 };
 
 
-export default function registroDriver() {
+export default function RegistroDriver() {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [anverso, setAnverso] = useState<File | null>(null);
