@@ -367,16 +367,7 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
     if (isLoading) return <div>Cargando...</div>;
     if (isError) return <div>Error: No tienes permiso para acceder a esta página.</div>;
 
-    function setFechaEmision(value: string): void {
-      throw new Error('Function not implemented.');
-    }
-
-    function setFechaVencimiento(value: string): void {
-      throw new Error('Function not implemented.');
-    }
-
-
-
+    
 
     const validarCampos = () => {
     let valido = true;
