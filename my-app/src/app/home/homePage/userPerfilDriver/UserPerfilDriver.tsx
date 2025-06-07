@@ -117,12 +117,13 @@ export default function UserPerfilDriver() {
 
   // Función para validar licencia
   const validateLicencia = (licencia: string): string | null => {
-    if (!licencia) return "El número de licencia es obligatorio";
-    if (!/^\d+$/.test(licencia)) return "La licencia solo debe contener números";
-    if (licencia.length < 6) return "La licencia debe tener al menos 6 dígitos";
-    if (licencia.length > 9) return "La licencia no debe tener más de 9 dígitos";
-    return null;
-  };
+  if (!licencia) return "El número de licencia es obligatorio";
+  if (!/^\d+$/.test(licencia)) return "La licencia solo debe contener números";
+  if (licencia.length < 6) return "La licencia debe tener al menos 6 dígitos";
+  if (licencia.length > 9) return "La licencia no debe tener más de 9 dígitos";
+  return null;
+};
+
   // Función para validar resolución de imagen
   const validateImageResolution = (file: File): Promise<boolean> => {
     return new Promise((resolve) => {
@@ -432,45 +433,45 @@ export default function UserPerfilDriver() {
     setIsEditing(true);
     setHasUnsavedChanges(false);
     setValidationErrors({});
-     // ✅ Guardar copia de seguridad de las imágenes actuales ANTES de que el usuario edite
-  setAnversoOriginal(driverData?.anversoUrl || null);
-  setReversoOriginal(driverData?.reversoUrl || null);
+    // ✅ Guardar copia de seguridad de las imágenes actuales ANTES de que el usuario edite
+    setAnversoOriginal(driverData?.anversoUrl || null);
+    setReversoOriginal(driverData?.reversoUrl || null);
   };
 
   const handleCancelEdit = () => {
-  if (hasUnsavedChanges) {
-    setShowCancelConfirm(true);
-    return;
-  }
+    if (hasUnsavedChanges) {
+      setShowCancelConfirm(true);
+      return;
+    }
 
-  descartarCambios();
-};
-const descartarCambios = () => {
-  setIsEditing(false);
-  setHasUnsavedChanges(false);
-  setValidationErrors({});
+    descartarCambios();
+  };
+  const descartarCambios = () => {
+    setIsEditing(false);
+    setHasUnsavedChanges(false);
+    setValidationErrors({});
 
-  if (driverData) {
-    setEditFormData({
-      telefono: driverData.telefono || "",
-      licencia: driverData.licencia || "",
-      tipoLicencia: driverData.tipoLicencia || "",
-      fechaEmision: driverData.fechaEmision?.split("T")[0] || "",
-      fechaExpiracion: driverData.fechaExpiracion?.split("T")[0] || "",
-    });
+    if (driverData) {
+      setEditFormData({
+        telefono: driverData.telefono || "",
+        licencia: driverData.licencia || "",
+        tipoLicencia: driverData.tipoLicencia || "",
+        fechaEmision: driverData.fechaEmision?.split("T")[0] || "",
+        fechaExpiracion: driverData.fechaExpiracion?.split("T")[0] || "",
+      });
 
-    if (anversoPreview) URL.revokeObjectURL(anversoPreview);
-    if (reversoPreview) URL.revokeObjectURL(reversoPreview);
+      if (anversoPreview) URL.revokeObjectURL(anversoPreview);
+      if (reversoPreview) URL.revokeObjectURL(reversoPreview);
 
-    setAnversoPreview(anversoOriginal);
-    setReversoPreview(reversoOriginal);
-    setAnversoFile(null);
-    setReversoFile(null);
-  }
-};
+      setAnversoPreview(anversoOriginal);
+      setReversoPreview(reversoOriginal);
+      setAnversoFile(null);
+      setReversoFile(null);
+    }
+  };
 
 
-   
+
 
   // Función para guardar cambios
   const handleSaveChanges = async () => {
@@ -669,14 +670,14 @@ const descartarCambios = () => {
                 No, volver
               </button>
               <button
-  onClick={() => {
-    setShowCancelConfirm(false);
-    descartarCambios(); // 👈 sin pasar por la validación de hasUnsavedChanges
-  }}
-  className="bg-[#FFB703] hover:bg-[#ffa200] text-white font-semibold px-4 py-2 rounded transition-all"
->
-  Sí, descartar
-</button>
+                onClick={() => {
+                  setShowCancelConfirm(false);
+                  descartarCambios(); // 👈 sin pasar por la validación de hasUnsavedChanges
+                }}
+                className="bg-[#FFB703] hover:bg-[#ffa200] text-white font-semibold px-4 py-2 rounded transition-all"
+              >
+                Sí, descartar
+              </button>
             </div>
           </div>
         </div>
@@ -975,13 +976,22 @@ const descartarCambios = () => {
                       </label>
                       <div className="relative">
                         <input
-                          type="text"
-                          value={isEditing ? editFormData.licencia : (driverData.licencia || "")}
-                          onChange={(e) => handleInputChange('licencia', e.target.value)}
-                          className={`w-full pl-10 pr-10 py-2 border-2 border-black rounded shadow-[0_4px_2px_-2px_rgba(0,0,0,0.6)] text-[#11295B] font-semibold ${isEditing ? 'bg-white' : 'bg-gray-100'
-                            }`}
-                          readOnly={!isEditing}
-                        />
+  type="text"
+  inputMode="numeric"
+  maxLength={9}
+  pattern="\d*"
+  value={isEditing ? editFormData.licencia : (driverData.licencia || "")}
+  onChange={(e) => {
+    const value = e.target.value.replace(/\D/g, ''); // Solo números
+    if (value.length <= 9) {
+      handleInputChange('licencia', value);
+    }
+  }}
+  className={`w-full pl-10 pr-10 py-2 border-2 rounded shadow-[0_4px_2px_-2px_rgba(0,0,0,0.6)] font-semibold text-[#11295B] 
+    ${isEditing ? 'bg-white' : 'bg-gray-100'} 
+    ${validationErrors.licencia ? 'border-red-500' : 'border-black'}`}
+/>
+
                         <LicenciaConductorIcon className="absolute left-2 top-2.5 w-5 h-5 text-[#11295B]" />
                         {isEditing && (
                           <div className="absolute right-2 top-2.5">
