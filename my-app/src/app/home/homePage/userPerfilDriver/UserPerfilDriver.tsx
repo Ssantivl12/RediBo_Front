@@ -703,7 +703,7 @@ const [renters, setRenters] = useState<Renter[]>([]);
                   )}
                   {showTooltip.fotoPerfil && (
                     <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap z-10">
-                      Este campo no es editable desde aquí. Para modificarlo, vaya a la sección 'Editar perfil personal'.
+                      Este campo no es editable desde aquí. Para modificarlo, vaya a la sección &apos;Editar perfil personal&apos;.
                     </div>
                   )}
                 </div>
@@ -1130,7 +1130,7 @@ const [renters, setRenters] = useState<Renter[]>([]);
                       <p className="text-red-600 text-sm">• {validationErrors.reversoUrl}</p>
                     )}
                     <p className="text-red-600 text-sm mt-2">
-                      Use el botón "Galería" para subir las imágenes de su licencia.
+                      Use el botón &quot;Galería&quot; para subir las imágenes de su licencia.
                     </p>
                   </div>
                 )}
@@ -1141,7 +1141,7 @@ const [renters, setRenters] = useState<Renter[]>([]);
       )}
     </main>
 
-     // ... resto del código hasta el modal de galería
+     {/* ... resto del código hasta el modal de galería*}
 
       {/* Modal Galería */}
       {showGallery && driverData && (
