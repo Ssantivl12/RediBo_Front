@@ -1149,7 +1149,7 @@ export default function UserPerfilDriver() {
                       </button>
                       <button
                         onClick={handleSaveChanges}
-                        disabled={!isFormValid() || uploadingImages}
+                        disabled={!isFormValid() || uploadingImages || !hasUnsavedChanges}
                         className={`font-semibold px-6 py-2 rounded shadow-md transition-all duration-300 ${isFormValid() && !uploadingImages
                           ? 'bg-[#FFB703] hover:bg-[#ffa200] text-white cursor-pointer'
                           : 'bg-gray-300 text-gray-500 cursor-not-allowed'
