@@ -329,14 +329,6 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
     );
   };
 
-
-
-
-
-  const validarTelefono = (telefono: string): boolean => {
-    const regex = /^[67]\d{7}$/; 
-    return regex.test(telefono);
-  };
   
 
   const validarNroLicencia = (nroLicencia: string): boolean => {
@@ -367,7 +359,7 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
     if (isLoading) return <div>Cargando...</div>;
     if (isError) return <div>Error: No tienes permiso para acceder a esta página.</div>;
 
-    
+
 
     const validarCampos = () => {
     let valido = true;
