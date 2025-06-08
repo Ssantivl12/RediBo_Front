@@ -860,7 +860,7 @@ export default function UserPerfilDriver() {
                                   <tr
                                     key={idx}
                                     onClick={() => setFilaActiva(idx)}
-                                    className={`border-t border-gray-300 hover:bg-gray-100 transition-colors cursor-pointer ${filaActiva === idx ? 'bg-red-50' : ''
+                                    className={`border-t border-gray-300 hover:bg-gray-100 transition-colors cursor-pointer ${filaActiva === idx ? 'bg-yellow-100' : ''
                                       }`}
                                   >
                                     <td className="px-4 py-2">
