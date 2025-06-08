@@ -852,7 +852,7 @@ export default function UserPerfilDriver() {
                               {rentersPaginados.length === 0 ? (
                                 <tr>
                                   <td colSpan={4} className="py-4 text-gray-500">
-                                    No hay renters disponibles.
+                                    No hay renters disponibles (Error).
                                   </td>
                                 </tr>
                               ) : (
