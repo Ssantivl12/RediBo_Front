@@ -189,7 +189,7 @@ export default function RegistroDriver() {
     }
 
     // Validación de resolución
-    const img = new (window as any).Image();
+    const img = document.createElement("img");
     img.onload = () => {
       if (img.width < 500 || img.height < 500) {
         const errorMsg = 'La imagen es ilegible. Por favor, sube una imagen de al menos 500x500 píxeles.';
