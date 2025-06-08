@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { getAutosDisponiblesPorFecha } from "@/libs/autoServices"
-import type { Auto } from "@/types/auto"
+import type { Auto, Comentario } from "@/types/auto"
 import Image from "next/image"
 import BarraBusqueda from "@/app/components/Auto/BusquedaAuto/BarraBusqueda"
 import Link from "next/link"
@@ -20,7 +20,7 @@ interface OptimizedImageProps {
 
 const OptimizedImage = ({ 
   src, 
-  alt, 
+  alt,
   priority = false,
   className = "",
   sizes = "100vw"
@@ -106,6 +106,8 @@ export default function AutosPage() {
   const [cargando, setCargando] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
   
+  const [promediosPorAuto, setPromediosPorAuto] = useState<{ [key: number]: number }>({})
+  
   const [imagesToLoad, setImagesToLoad] = useState(8)
 
   useEffect(() => {
@@ -131,6 +133,56 @@ export default function AutosPage() {
     }
   }, [autosFiltrados, imagesToLoad])
 
+  const calcularPromedio = (comentarios: Comentario[]): number => {
+    const comentariosValidos = comentarios.filter(c => c.calificacion > 0 && c.contenido?.trim() !== '');
+    return comentariosValidos.length > 0
+      ? comentariosValidos.reduce((acc, c) => acc + c.calificacion, 0) / comentariosValidos.length
+      : 0;
+  }
+
+  // Función para ordenar por mejor calificación
+  const ordenarPorMejorCalificacion = (autosData: Auto[]): Auto[] => {
+    return [...autosData].sort((a, b) => {
+      const promedioA = promediosPorAuto[a.idAuto] ?? (a.calificacionPromedio ?? 0);
+      const promedioB = promediosPorAuto[b.idAuto] ?? (b.calificacionPromedio ?? 0);
+      return promedioB - promedioA;
+    });
+  }
+
+  const cargarComentariosAutos = async (autosData: Auto[]) => {
+    try {
+      const { getComentariosDeAuto } = await import('@/libs/autoServices');
+      
+      const comentariosPromises = autosData.map(async (auto) => {
+        try {
+          const response = await getComentariosDeAuto(auto.idAuto);
+          return { idAuto: auto.idAuto, comentarios: response.data };
+        } catch (error) {
+          console.error(`Error al obtener comentarios para auto ${auto.idAuto}:`, error);
+          return { idAuto: auto.idAuto, comentarios: [] };
+        }
+      });
+
+      const resultados = await Promise.all(comentariosPromises);
+      
+      const nuevosComentarios: { [key: number]: Comentario[] } = {};
+      const nuevosPromedios: { [key: number]: number } = {};
+
+      resultados.forEach(({ idAuto, comentarios }) => {
+        nuevosComentarios[idAuto] = comentarios;
+        nuevosPromedios[idAuto] = calcularPromedio(comentarios);
+      });
+
+      setPromediosPorAuto(nuevosPromedios);
+      
+      // Aplicar ordenamiento por mejor calificación después de cargar comentarios
+      return nuevosPromedios;
+    } catch (error) {
+      console.error('Error al cargar comentarios de autos:', error);
+      return {};
+    }
+  }
+
   const buscarAutosDisponibles = async (fechaInicio: string, fechaFin: string) => {
     try {
       const inicio = new Date(fechaInicio).toISOString().split("T")[0]
@@ -144,9 +196,20 @@ export default function AutosPage() {
       const { data } = await getAutosDisponiblesPorFecha(inicio, fin)
 
       setAutos(data)
-      setAutosFiltrados(data)
       setBusquedaActiva(true)
       setImagesToLoad(8)
+      
+      // Cargar comentarios y luego ordenar por mejor calificación
+      const nuevosPromedios = await cargarComentariosAutos(data)
+      
+      // Ordenar por mejor calificación usando los promedios recién cargados
+      const autosOrdenados = [...data].sort((a, b) => {
+        const promedioA = nuevosPromedios[a.idAuto] ?? (a.calificacionPromedio ?? 0);
+        const promedioB = nuevosPromedios[b.idAuto] ?? (b.calificacionPromedio ?? 0);
+        return promedioB - promedioA;
+      });
+      
+      setAutosFiltrados(autosOrdenados)
     } catch (error) {
       console.error("Error al buscar autos disponibles:", error)
       setError("Hubo un error al buscar autos disponibles. Por favor intente nuevamente.")
@@ -159,7 +222,9 @@ export default function AutosPage() {
     const autosBase = autos
 
     if (!busqueda.trim()) {
-      setAutosFiltrados(autosBase)
+      // Al limpiar la búsqueda, ordenar por mejor calificación
+      const autosOrdenados = ordenarPorMejorCalificacion(autosBase)
+      setAutosFiltrados(autosOrdenados)
       return
     }
 
@@ -171,7 +236,9 @@ export default function AutosPage() {
       const filtrados = autosBase.filter(
         (auto) => auto.marca.toLowerCase().includes(marca) && auto.modelo.toLowerCase().includes(modelo),
       )
-      setAutosFiltrados(ordenarResultados(filtrados))
+      // Mantener ordenamiento por calificación en resultados filtrados
+      const filtradosOrdenados = ordenarPorMejorCalificacion(ordenarResultados(filtrados))
+      setAutosFiltrados(filtradosOrdenados)
       return
     }
 
@@ -181,7 +248,9 @@ export default function AutosPage() {
       return marcaMatch || modeloMatch
     })
 
-    setAutosFiltrados(ordenarResultados(filtrados, valor))
+    // Mantener ordenamiento por calificación en resultados filtrados
+    const filtradosOrdenados = ordenarPorMejorCalificacion(ordenarResultados(filtrados, valor))
+    setAutosFiltrados(filtradosOrdenados)
     setImagesToLoad(8)
   }
 
@@ -205,7 +274,12 @@ export default function AutosPage() {
 
     switch (opcion) {
       case "Mejor calificación":
-        autosOrdenados.sort((a, b) => (b.calificacionPromedio ?? 0) - (a.calificacionPromedio ?? 0))
+        autosOrdenados.sort((a, b) => {
+          // Usar el promedio calculado localmente, con fallback al del backend
+          const promedioA = promediosPorAuto[a.idAuto] ?? (a.calificacionPromedio ?? 0);
+          const promedioB = promediosPorAuto[b.idAuto] ?? (b.calificacionPromedio ?? 0);
+          return promedioB - promedioA;
+        })
         break
       case "Modelo: a - z":
         autosOrdenados.sort((a, b) => a.modelo.localeCompare(b.modelo))
@@ -232,6 +306,10 @@ export default function AutosPage() {
     setAutosFiltrados(autosOrdenados)
   }
 
+  const obtenerPromedioCalculado = (auto: Auto): number => {
+    return promediosPorAuto[auto.idAuto] ?? (auto.calificacionPromedio ?? 0);
+  }
+
   return (
     <>
       <div className="max-w-4xl mx-auto px-4 py-2">
@@ -256,7 +334,7 @@ export default function AutosPage() {
             <div>
               <p className="text-blue-800 font-medium">
                 Mostrando autos disponibles desde {new Date(fechasReserva.inicio).toLocaleDateString()} hasta{" "}
-                {new Date(fechasReserva.fin).toLocaleDateString()}
+                {new Date(fechasReserva.fin).toLocaleDateString()} - Ordenados por mejor calificación
               </p>
             </div>
           </div>
@@ -275,97 +353,50 @@ export default function AutosPage() {
         {/* Lista de autos */}
         {autosFiltrados.length > 0 ? (
           <div className="grid grid-cols-1 gap-6 max-w-4xl mx-auto">
-            {autosFiltrados.slice(0, imagesToLoad).map((auto: Auto, index: number) => (
-              <div
-                key={auto.idAuto}
-                id={index === imagesToLoad - 1 ? 'last-visible-card' : undefined}
-                className="bg-white rounded-lg p-4 shadow-md transition-transform duration-200 ease-in-out hover:translate-y-[-5px] hover:shadow-lg"
-              >
-                <div className="flex flex-col md:flex-row gap-4">
-                  {/* Contenedor de imagen y estrellas */}
-                  <div className="flex flex-col w-full md:w-[350px] flex-shrink-0">
-                    {/* Solo la imagen */}
-                    <div className="relative w-full h-[250px] bg-[#f1f1f1] rounded-lg">
-                      <OptimizedImage
-                        src={auto.imagenes?.[0]?.direccionImagen || ""}
-                        alt={`${auto.marca} ${auto.modelo}`}
-                        priority={index < 2} // Priorizar solo las primeras imágenes
-                        sizes="(max-width: 768px) 100vw, 350px"
-                      />
-                    </div>
+            {autosFiltrados.slice(0, imagesToLoad).map((auto: Auto, index: number) => {
+              const promedioCalculado = obtenerPromedioCalculado(auto);
+              
+              return (
+                <div
+                  key={auto.idAuto}
+                  id={index === imagesToLoad - 1 ? 'last-visible-card' : undefined}
+                  className="bg-white rounded-lg p-4 shadow-md transition-transform duration-200 ease-in-out hover:translate-y-[-5px] hover:shadow-lg"
+                >
+                  <div className="flex flex-col md:flex-row gap-4">
+                    {/* Contenedor de imagen y estrellas */}
+                    <div className="flex flex-col w-full md:w-[350px] flex-shrink-0">
+                      {/* Solo la imagen */}
+                      <div className="relative w-full h-[250px] bg-[#f1f1f1] rounded-lg">
+                        <OptimizedImage
+                          src={auto.imagenes?.[0]?.direccionImagen || ""}
+                          alt={`${auto.marca} ${auto.modelo}`}
+                          priority={index < 2} // Priorizar solo las primeras imágenes
+                          sizes="(max-width: 768px) 100vw, 350px"
+                        />
+                      </div>
 
-                    {/* Promedio y estrellas - Debajo de la imagen */}
-                    <div className="flex items-center justify-center mt-8">
-                      <div className="flex items-center gap-8">
-                        <span className="bg-[#11295B] text-white text-base font-bold px-3 py-1 rounded-md min-w-[48px] text-center">
-                          {(auto.calificacionPromedio ?? 0).toFixed(1)}
-                        </span>
-                        <div className="scale-150">
-                          <Estrellas promedio={auto.calificacionPromedio ?? 0} />
+                      {/* Promedio y estrellas - Debajo de la imagen */}
+                      <div className="flex items-center justify-center mt-8">
+                        <div className="flex items-center gap-8">
+                          <span className="bg-[#11295B] text-white text-base font-bold px-3 py-1 rounded-md min-w-[48px] text-center">
+                            {promedioCalculado.toFixed(1)}
+                          </span>
+                          <div className="scale-150">
+                            <Estrellas promedio={promedioCalculado} />
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Detalles + Precio y Botón */}
-                  <div className="flex-1 min-w-0 flex flex-col justify-between">
-                    <div className="bg-white p-5 w-full h-full flex flex-col justify-between">
-                      <h2 className="text-[#11295B] text-xl font-bold mb-4">
-                        {auto.marca} - {auto.modelo}
-                      </h2>
+                    {/* Detalles + Precio y Botón */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-between">
+                      <div className="bg-white p-5 w-full h-full flex flex-col justify-between">
+                        <h2 className="text-[#11295B] text-xl font-bold mb-4">
+                          {auto.marca} - {auto.modelo}
+                        </h2>
 
-                      {/* Características - Versión móvil (2 columnas) */}
-                      <div className="grid grid-cols-2 gap-y-4 gap-x-2 mb-4 sm:hidden">
-                        {[
-                          {
-                            icon: "/imagenesIconos/usuario.png",
-                            label: "Capacidad",
-                            value: `${auto.asientos} personas`,
-                          },
-                          {
-                            icon: "/imagenesIconos/cajaDeCambios.png",
-                            label: "Transmisión",
-                            value: auto.transmision,
-                          },
-                          {
-                            icon: "/imagenesIconos/maleta.png",
-                            label: "Maletero",
-                            value: `${auto.capacidadMaletero} equipaje/s`,
-                          },
-                          {
-                            icon: "/imagenesIconos/velocimetro.png",
-                            label: "Kilometraje",
-                            value: `${auto.kilometraje} km`,
-                          },
-                          {
-                            icon: "/imagenesIconos/gasolinera.png",
-                            label: "Combustible",
-                            value: auto.combustible,
-                          },
-                        ].map(({ icon, label, value }, index) => (
-                          <div key={index} className="flex items-center gap-2">
-                            <Image
-                              src={icon || "/placeholder.svg"}
-                              alt={label}
-                              width={30}
-                              height={30}
-                              className="w-[30px] h-[30px]"
-                              loading="lazy"
-                            />
-                            <div className="flex flex-col">
-                              <span className="font-bold text-[14px] text-black whitespace-nowrap">
-                                {value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()}
-                              </span>
-                              <span className="text-[12px] text-[#292929]">{label}</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Características - Versión original para tablets y desktop */}
-                      <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-y-6 sm:gap-x-4 lg:gap-x-30 mb-4">
-                        {/* Columna 1 */}
-                        <div className="flex flex-col gap-5">
+                        {/* Características - Versión móvil (2 columnas) */}
+                        <div className="grid grid-cols-2 gap-y-4 gap-x-2 mb-4 sm:hidden">
                           {[
                             {
                               icon: "/imagenesIconos/usuario.png",
@@ -382,29 +413,6 @@ export default function AutosPage() {
                               label: "Maletero",
                               value: `${auto.capacidadMaletero} equipaje/s`,
                             },
-                          ].map(({ icon, label, value }, index) => (
-                            <div key={index} className="flex items-center gap-4">
-                              <Image
-                                src={icon || "/placeholder.svg"}
-                                alt={label}
-                                width={50}
-                                height={50}
-                                className="w-[50px] h-[50px]"
-                                loading="lazy"
-                              />
-                              <div className="flex flex-col">
-                                <span className="font-bold text-[16px] text-black whitespace-nowrap">
-                                  {value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()}
-                                </span>
-                                <span className="text-[14px] text-[#292929]">{label}</span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-
-                        {/* Columna 2 */}
-                        <div className="flex flex-col gap-5">
-                          {[
                             {
                               icon: "/imagenesIconos/velocimetro.png",
                               label: "Kilometraje",
@@ -416,49 +424,123 @@ export default function AutosPage() {
                               value: auto.combustible,
                             },
                           ].map(({ icon, label, value }, index) => (
-                            <div key={index} className="flex items-center gap-4">
+                            <div key={index} className="flex items-center gap-2">
                               <Image
                                 src={icon || "/placeholder.svg"}
                                 alt={label}
-                                width={50}
-                                height={50}
-                                className="w-[50px] h-[50px]"
+                                width={30}
+                                height={30}
+                                className="w-[30px] h-[30px]"
                                 loading="lazy"
                               />
                               <div className="flex flex-col">
-                                <span className="font-bold text-[16px] text-black whitespace-nowrap">
+                                <span className="font-bold text-[14px] text-black whitespace-nowrap">
                                   {value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()}
                                 </span>
-                                <span className="text-[14px] text-[#292929]">{label}</span>
+                                <span className="text-[12px] text-[#292929]">{label}</span>
                               </div>
                             </div>
                           ))}
                         </div>
 
-                        {/* Columna 3 - Solo visible en pantallas grandes - Ahora vacía */}
-                        <div className="hidden lg:block"></div>
-                      </div>
+                        {/* Características - Versión original para tablets y desktop */}
+                        <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-y-6 sm:gap-x-4 lg:gap-x-30 mb-4">
+                          {/* Columna 1 */}
+                          <div className="flex flex-col gap-5">
+                            {[
+                              {
+                                icon: "/imagenesIconos/usuario.png",
+                                label: "Capacidad",
+                                value: `${auto.asientos} personas`,
+                              },
+                              {
+                                icon: "/imagenesIconos/cajaDeCambios.png",
+                                label: "Transmisión",
+                                value: auto.transmision,
+                              },
+                              {
+                                icon: "/imagenesIconos/maleta.png",
+                                label: "Maletero",
+                                value: `${auto.capacidadMaletero} equipaje/s`,
+                              },
+                            ].map(({ icon, label, value }, index) => (
+                              <div key={index} className="flex items-center gap-4">
+                                <Image
+                                  src={icon || "/placeholder.svg"}
+                                  alt={label}
+                                  width={50}
+                                  height={50}
+                                  className="w-[50px] h-[50px]"
+                                  loading="lazy"
+                                />
+                                <div className="flex flex-col">
+                                  <span className="font-bold text-[16px] text-black whitespace-nowrap">
+                                    {value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()}
+                                  </span>
+                                  <span className="text-[14px] text-[#292929]">{label}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
 
-                      {/* Precio y botón */}
-                      <div className="flex flex-row justify-between items-center mt-2 sm:mt-4">
-                        <div className="text-left">
-                          <p className="text-sm text-gray-600">Precio por día</p>
-                          <p className="text-lg font-semibold text-[#11295B]">{auto.precioRentaDiario} BOB</p>
+                          {/* Columna 2 */}
+                          <div className="flex flex-col gap-5">
+                            {[
+                              {
+                                icon: "/imagenesIconos/velocimetro.png",
+                                label: "Kilometraje",
+                                value: `${auto.kilometraje} km`,
+                              },
+                              {
+                                icon: "/imagenesIconos/gasolinera.png",
+                                label: "Combustible",
+                                value: auto.combustible,
+                              },
+                            ].map(({ icon, label, value }, index) => (
+                              <div key={index} className="flex items-center gap-4">
+                                <Image
+                                  src={icon || "/placeholder.svg"}
+                                  alt={label}
+                                  width={50}
+                                  height={50}
+                                  className="w-[50px] h-[50px]"
+                                  loading="lazy"
+                                />
+                                <div className="flex flex-col">
+                                  <span className="font-bold text-[16px] text-black whitespace-nowrap">
+                                    {value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()}
+                                  </span>
+                                  <span className="text-[14px] text-[#292929]">{label}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Columna 3 - Solo visible en pantallas grandes - Ahora vacía */}
+                          <div className="hidden lg:block"></div>
                         </div>
 
-                        <Link
-                          className="inline-block px-4 py-2 bg-[#FCA311] text-white no-underline rounded-lg font-bold transition-colors duration-300 ease-in-out hover:bg-[#e4920b]"
-                          href={`/detalleCoche/${auto.idAuto}`}
-                          target="_blank"
-                        >
-                          Ver detalles
-                        </Link>
+                        {/* Precio y botón */}
+                        <div className="flex flex-row justify-between items-center mt-2 sm:mt-4">
+                          <div className="text-left">
+                            <p className="text-sm text-gray-600">Precio por día</p>
+                            <p className="text-lg font-semibold text-[#11295B]">{auto.precioRentaDiario} BOB</p>
+                          </div>
+
+                          <Link
+                            className="inline-block px-4 py-2 bg-[#FCA311] text-white no-underline rounded-lg font-bold transition-colors duration-300 ease-in-out hover:bg-[#e4920b]"
+                            href={`/detalleCoche/${auto.idAuto}`}
+                            target="_blank"
+                          >
+                            Ver detalles
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
             
           </div>
         ) : (

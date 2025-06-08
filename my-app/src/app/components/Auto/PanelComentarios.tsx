@@ -225,6 +225,12 @@ export default function PanelComentarios({ mostrar, onClose, comentarios, marca,
           );
         })}
 
+        {comentariosValidos.length === 0 && (
+          <div className="text-center py-8">
+            <p className="text-gray-500">Sin comentarios</p>
+          </div>
+        )}
+
         </div>
       </div>
     </>

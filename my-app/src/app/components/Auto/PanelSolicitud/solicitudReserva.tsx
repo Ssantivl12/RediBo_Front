@@ -19,6 +19,7 @@ interface SolicitudReservaProps {
   mostrar: boolean
   onClose: () => void
   auto: Auto
+  onSolicitudConfirmada?: () => void // Nueva prop para callback
 }
 
 interface ReservaData {
@@ -28,7 +29,7 @@ interface ReservaData {
   returnTime: string
 }
 
-export default function SolicitudReserva({ mostrar, onClose, auto }: SolicitudReservaProps) {
+export default function SolicitudReserva({ mostrar, onClose, auto, onSolicitudConfirmada }: SolicitudReservaProps) {
   const [activeTab, setActiveTab] = useState<"caracteristicas" | "precio">("caracteristicas")
   const [aceptoTerminos, setAceptoTerminos] = useState(false)
   const [mostrarPanelConfirmarSolicitud, setMostrarPanelConfirmarSolicitud] = useState(false)
@@ -60,6 +61,11 @@ export default function SolicitudReserva({ mostrar, onClose, auto }: SolicitudRe
   const handleConfirmarSolicitud = () => {
     setMostrarPanelConfirmarSolicitud(false)
     setMostrarPanelSolicitudEnviada(true)
+    
+    // Llamar al callback del componente padre para bloquear el botón
+    if (onSolicitudConfirmada) {
+      onSolicitudConfirmada()
+    }
   }
 
   const handleAceptarSolicitudEnviada = () => {

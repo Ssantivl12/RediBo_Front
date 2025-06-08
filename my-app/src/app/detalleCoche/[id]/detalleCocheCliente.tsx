@@ -18,7 +18,8 @@ export default function DetalleCocheCliente({ auto }: Props) {
   const [comentarios, setComentarios] = useState<Comentario[]>([]);
   const [mostrarPanel, setMostrarPanel] = useState(false);
   const [mostrarSolicitudResercva, setMostrarModalSolicitud] = useState(false);
-
+  const [botonBloqueado, setBotonBloqueado] = useState(false);
+  const [tiempoRestante, setTiempoRestante] = useState(0);
 
   useEffect(() => {
     import('@/libs/autoServices').then(({ getComentariosDeAuto }) => {
@@ -29,20 +30,62 @@ export default function DetalleCocheCliente({ auto }: Props) {
           setComentarios([]);
         });
     });
-
   }, [auto.idAuto]);
+
+  // Efecto para manejar el contador de tiempo
+  useEffect(() => {
+    let intervalo: NodeJS.Timeout;
+    
+    if (botonBloqueado && tiempoRestante > 0) {
+      intervalo = setInterval(() => {
+        setTiempoRestante((prev) => {
+          if (prev <= 1) {
+            setBotonBloqueado(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (intervalo) {
+        clearInterval(intervalo);
+      }
+    };
+  }, [botonBloqueado, tiempoRestante]);
+
+  const handleConfirmarSolicitud = () => {
+    // Aquí puedes agregar la lógica para enviar la solicitud
+    console.log('Solicitud confirmada');
+    
+    // Bloquear el botón por 10 minutos (600 segundos)
+    setBotonBloqueado(true);
+    setTiempoRestante(600);
+    
+    // Cerrar el modal de solicitud
+    setMostrarModalSolicitud(false);
+  };
+
+  const handleEnviarSolicitud = () => {
+    if (!botonBloqueado) {
+      setMostrarModalSolicitud(true);
+    }
+  };
+
   const comentariosValidos = comentarios.filter(c => c.calificacion > 0 && c.contenido?.trim() !== '');
   const promedio = comentariosValidos.length > 0
     ? comentariosValidos.reduce((acc, c) => acc + c.calificacion, 0) / comentariosValidos.length
     : 0;
+
   return (
     <>
       <SolicitudReserva
         mostrar={mostrarSolicitudResercva}
         onClose={() => setMostrarModalSolicitud(false)}
         auto={auto}
+        onSolicitudConfirmada={handleConfirmarSolicitud}
       />
-
 
       <PanelComentarios
         mostrar={mostrarPanel}
@@ -66,14 +109,13 @@ export default function DetalleCocheCliente({ auto }: Props) {
               <div className="mt-4">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="font-bold text-lg text-[#11295B]">Calificación</span>
-                  <span className="text-lg text-black font-medium">
+                  <span className="text-lg text-[#11295B] font-bold">
                     {promedio.toFixed(1)}
                   </span>
                   <div className="scale-100">
                     <Estrellas promedio={promedio} />
                   </div>
                 </div>
-
 
                 <button
                   className="bg-[#fca311] text-white px-5 py-2.5 rounded-full text-base font-semibold transition hover:bg-[#e69500] active:bg-[#cc8400]"
@@ -82,7 +124,6 @@ export default function DetalleCocheCliente({ auto }: Props) {
                   Ver Reseñas
                 </button>
               </div>
-
 
               <div className="bg-white mt-5">
                 <h3 className="text-[#11295B] text-xl font-semibold">Detalles</h3>
@@ -120,12 +161,19 @@ export default function DetalleCocheCliente({ auto }: Props) {
                 modelo={auto.modelo} />
               <Precio precioPorDia={auto.precioRentaDiario} />
               <div className="w-full flex justify-center">
-                <button
-                  className="bg-[#fca311] text-white px-2.5 py-2.5 rounded-full text-base font-semibold transition hover:bg-[#e69500] active:bg-[#cc8400] max-w-[250px] h-[50px]"
-                  onClick={() => setMostrarModalSolicitud(true)}
-                >
-                  Enviar solicitud
-                </button>
+                <div className="flex flex-col items-center">
+                  <button
+                    className={`px-2.5 py-2.5 rounded-full text-base font-semibold transition max-w-[250px] h-[50px] ${
+                      botonBloqueado
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-[#fca311] hover:bg-[#e69500] active:bg-[#cc8400] cursor-pointer'
+                    } text-white`}
+                    onClick={handleEnviarSolicitud}
+                    disabled={botonBloqueado}
+                  >
+                    {botonBloqueado ? 'Solicitud enviada' : 'Enviar solicitud'}
+                  </button>
+                </div>
               </div>
             </div>
           </div>

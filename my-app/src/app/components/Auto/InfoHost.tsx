@@ -98,10 +98,10 @@ export default function InfoHost({ usuario, marca, modelo }: Props) {
       )}
 
       <div className="flex justify-center mt-4">
-       <Link
+      <Link
           href={`/detalleHost/${usuario.idUsuario}`}
           onClick={handleViewProfile}
-          className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded-full shadow-md transition"
+          className=" bg-[#FCA311] text-white font-bold py-2 px-4 rounded-full shadow-md transition"
           target="_blank"
           rel="noopener noreferrer"
         >
