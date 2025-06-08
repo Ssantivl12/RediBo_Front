@@ -712,7 +712,7 @@ export default function UserPerfilDriver() {
               <button
                 onClick={() => {
                   setShowCancelConfirm(false);
-                  descartarCambios(); // 👈 sin pasar por la validación de hasUnsavedChanges
+                  descartarCambios(); //  sin pasar por la validación de hasUnsavedChanges
                 }}
                 className="bg-[#FFB703] hover:bg-[#ffa200] text-white font-semibold px-4 py-2 rounded transition-all"
               >
@@ -776,7 +776,7 @@ export default function UserPerfilDriver() {
                       Editar perfil
                     </button>
                   )}
-                  {/* Botón Lista de Renters */}
+                  {/* Botón que abre modal para Lista de Renters */}
                   <button
                     onClick={() => setShowRentersModal(true)}
                     className="bg-[#FFB703] hover:bg-[#ffa200] text-white font-semibold px-4 py-2 rounded-full shadow-md text-center transition-all duration-300 w-[140px]"
