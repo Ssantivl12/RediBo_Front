@@ -12,6 +12,8 @@ import CalendarIcon from "@/app/components/Icons/Calendar";
 import { SolarGalleryOutline } from "@/app/components/Icons/Gallery";
 import { useUser } from '@/hooks/useUser';
 import NextImage from "next/image";
+import { useRef } from "react";
+
 
 
 
@@ -98,6 +100,9 @@ export default function UserPerfilDriver() {
 
   const [paginaActual, setPaginaActual] = useState(1);
   const itemsPorPagina = 5;
+
+  // Bug Modal
+  const modalRef = useRef<HTMLDivElement | null>(null);
 
 
   // Categorías válidas para licencia
@@ -426,6 +431,18 @@ export default function UserPerfilDriver() {
       setProfilePhotoUrl(null);
     }
   }, [user]);
+
+
+  useEffect(() => {
+  const handleClickOutside = (event: MouseEvent) => {
+    if (showRentersModal && modalRef.current && !modalRef.current.contains(event.target as Node)) {
+      setShowRentersModal(false);
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => document.removeEventListener("mousedown", handleClickOutside);
+}, [showRentersModal]);
 
 
   // Función para activar modo edición
@@ -769,7 +786,7 @@ export default function UserPerfilDriver() {
 
                   {showRentersModal && (
                     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
-                      <div className="bg-white rounded-2xl shadow-2xl w-[90%] max-w-4xl p-6 border border-gray-300 relative">
+                      <div ref={modalRef} className="bg-white rounded-2xl shadow-2xl w-[90%] max-w-4xl p-6 border border-gray-300 relative">
 
                         {/* Botón para cerrar */}
                         <button

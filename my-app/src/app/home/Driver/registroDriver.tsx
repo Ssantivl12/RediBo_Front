@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState, useRef } from 'react';
+import Image from "next/image";
 import NavbarPerfilUsuario from '@/app/components/navbar/NavbarNeutro';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -32,14 +33,21 @@ const uploadImageToCloudinary = async (file: File): Promise<string | null> => {
   }
 };
 
+const toBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = error => reject(error);
+  });
+};
 
-export default function registroDriver() {
+
+export default function RegistroDriver() {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [anverso, setAnverso] = useState<File | null>(null);
   const [reverso, setReverso] = useState<File | null>(null);
-  const [perfil, setPerfil] = useState<File | null>(null);
-  const [errorPerfil, setErrorPerfil] = useState<string | null>(null);
   const [nombreUsuario, setNombreUsuario] = useState<string>('');
   const [sexo, setSexo] = useState<string>('');
   const [telefonoUsuario, setTelefonoUsuario] = useState<string>('');
@@ -63,6 +71,10 @@ export default function registroDriver() {
   const [errorAnverso, setErrorAnverso] = useState<string | null>(null);
   const [errorReverso, setErrorReverso] = useState<string | null>(null);
 
+  const [previewAnverso, setPreviewAnverso] = useState<string | null>(null);
+  const [previewReverso, setPreviewReverso] = useState<string | null>(null);
+
+
 
   const router = useRouter();
 
@@ -71,7 +83,6 @@ export default function registroDriver() {
 
   const anversoRef = useRef<HTMLInputElement>(null);
   const reversoRef = useRef<HTMLInputElement>(null);
-  const perfilRef = useRef<HTMLInputElement>(null);
 
   const user = useUser();
   //const [telefonoUsuario, setTelefonoUsuario] = useState('');
@@ -133,35 +144,10 @@ export default function registroDriver() {
   }, []);
   
 
-  const validateFile = (file: File, tipo: 'anverso' | 'reverso' | 'perfil') => {
-    return new Promise<{ valido: boolean; mensaje?: string }>((resolve) => {
-      const validType = file.type === 'image/png';
-      if (!validType) {
-        resolve({ valido: false, mensaje: 'Solo se permiten imágenes en formato PNG.' });
-        return;
-      }
-  
-      const img = new Image();
-      img.onload = () => {
-        if (img.width < 500 || img.height < 500) {
-          resolve({ valido: false, mensaje: 'La imagen es ilegible. Por favor, envíe una foto clara de su licencia.' });
-        } else {
-          resolve({ valido: true });
-        }
-      };
-      img.onerror = () => {
-        resolve({ valido: false, mensaje: 'No se pudo cargar la imagen.' });
-      };
-  
-      img.src = URL.createObjectURL(file);
-    });
-  };
-  
-
  const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     tipo: 'anverso' | 'reverso' | 'perfil'
-  ) => {
+    ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -174,10 +160,6 @@ export default function registroDriver() {
       setErrorReverso('Ya se ha cargado una imagen. Elimina la actual para subir otra.');
       return;
     }
-    if (tipo === 'perfil' && perfil) {
-      setErrorPerfil('Ya se ha cargado una imagen. Elimina la actual para subir otra.');
-      return;
-    }
 
     // Validación formato de imagen
     if (file.type !== 'image/png') {
@@ -188,10 +170,7 @@ export default function registroDriver() {
       } else if (tipo === 'reverso') {
         setErrorReverso(errorMsg);
         setReverso(null);
-      } else if (tipo === 'perfil') {
-        setErrorPerfil(errorMsg);
-        setPerfil(null);
-      }
+      } 
       return;
     }
 
@@ -205,15 +184,12 @@ export default function registroDriver() {
       } else if (tipo === 'reverso') {
         setErrorReverso(errorMsg);
         setReverso(null);
-      } else if (tipo === 'perfil') {
-        setErrorPerfil(errorMsg);
-        setPerfil(null);
       }
       return;
     }
 
     // Validación de resolución
-    const img = new Image();
+    const img = document.createElement("img");
     img.onload = () => {
       if (img.width < 500 || img.height < 500) {
         const errorMsg = 'La imagen es ilegible. Por favor, sube una imagen de al menos 500x500 píxeles.';
@@ -223,10 +199,7 @@ export default function registroDriver() {
         } else if (tipo === 'reverso') {
           setErrorReverso(errorMsg);
           setReverso(null);
-        } else if (tipo === 'perfil') {
-          setErrorPerfil(errorMsg);
-          setPerfil(null);
-        }
+        } 
       } else {
         if (tipo === 'anverso') {
           setAnverso(file);
@@ -234,9 +207,6 @@ export default function registroDriver() {
         } else if (tipo === 'reverso') {
           setReverso(file);
           setErrorReverso(null);
-        } else if (tipo === 'perfil') {
-          setPerfil(file);
-          setErrorPerfil(null);
         }
       }
     };
@@ -249,53 +219,62 @@ export default function registroDriver() {
       } else if (tipo === 'reverso') {
         setErrorReverso(errorMsg);
         setReverso(null);
-      } else if (tipo === 'perfil') {
-        setErrorPerfil(errorMsg);
-        setPerfil(null);
       }
     };
 
-    img.src = URL.createObjectURL(file);
+      img.src = URL.createObjectURL(file);
+
+        toBase64(file).then((base64) => {
+      if (tipo === 'anverso') {
+        setPreviewAnverso(base64);
+      } else if (tipo === 'reverso') {
+        setPreviewReverso(base64);
+      } 
+    });
+
   };
 
   
 
   
 const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
-  if (tipo === 'anverso') setAnverso(null);
-  if (tipo === 'reverso') setReverso(null);
-  if (tipo === 'perfil') setPerfil(null);
-};
-
-
-  const renderImagePreview = (file: File | null | undefined, tipo: 'anverso' | 'reverso' | 'perfil') => {
-  if (!file) return null;
-  if (!(file instanceof File)) {
-    console.error(`❌ El archivo para "${tipo}" no es válido:`, file);
-    return null;
+  if (tipo === 'anverso') {
+    setAnverso(null);
+    setPreviewAnverso(null);
   }
-
-  const src = URL.createObjectURL(file);
-  return (
-    <div className="relative w-40 h-28 mt-2">
-      <img src={src} alt={tipo} className="object-cover w-full h-full rounded" />
-      <button
-        onClick={() => removeFile(tipo)}
-        className="absolute -top-2 -right-2 bg-[#11295B] text-white rounded-full w-5 h-5 flex items-center justify-center"
-      >
-        <X size={12} />
-      </button>
-    </div>
-  );
+  if (tipo === 'reverso') {
+    setReverso(null);
+    setPreviewReverso(null);
+  }
 };
 
 
 
+  const renderImagePreview = (
+    base64: string | null,
+    tipo: 'anverso' | 'reverso' | 'perfil'
+  ) => {
+    if (!base64) return null;
 
-  const validarTelefono = (telefono: string): boolean => {
-    const regex = /^[67]\d{7}$/; 
-    return regex.test(telefono);
+    return (
+      <div className="relative w-40 h-28 mt-2">
+        <Image
+          src={base64}
+          alt={`Imagen ${tipo}`}
+          width={160}
+          height={112}
+          className="object-cover w-full h-full rounded"
+        />
+        <button
+          onClick={() => removeFile(tipo)}
+          className="absolute -top-2 -right-2 bg-[#11295B] text-white rounded-full w-5 h-5 flex items-center justify-center"
+        >
+          <X size={12} />
+        </button>
+      </div>
+    );
   };
+
   
 
   const validarNroLicencia = (nroLicencia: string): boolean => {
@@ -325,15 +304,6 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
 
     if (isLoading) return <div>Cargando...</div>;
     if (isError) return <div>Error: No tienes permiso para acceder a esta página.</div>;
-
-    function setFechaEmision(value: string): void {
-      throw new Error('Function not implemented.');
-    }
-
-    function setFechaVencimiento(value: string): void {
-      throw new Error('Function not implemented.');
-    }
-
 
 
 
@@ -421,7 +391,6 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
       valido = false;
     } else {
       const añoVencimiento = new Date(fechaVencimiento).getFullYear();
-      const hoy = new Date();
 
       if (añoVencimiento > 9999) {
         setErrorFechaVencimiento(true);
@@ -808,7 +777,6 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
                     setFechaEmisionState(value);
 
                     const esValida = validarFechaEmision(value);
-                    const esMayorQueVencimiento = fechaVencimiento && new Date(value) > new Date(fechaVencimiento);
 
                     if (!esValida) {
                       const fechaSeleccionada = new Date(value);
@@ -890,11 +858,6 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
                       const emisionDate = new Date(emision);
                       const vencimientoDate = new Date(value);
 
-                      const diferenciaAnios =
-                        vencimientoDate.getFullYear() - emisionDate.getFullYear() ||
-                        vencimientoDate.getMonth() - emisionDate.getMonth() ||
-                        vencimientoDate.getDate() - emisionDate.getDate();
-
                       const fechaExacta = new Date(emisionDate);
                       fechaExacta.setFullYear(fechaExacta.getFullYear() + 5);
 
@@ -947,6 +910,7 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
 
                     if (file.type !== "image/png") {
                       setErrorAnverso("Solo se permiten imágenes en formato PNG.");
+                      setMensajeErrorAnverso("La imagen debe estar en formato PNG.");
                       setAnverso(null);
                       return;
                     }
@@ -971,7 +935,7 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
                   className="hidden"
                   onChange={(e) => handleFileChange(e, 'anverso')}
                 />
-                {renderImagePreview(anverso, 'anverso')}
+                {renderImagePreview(previewAnverso, 'anverso')}
                 {mensajeErrorAnverso && (
                   <p className="text-sm text-red-500 mt-2">{mensajeErrorAnverso}</p>
                 )}
@@ -995,6 +959,7 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
 
                     if (file.type !== "image/png") {
                       setErrorReverso("Solo se permiten imágenes en formato PNG.");
+                      setMensajeErrorReverso("La imagen debe estar en formato PNG.");
                       setReverso(null);
                       return;
                     }
@@ -1020,8 +985,7 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
                   className="hidden"
                   onChange={(e) => handleFileChange(e, 'reverso')}
                 />
-                {renderImagePreview(reverso, 'reverso')}
-                {mensajeErrorReverso && (
+                {renderImagePreview(previewReverso, 'reverso')}                {mensajeErrorReverso && (
                   <p className="text-sm text-red-500 mt-2">{mensajeErrorReverso}</p>
                 )}
 
