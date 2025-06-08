@@ -34,6 +34,8 @@ interface Vehiculo {
   imagen?: string;
   estado?: string;
   fechaCreacion?: string;
+  promedioCalificacion?: number; // Nuevo campo
+  totalComentarios?: number; // Nuevo campo
   estadoActual: {
     tipo: string;
     datos: {
@@ -43,8 +45,7 @@ interface Vehiculo {
       fechaInicio?: Date;
       fechaFin?: Date;
       cliente?: {
-        nombre: string;
-        apellido: string;
+        nombreCompleto: string;
         email: string;
       };
       idHistorial?: number;
@@ -80,20 +81,25 @@ export default function GestionarVehiculos() {
   const [accionActual, setAccionActual] = useState("");
   const [datosMantenimientoTemp, setDatosMantenimientoTemp] = useState<MantenimientoData | null>(null);
   const [mostrarModalComentarios, setMostrarModalComentarios] = useState(false);
-  const [comentarios] = useState<Comentario[]>([
-    {
-      autor: "Maria Rodriguez",
-      fecha: "2024-02-05",
-      puntuacion: 5,
-      contenido: "Increíble experiencia de manejo, muy satisfecha."
-    },
-    {
-      autor: "Juan Perez",
-      fecha: "2024-02-10",
-      puntuacion: 5,
-      contenido: "Gran relación calidad-precio, recomendado."
+  const [comentarios, setComentarios] = useState<Comentario[]>([]);
+  //Paginación
+  const [paginaActual, setPaginaActual] = useState(1);
+  const autosPorPagina = 5;
+
+  // Función para cargar comentarios desde la API
+  const fetchComentarios = async (idAuto: number) => {
+    try {
+      const response = await fetch(`${API_URL}/comentarios/auto/${idAuto}`);
+      if (!response.ok) throw new Error("No se pudieron cargar los comentarios");
+      const data = await response.json();
+      console.log("Datos del vehículo:", vehiculos.find(v => v.idAuto === idAuto));
+      setComentarios(data.comentarios || []);
+      setVehiculoSeleccionado(idAuto);
+      setMostrarModalComentarios(true);
+    } catch (error) {
+      console.error("Error al obtener comentarios:", error);
     }
-  ]);
+  };
 
   const [formData, setFormData] = useState({
     fechaInicio: "",
@@ -109,68 +115,74 @@ export default function GestionarVehiculos() {
 
   const kilometrajeActual = 45280;
   const historialKilometraje: Kilometraje[] = [
-    {
-      id: '1',
-      nombre: 'Carlos Rodríguez',
-      fechaInicio: '2024-02-01',
-      fechaFin: '2024-02-15',
-      kilometraje: 45280
-    },
-    {
-      id: '2',
-      nombre: 'María González',
-      fechaInicio: '2024-01-15',
-      fechaFin: '2024-01-30',
-      kilometraje: 44800
-    },
-    {
-      id: '3',
-      nombre: 'Juan Pérez',
-      fechaInicio: '2024-01-01',
-      fechaFin: '2024-01-14',
-      kilometraje: 44100
-    },
-    {
-      id: '4',
-      nombre: 'Ana Martínez',
-      fechaInicio: '2023-12-15',
-      fechaFin: '2023-12-31',
-      kilometraje: 43500
-    },
-    {
-      id: '5',
-      nombre: 'Roberto Sánchez',
-      fechaInicio: '2023-12-01',
-      fechaFin: '2023-12-14',
-      kilometraje: 42800
-    },
-    {
-      id: '6',
-      nombre: 'Laura Torres',
-      fechaInicio: '2023-11-15',
-      fechaFin: '2023-11-30',
-      kilometraje: 42000
-    }
+    // ...
   ];
 
   useEffect(() => {
     cargarVehiculos();
   }, []);
 
+  const renderPromedioCalificacion = (vehiculo: Vehiculo) => {
+    if (!vehiculo.promedioCalificacion || vehiculo.promedioCalificacion === 0) {
+      return null;
+    }
+
+    return (
+      <div className="flex items-center mt-2">
+        <div className="flex mr-1">
+          {[...Array(5)].map((_, i) => (
+            <span
+              key={i}
+              className={i < Math.round(vehiculo.promedioCalificacion!) ? "text-yellow-400" : "text-gray-300"}
+            >
+              ★
+            </span>
+          ))}
+        </div>
+        <span className="text-sm font-medium text-gray-700">
+          {vehiculo.promedioCalificacion.toFixed(1)}
+          {vehiculo.totalComentarios && (
+            <span className="text-gray-500">({vehiculo.totalComentarios})</span>
+          )}
+        </span>
+      </div>
+    );
+  };
+
   const cargarVehiculos = async () => {
     setCargando(true);
     setError("");
     const idArrendador = params.idArrendador;
-    
+
     try {
       const response = await fetch(`${API_URL}/autos/arrendador/${idArrendador}`);
-      
       if (!response.ok) {
         throw new Error(`Error al cargar vehículos: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      setVehiculos(data.autos);
+      const vehiculosConCalificaciones = await Promise.all(
+        data.autos.map(async (vehiculo: Vehiculo) => {
+          try {
+            const resComentarios = await fetch(`${API_URL}/comentarios/auto/${vehiculo.idAuto}`);
+            if (resComentarios.ok) {
+              const comentarios = await resComentarios.json();
+              const promedio = comentarios.reduce((acc: number, curr: Comentario) => acc + curr.puntuacion, 0) / comentarios.length;
+              return {
+                ...vehiculo,
+                promedioCalificacion: isNaN(promedio) ? 0 : parseFloat(promedio.toFixed(1)),
+                totalComentarios: comentarios.length
+              };
+            }
+            return vehiculo;
+          } catch (error) {
+            console.error(`Error al cargar comentarios para auto ${vehiculo.idAuto}:`, error);
+            return vehiculo;
+          }
+        })
+      );
+
+      setVehiculos(vehiculosConCalificaciones);
     } catch (err) {
       console.error("Error al cargar los vehículos:", err);
       setError("No se pudieron cargar los vehículos. Por favor, intente nuevamente.");
@@ -189,16 +201,13 @@ export default function GestionarVehiculos() {
       filtered = filtered.filter((v) => {
         switch (estadoFilter) {
           case 'En renta':
-            return v.estadoActual.tipo === 'RENTA_ACTIVA' || 
-                   v.estadoActual.tipo === 'RENTA_FINALIZADA_POR_LIBERAR';
+            return v.estadoActual.tipo === 'RENTA_ACTIVA' && v.estadoActual.datos.estado === 'EN_CURSO';
           case 'Disponible':
             return v.estadoActual.tipo === 'DISPONIBLE';
           case 'Reservado':
-            return v.estadoActual.tipo === 'RENTA_ACTIVA' && 
-                   v.estadoActual.datos.estado === 'RESERVADO';
+            return v.estadoActual.tipo === 'RENTA_ACTIVA' && v.estadoActual.datos.estado !== 'EN_CURSO';
           case 'No disponible':
-            return v.estadoActual.tipo === 'NO_DISPONIBLE' || 
-                   v.estadoActual.tipo === 'EN_MANTENIMIENTO';
+            return v.estadoActual.tipo === 'NO_DISPONIBLE' || v.estadoActual.tipo === 'EN_MANTENIMIENTO';
           default:
             return true;
         }
@@ -224,6 +233,13 @@ export default function GestionarVehiculos() {
     return filtered;
   };
 
+  //Paginación
+  const vehiculosFiltrados = getFilteredVehiculos();
+  const totalPaginas = Math.ceil(vehiculosFiltrados.length / autosPorPagina);
+  const indiceInicio = (paginaActual - 1) * autosPorPagina;
+  const vehiculosPaginados = vehiculosFiltrados.slice(indiceInicio, indiceInicio + autosPorPagina);
+
+
   const handleLiberarRenta = (idAuto: number) => {
     setVehiculoSeleccionado(idAuto);
     setAccionActual("FINALIZAR_RENTA");
@@ -232,16 +248,16 @@ export default function GestionarVehiculos() {
 
   const confirmarAccion = async () => {
     if (!vehiculoSeleccionado) return;
-    
+
     setIsProcessing(true);
-    
+
     try {
       const vehiculo = vehiculos.find(v => v.idAuto === vehiculoSeleccionado);
       if (!vehiculo) throw new Error("Vehículo no encontrado");
-      
+
       let endpoint = "";
       let metodo = "";
-      
+
       if (accionActual === "FINALIZAR_RENTA" && vehiculo.estadoActual.datos.idReserva) {
         endpoint = `${API_URL}/reservas/${vehiculo.estadoActual.datos.idReserva}/liberar`;
         metodo = "PUT";
@@ -251,7 +267,7 @@ export default function GestionarVehiculos() {
         endpoint = `${API_URL}/mantenimiento/${vehiculo.estadoActual.datos.idHistorial}/finalizar`;
         metodo = "POST";
       }
-      
+
       if (endpoint) {
         const response = await fetch(endpoint, {
           method: metodo,
@@ -259,11 +275,11 @@ export default function GestionarVehiculos() {
             'Content-Type': 'application/json',
           }
         });
-        
+
         if (!response.ok) {
           throw new Error(`Error al procesar la acción: ${response.status}`);
         }
-        
+
         await cargarVehiculos();
         setMostrarExito(true);
       }
@@ -305,24 +321,24 @@ export default function GestionarVehiculos() {
     const fecha = new Date(`${anio}-${mes}-${dia}T23:59:59.999Z`);
     return isNaN(fecha.getTime()) ? null : fecha.toISOString();
   };
-  
+
   const handlePreRegistrarMantenimiento = (data: MantenimientoData) => {
     setDatosMantenimientoTemp(data);
     setMostrarModalMantenimiento(false);
     setMostrarConfirmacionMantenimiento(true);
   };
-  
+
   const confirmarRegistroMantenimiento = async () => {
     if (!datosMantenimientoTemp || !vehiculoSeleccionado) return;
-    
+
     setIsProcessing(true);
-    
+
     try {
       const data = datosMantenimientoTemp;
       const fechaInicio = parseFechaInicio(data.fechaInicio);
       const fechaFin = parseFechaFin(data.fechaFin);
       const kilometraje = Number(data.kilometraje);
-      
+
       const response = await fetch(`${API_URL}/autos/${vehiculoSeleccionado}/mantenimiento`, {
         method: 'POST',
         headers: {
@@ -337,11 +353,11 @@ export default function GestionarVehiculos() {
           fechaFin: fechaFin
         })
       });
-      
+
       if (!response.ok) {
         throw new Error(`Error al registrar mantenimiento: ${response.status}`);
       }
-      
+
       await response.json();
       await cargarVehiculos();
       setMantenimientoExitoso(true);
@@ -364,7 +380,7 @@ export default function GestionarVehiculos() {
 
   const renderEstadoVehiculo = (vehiculo: Vehiculo) => {
     const { estadoActual } = vehiculo;
-    
+
     switch (estadoActual.tipo) {
       case 'RENTA_ACTIVA':
         return (
@@ -379,7 +395,7 @@ export default function GestionarVehiculos() {
               <span className="font-semibold" style={{ color: "#11295B" }}>
                 Rentado a:
               </span>{" "}
-              {estadoActual.datos.cliente?.nombre} {estadoActual.datos.cliente?.apellido}
+              {estadoActual.datos.cliente?.nombreCompleto}
             </p>
             <p>
               <span className="font-semibold" style={{ color: "#11295B" }}>
@@ -425,7 +441,7 @@ export default function GestionarVehiculos() {
               <span className="font-semibold" style={{ color: "#11295B" }}>
                 Rentado a:
               </span>{" "}
-              {estadoActual.datos.cliente?.nombre} {estadoActual.datos.cliente?.apellido}
+              {estadoActual.datos.cliente?.nombreCompleto}
             </p>
             <p>
               <span className="font-semibold" style={{ color: "#11295B" }}>
@@ -457,27 +473,33 @@ export default function GestionarVehiculos() {
     const accionPosible = estadoActual.datos.accionPosible;
     console.log("Acción posible:", accionPosible);
     if (!accionPosible) return null;
-    if (accionPosible=== 'CANCELAR_RESERVA') {
+    if (accionPosible === 'CANCELAR_RESERVA') {
       return (
         <div className="flex items-center w-full">
-        <div className="ml-auto flex gap-2">
-          <button
-            onClick={() => setMostrarModalComentarios(true)}
-            className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-          >
-            Ver comentarios
-          </button>
-          <button
-            onClick={() => setModalKilometraje(true)}
-            className="ml-auto bg-[#FCA311] hover:bg-yellow-500 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-          >
-            Ver Kilometraje
-          </button>
+          <div className="ml-auto flex gap-2">
+            <button
+              onClick={() => {
+                const vehiculoActual = vehiculos.find(v => v.idAuto === vehiculo.idAuto);
+                if (vehiculoActual) {
+                  fetchComentarios(vehiculo.idAuto);
+                  setVehiculoSeleccionado(vehiculo.idAuto);
+                }
+              }}
+              className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
+            >
+              Ver comentarios
+            </button>
+            <button
+              onClick={() => setModalKilometraje(true)}
+              className="ml-auto bg-[#FCA311] hover:bg-yellow-500 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
+            >
+              Ver Kilometraje
+            </button>
+          </div>
         </div>
-      </div>
       );
     } else if (accionPosible === 'FINALIZAR_RENTA') {
-      return(
+      return (
         <div className="flex items-center w-full">
           <button
             onClick={() => handleLiberarRenta(vehiculo.idAuto)}
@@ -487,7 +509,13 @@ export default function GestionarVehiculos() {
           </button>
           <div className="ml-auto flex gap-2">
             <button
-              onClick={() => setMostrarModalComentarios(true)}
+              onClick={() => {
+                const vehiculoActual = vehiculos.find(v => v.idAuto === vehiculo.idAuto);
+                if (vehiculoActual) {
+                  fetchComentarios(vehiculo.idAuto);
+                  setVehiculoSeleccionado(vehiculo.idAuto);
+                }
+              }}
               className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
             >
               Ver comentarios
@@ -502,7 +530,7 @@ export default function GestionarVehiculos() {
         </div>
 
       );
-    } else if (accionPosible=== 'FINALIZAR_MANTENIMIENTO') {
+    } else if (accionPosible === 'FINALIZAR_MANTENIMIENTO') {
       return (
         <div className="flex items-center w-full">
           <button
@@ -513,7 +541,13 @@ export default function GestionarVehiculos() {
           </button>
           <div className="ml-auto flex gap-2">
             <button
-              onClick={() => setMostrarModalComentarios(true)}
+              onClick={() => {
+                const vehiculoActual = vehiculos.find(v => v.idAuto === vehiculo.idAuto);
+                if (vehiculoActual) {
+                  fetchComentarios(vehiculo.idAuto);
+                  setVehiculoSeleccionado(vehiculo.idAuto);
+                }
+              }}
               className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
             >
               Ver comentarios
@@ -525,14 +559,20 @@ export default function GestionarVehiculos() {
               Ver Kilometraje
             </button>
           </div>
-        </div>  
+        </div>
       );
     } else if (accionPosible === 'CANCELAR_RESERVA') {
       return (
         <div className="flex items-center w-full">
           <div className="ml-auto flex gap-2">
             <button
-              onClick={() => setMostrarModalComentarios(true)}
+              onClick={() => {
+                const vehiculoActual = vehiculos.find(v => v.idAuto === vehiculo.idAuto);
+                if (vehiculoActual) {
+                  fetchComentarios(vehiculo.idAuto);
+                  setVehiculoSeleccionado(vehiculo.idAuto);
+                }
+              }}
               className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
             >
               Ver comentarios
@@ -557,7 +597,13 @@ export default function GestionarVehiculos() {
           </button>
           <div className="ml-auto flex gap-2">
             <button
-              onClick={() => setMostrarModalComentarios(true)}
+              onClick={() => {
+                const vehiculoActual = vehiculos.find(v => v.idAuto === vehiculo.idAuto);
+                if (vehiculoActual) {
+                  fetchComentarios(vehiculo.idAuto);
+                  setVehiculoSeleccionado(vehiculo.idAuto);
+                }
+              }}
               className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
             >
               Ver comentarios
@@ -582,7 +628,13 @@ export default function GestionarVehiculos() {
           </button>
           <div className="ml-auto flex gap-2">
             <button
-              onClick={() => setMostrarModalComentarios(true)}
+              onClick={() => {
+                const vehiculoActual = vehiculos.find(v => v.idAuto === vehiculo.idAuto);
+                if (vehiculoActual) {
+                  fetchComentarios(vehiculo.idAuto);
+                  setVehiculoSeleccionado(vehiculo.idAuto);
+                }
+              }}
               className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
             >
               Ver comentarios
@@ -596,7 +648,7 @@ export default function GestionarVehiculos() {
           </div>
         </div>
       );
-    } else{
+    } else {
       return null;
     }
   };
@@ -615,7 +667,7 @@ export default function GestionarVehiculos() {
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
           <p className="font-bold">Error</p>
           <p>{error}</p>
-          <button 
+          <button
             onClick={cargarVehiculos}
             className="mt-2 bg-red-600 hover:bg-red-700 text-white py-1 px-3 rounded"
           >
@@ -628,59 +680,87 @@ export default function GestionarVehiculos() {
 
   return (
     <div className="space-y-6 px-4 py-6">
-      <VehiculoFilter 
+      <VehiculoFilter
         search={search}
         setSearch={setSearch}
         setEstadoFilter={setEstadoFilter}
         setOrdenamiento={setOrdenamiento}
       />
 
-      {getFilteredVehiculos().length === 0 ? (
+      {vehiculosFiltrados.length === 0 ? (
         <div className="flex justify-center items-center h-64">
           <p className="text-lg font-medium">No se encontraron autos...</p>
         </div>
       ) : (
-        getFilteredVehiculos().map((vehiculo) => (
-          <div
-            key={vehiculo.idAuto}
-            className="bg-[#D8C4A7] rounded-lg shadow-md overflow-hidden"
-          >
-            <div className="flex flex-col md:flex-row">
-              <div className="w-full md:w-1/3 lg:w-2/5 h-[250px] md:h-[300px] lg:h-[350px] bg-gray-300 flex items-center justify-center text-gray-600 text-2xl overflow-hidden">
-                {vehiculo.imagen ? (
-                  <img
-                    src={vehiculo.imagen}
-                    alt={`${vehiculo.marca} ${vehiculo.modelo}`}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  "Sin imagen disponible"
-                )}
-              </div>
-
-              <div className="p-6 flex flex-col justify-between w-full md:w-2/3 lg:w-3/5">
-                <div className="space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <h2 className="text-xl font-bold" style={{ color: "#11295B" }}>
-                      {vehiculo.marca} {vehiculo.modelo} {vehiculo.anio}
-                    </h2>
-                    <span className="bg-white text-black text-sm px-2 py-1 rounded-full w-fit">
-                      {vehiculo.placa}
-                    </span>
-                  </div>
-                  
-                  <div>
-                    {renderEstadoVehiculo(vehiculo)}
-                  </div>
+        <>
+          {vehiculosPaginados.map((vehiculo) => (
+            <div
+              key={vehiculo.idAuto}
+              className="bg-[#D8C4A7] rounded-lg shadow-md overflow-hidden"
+            >
+              <div className="flex flex-col md:flex-row">
+                <div className="w-full md:w-1/3 lg:w-2/5 h-[250px] md:h-[300px] lg:h-[350px] bg-gray-300 flex items-center justify-center text-gray-600 text-2xl overflow-hidden">
+                  {vehiculo.imagen ? (
+                    <img
+                      src={vehiculo.imagen}
+                      alt={`${vehiculo.marca} ${vehiculo.modelo}`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    "Sin imagen disponible"
+                  )}
                 </div>
-                
-                <div className="mt-4 w-full">
-                  {renderBotonAccion(vehiculo)}
+
+                <div className="p-6 flex flex-col justify-between w-full md:w-2/3 lg:w-3/5">
+                  <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <h2 className="text-xl font-bold" style={{ color: "#11295B" }}>
+                        {vehiculo.marca} {vehiculo.modelo} {vehiculo.anio}
+                      </h2>
+                      <span className="bg-white text-black text-sm px-2 py-1 rounded-full w-fit">
+                        {vehiculo.placa}
+                      </span>
+                    </div>
+                    {renderPromedioCalificacion(vehiculo)}
+                    <div>
+                      {renderEstadoVehiculo(vehiculo)}
+                    </div>
+                  </div>
+
+                  <div className="mt-4 w-full">
+                    {renderBotonAccion(vehiculo)}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))
+          ))}
+          {totalPaginas > 1 && (    // paginacion de los autos//
+            <div className="flex justify-center items-center gap-4 mt-6">
+              <button
+                onClick={() => setPaginaActual(paginaActual - 1)}
+                disabled={paginaActual === 1}
+                className={`bg-[#11295B] text-white w-8 h-8 rounded-full ${paginaActual === 1 ? "opacity-40 pointer-events-none" : ""
+                  }`}
+              >
+                &lt;
+              </button>
+
+              <span className="text-[#11295B] font-medium">
+                {paginaActual} / {totalPaginas}
+              </span>
+
+              <button
+                onClick={() => setPaginaActual(paginaActual + 1)}
+                disabled={paginaActual === totalPaginas}
+                className={`bg-[#11295B] text-white w-8 h-8 rounded-full ${paginaActual === totalPaginas ? "opacity-40 pointer-events-none" : ""
+                  }`}
+              >
+                &gt;
+              </button>
+
+            </div>
+          )}
+        </>
       )}
 
       <ModalDeConfirmacion
@@ -688,18 +768,18 @@ export default function GestionarVehiculos() {
         onClose={() => setMostrarConfirmacion(false)}
         onConfirm={confirmarAccion}
         title={
-          accionActual === "FINALIZAR_RENTA" 
-            ? "¿Está seguro que desea liberar el vehículo?" 
+          accionActual === "FINALIZAR_RENTA"
+            ? "¿Está seguro que desea liberar el vehículo?"
             : accionActual === "CANCELAR_RESERVA"
-            ? "¿Está seguro que desea cancelar la reserva?"
-            : "¿Está seguro que desea finalizar el mantenimiento?"
+              ? "¿Está seguro que desea cancelar la reserva?"
+              : "¿Está seguro que desea finalizar el mantenimiento?"
         }
         message={
           accionActual === "FINALIZAR_RENTA"
             ? "Está a punto de liberar el vehículo. Los días especificados en la renta actual estarán disponibles para una nueva renta."
-            : accionActual === "CANCELAR_RESERVA" 
-            ? "Al cancelar esta reserva, el vehículo estará disponible para otras reservas en este período."
-            : "El vehículo pasará a estar disponible para nuevas rentas."
+            : accionActual === "CANCELAR_RESERVA"
+              ? "Al cancelar esta reserva, el vehículo estará disponible para otras reservas en este período."
+              : "El vehículo pasará a estar disponible para nuevas rentas."
         }
         confirmText="ACEPTAR"
         cancelText="CANCELAR"
@@ -713,11 +793,11 @@ export default function GestionarVehiculos() {
         onClose={() => setMostrarExito(false)}
         onConfirm={() => setMostrarExito(false)}
         title={
-          accionActual === "FINALIZAR_RENTA" 
-            ? "Vehículo liberado con éxito" 
+          accionActual === "FINALIZAR_RENTA"
+            ? "Vehículo liberado con éxito"
             : accionActual === "CANCELAR_RESERVA"
-            ? "Reserva cancelada con éxito"
-            : "Mantenimiento finalizado con éxito"
+              ? "Reserva cancelada con éxito"
+              : "Mantenimiento finalizado con éxito"
         }
         message="La acción fue exitosa."
         confirmText="ACEPTAR"
@@ -744,13 +824,13 @@ export default function GestionarVehiculos() {
         onConfirm={confirmarRegistroMantenimiento}
         title="¿Confirma los datos del mantenimiento?"
         message={
-          datosMantenimientoTemp ? 
-          `Tipo: ${datosMantenimientoTemp.tipoMantenimiento}
-           Fecha inicio: ${datosMantenimientoTemp.fechaInicio}
-           Fecha fin: ${datosMantenimientoTemp.fechaFin}
-           Costo: $${datosMantenimientoTemp.costo}
-           Descripción: ${datosMantenimientoTemp.descripcion}` : 
-          "¿Está seguro de registrar este mantenimiento?"
+          datosMantenimientoTemp ?
+            `Tipo: ${datosMantenimientoTemp.tipoMantenimiento}
+         Fecha inicio: ${datosMantenimientoTemp.fechaInicio}
+         Fecha fin: ${datosMantenimientoTemp.fechaFin}
+         Costo: $${datosMantenimientoTemp.costo}
+         Descripción: ${datosMantenimientoTemp.descripcion}` :
+            "¿Está seguro de registrar este mantenimiento?"
         }
         confirmText="CONFIRMAR"
         cancelText="CANCELAR"
@@ -767,7 +847,7 @@ export default function GestionarVehiculos() {
         setFormData={setFormData}
         onCancel={() => setMostrarModalMantenimiento(false)}
       />
-      
+
       <VerKilometraje
         isOpen={mostrarModalKilometraje}
         onClose={() => setModalKilometraje(false)}
@@ -779,6 +859,10 @@ export default function GestionarVehiculos() {
         isOpen={mostrarModalComentarios}
         onClose={() => setMostrarModalComentarios(false)}
         comentarios={comentarios}
+        vehiculoInfo={
+          vehiculos.find(v => v.idAuto === vehiculoSeleccionado) ||
+          { marca: '', modelo: '', anio: '' }
+        }
       />
     </div>
   );

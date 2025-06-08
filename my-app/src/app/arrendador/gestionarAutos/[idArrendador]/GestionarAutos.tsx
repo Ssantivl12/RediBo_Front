@@ -2,7 +2,6 @@
 
 import TituloDescripcion from "@components/TituloDescripcion/TituloDescripcion";
 import GestionarVehiculos from "@components/GestionarVehiculos/GestionarVehiculos";
-import VehiculoFilter from "@components/filters/VehiculoFilter";
 
 export default function GestionarAutos() {
   const datos = {
