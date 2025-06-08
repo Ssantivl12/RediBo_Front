@@ -801,6 +801,7 @@ export default function UserPerfilDriver() {
                         </h2>
 
                         {/* Tabla con los renters  */}
+                        <div className="transition-opacity duration-300 ease-in-out opacity-100">
                         <div className="overflow-hidden rounded-[15px] border-4 border-[#11295B]">
                           <table className="min-w-full text-center border-collapse">
                             <thead>
@@ -874,6 +875,7 @@ export default function UserPerfilDriver() {
                               )}
                             </tbody>
                           </table>
+                        </div>
                         </div>
                         <div className="mt-4 flex justify-center items-center space-x-2 text-[#11295B] font-semibold">
                           <button
