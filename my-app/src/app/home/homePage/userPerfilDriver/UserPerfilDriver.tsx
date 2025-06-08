@@ -788,7 +788,7 @@ export default function UserPerfilDriver() {
                     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
                       <div ref={modalRef} className="bg-white rounded-2xl shadow-2xl w-[90%] max-w-4xl p-6 border border-gray-300 relative">
 
-                        {/* Botón para cerrar */}
+                        {/* Botón para cerrar el modal de ver lista de renters*/}
                         <button
                           onClick={() => setShowRentersModal(false)}
                           className="absolute top-4 right-4 text-[#11295B] hover:text-red-600 text-2xl font-bold transition-transform duration-300 hover:rotate-90"
@@ -800,7 +800,7 @@ export default function UserPerfilDriver() {
                           Renters donde soy Driver
                         </h2>
 
-                        {/* Tabla */}
+                        {/* Tabla con los renters  */}
                         <div className="overflow-hidden rounded-[15px] border-4 border-[#11295B]">
                           <table className="min-w-full text-center border-collapse">
                             <thead>
