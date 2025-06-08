@@ -75,7 +75,6 @@ export default function RegistroDriver() {
 
   const [previewAnverso, setPreviewAnverso] = useState<string | null>(null);
   const [previewReverso, setPreviewReverso] = useState<string | null>(null);
-  const [previewPerfil, setPreviewPerfil] = useState<string | null>(null);
 
 
 
@@ -86,7 +85,6 @@ export default function RegistroDriver() {
 
   const anversoRef = useRef<HTMLInputElement>(null);
   const reversoRef = useRef<HTMLInputElement>(null);
-  const perfilRef = useRef<HTMLInputElement>(null);
 
   const user = useUser();
   //const [telefonoUsuario, setTelefonoUsuario] = useState('');
@@ -146,31 +144,6 @@ export default function RegistroDriver() {
       window.removeEventListener("drop", handleDrop);
     };
   }, []);
-  
-
-  const validateFile = (file: File, tipo: 'anverso' | 'reverso' | 'perfil') => {
-    return new Promise<{ valido: boolean; mensaje?: string }>((resolve) => {
-      const validType = file.type === 'image/png';
-      if (!validType) {
-        resolve({ valido: false, mensaje: 'Solo se permiten imágenes en formato PNG.' });
-        return;
-      }
-  
-      const img = new (window as any).Image();
-      img.onload = () => {
-        if (img.width < 500 || img.height < 500) {
-          resolve({ valido: false, mensaje: 'La imagen es ilegible. Por favor, envíe una foto clara de su licencia.' });
-        } else {
-          resolve({ valido: true });
-        }
-      };
-      img.onerror = () => {
-        resolve({ valido: false, mensaje: 'No se pudo cargar la imagen.' });
-      };
-  
-      img.src = URL.createObjectURL(file);
-    });
-  };
   
 
  const handleFileChange = (
@@ -277,9 +250,7 @@ export default function RegistroDriver() {
         setPreviewAnverso(base64);
       } else if (tipo === 'reverso') {
         setPreviewReverso(base64);
-      } else if (tipo === 'perfil') {
-        setPreviewPerfil(base64);
-      }
+      } 
     });
 
   };
@@ -295,10 +266,6 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
   if (tipo === 'reverso') {
     setReverso(null);
     setPreviewReverso(null);
-  }
-  if (tipo === 'perfil') {
-    setPerfil(null);
-    setPreviewPerfil(null);
   }
 };
 
@@ -914,11 +881,6 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
                       const emisionDate = new Date(emision);
                       const vencimientoDate = new Date(value);
 
-                      const diferenciaAnios =
-                        vencimientoDate.getFullYear() - emisionDate.getFullYear() ||
-                        vencimientoDate.getMonth() - emisionDate.getMonth() ||
-                        vencimientoDate.getDate() - emisionDate.getDate();
-
                       const fechaExacta = new Date(emisionDate);
                       fechaExacta.setFullYear(fechaExacta.getFullYear() + 5);
 
@@ -971,6 +933,7 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
 
                     if (file.type !== "image/png") {
                       setErrorAnverso("Solo se permiten imágenes en formato PNG.");
+                      setMensajeErrorAnverso("La imagen debe estar en formato PNG.");
                       setAnverso(null);
                       return;
                     }
@@ -1019,6 +982,7 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
 
                     if (file.type !== "image/png") {
                       setErrorReverso("Solo se permiten imágenes en formato PNG.");
+                      setMensajeErrorReverso("La imagen debe estar en formato PNG.");
                       setReverso(null);
                       return;
                     }
