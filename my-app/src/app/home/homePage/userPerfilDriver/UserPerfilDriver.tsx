@@ -797,7 +797,7 @@ export default function UserPerfilDriver() {
                         </button>
 
                         <h2 className="text-2xl font-bold text-center mb-6 text-[#11295B]">
-                          Renters donde soy Driver
+                          Renters donde estoy como Driver
                         </h2>
 
                         {/* Tabla con los renters  */}
@@ -818,7 +818,7 @@ export default function UserPerfilDriver() {
                                     }}
                                     className="flex items-center gap-1"
                                   >
-                                    Fecha Suscripción
+                                    Fecha de Suscripción
                                     <OrdenIconos activo={sortField === "fecha"} orden={sortOrder} />
                                   </button>
                                 </th>
@@ -848,7 +848,7 @@ export default function UserPerfilDriver() {
                             <tbody>
                               {/* Este bloque no debería activarse en condiciones normales,
                               ya que el sistema obliga a que cada driver tenga al menos 3 renters al registrarse.
-                              Se deja como medida defensiva por si ocurre un error o cambio en la lógica de negocio. */}
+                              Se deja como medida defensiva por si ocurre un error en la base de datos. */}
                               {rentersPaginados.length === 0 ? (
                                 <tr>
                                   <td colSpan={4} className="py-4 text-gray-500">
