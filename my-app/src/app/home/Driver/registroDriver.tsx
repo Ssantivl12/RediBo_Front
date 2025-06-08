@@ -48,8 +48,6 @@ export default function RegistroDriver() {
   const [isError, setIsError] = useState(false);
   const [anverso, setAnverso] = useState<File | null>(null);
   const [reverso, setReverso] = useState<File | null>(null);
-  const [perfil, setPerfil] = useState<File | null>(null);
-  const [errorPerfil, setErrorPerfil] = useState<string | null>(null);
   const [nombreUsuario, setNombreUsuario] = useState<string>('');
   const [sexo, setSexo] = useState<string>('');
   const [telefonoUsuario, setTelefonoUsuario] = useState<string>('');
@@ -162,10 +160,6 @@ export default function RegistroDriver() {
       setErrorReverso('Ya se ha cargado una imagen. Elimina la actual para subir otra.');
       return;
     }
-    if (tipo === 'perfil' && perfil) {
-      setErrorPerfil('Ya se ha cargado una imagen. Elimina la actual para subir otra.');
-      return;
-    }
 
     // Validación formato de imagen
     if (file.type !== 'image/png') {
@@ -176,10 +170,7 @@ export default function RegistroDriver() {
       } else if (tipo === 'reverso') {
         setErrorReverso(errorMsg);
         setReverso(null);
-      } else if (tipo === 'perfil') {
-        setErrorPerfil(errorMsg);
-        setPerfil(null);
-      }
+      } 
       return;
     }
 
@@ -193,9 +184,6 @@ export default function RegistroDriver() {
       } else if (tipo === 'reverso') {
         setErrorReverso(errorMsg);
         setReverso(null);
-      } else if (tipo === 'perfil') {
-        setErrorPerfil(errorMsg);
-        setPerfil(null);
       }
       return;
     }
@@ -211,10 +199,7 @@ export default function RegistroDriver() {
         } else if (tipo === 'reverso') {
           setErrorReverso(errorMsg);
           setReverso(null);
-        } else if (tipo === 'perfil') {
-          setErrorPerfil(errorMsg);
-          setPerfil(null);
-        }
+        } 
       } else {
         if (tipo === 'anverso') {
           setAnverso(file);
@@ -222,9 +207,6 @@ export default function RegistroDriver() {
         } else if (tipo === 'reverso') {
           setReverso(file);
           setErrorReverso(null);
-        } else if (tipo === 'perfil') {
-          setPerfil(file);
-          setErrorPerfil(null);
         }
       }
     };
@@ -237,9 +219,6 @@ export default function RegistroDriver() {
       } else if (tipo === 'reverso') {
         setErrorReverso(errorMsg);
         setReverso(null);
-      } else if (tipo === 'perfil') {
-        setErrorPerfil(errorMsg);
-        setPerfil(null);
       }
     };
 
@@ -412,7 +391,6 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
       valido = false;
     } else {
       const añoVencimiento = new Date(fechaVencimiento).getFullYear();
-      const hoy = new Date();
 
       if (añoVencimiento > 9999) {
         setErrorFechaVencimiento(true);
@@ -799,7 +777,6 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
                     setFechaEmisionState(value);
 
                     const esValida = validarFechaEmision(value);
-                    const esMayorQueVencimiento = fechaVencimiento && new Date(value) > new Date(fechaVencimiento);
 
                     if (!esValida) {
                       const fechaSeleccionada = new Date(value);
