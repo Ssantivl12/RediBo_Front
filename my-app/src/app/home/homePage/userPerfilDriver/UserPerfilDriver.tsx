@@ -567,12 +567,35 @@ export default function UserPerfilDriver() {
         }
         break;
       case 'licencia':
-        const licenciaError = validateLicencia(value);
-        if (licenciaError) {
-          newErrors.licencia = licenciaError;
-        } else {
-          delete newErrors.licencia;
+        const numericValue = value.replace(/\D/g, "");
+
+        let error = "";
+        if (numericValue.length === 0) {
+          error = "El número de licencia es obligatorio";
+        } else if (!/^\d+$/.test(numericValue)) {
+          error = "La licencia solo debe contener números";
+        } else if (numericValue.length < 6) {
+          error = "La licencia debe tener al menos 6 dígitos";
         }
+
+        // Solo permitir hasta 9 dígitos
+        if (numericValue.length <= 9) {
+          setEditFormData(prev => ({
+            ...prev,
+            licencia: numericValue,
+          }));
+
+          if (error) {
+            newErrors.licencia = error;
+          } else {
+            delete newErrors.licencia;
+          }
+
+        } else {
+          // Solo mostrar error si intenta ingresar más de 9
+          newErrors.licencia = "No se permiten más de 9 dígitos";
+        }
+
         break;
       case 'tipoLicencia':
         const categoriaError = validateCategoria(value);
@@ -978,24 +1001,7 @@ export default function UserPerfilDriver() {
                         <input
                           type="text"
                           value={isEditing ? editFormData.licencia : (driverData.licencia || "")}
-                          onChange={(e) => {
-                            const rawValue = e.target.value;
-                            const numericValue = rawValue.replace(/\D/g, "");
-
-                            let error = "";
-
-                            if (numericValue.length > 9) {
-                              error = "No se permiten más de 9 dígitos";
-                            } else if (numericValue.length > 0 && numericValue.length < 6) {
-                              error = "La licencia debe tener al menos 6 dígitos";
-                            }
-
-                            if (numericValue.length <= 9) {
-                              setEditFormData(prev => ({ ...prev, licencia: numericValue }));
-                            }
-
-                            setValidationErrors(prev => ({ ...prev, licencia: error }));
-                          }}
+                          onChange={(e) => handleInputChange('licencia', e.target.value)}
                           className={`w-full pl-10 pr-10 py-2 border-2 ${validationErrors.licencia ? 'border-red-500' : 'border-black'
                             } rounded shadow-[0_4px_2px_-2px_rgba(0,0,0,0.6)] text-[#11295B] font-semibold ${isEditing ? 'bg-white' : 'bg-gray-100'}`}
                           readOnly={!isEditing}
@@ -1007,8 +1013,6 @@ export default function UserPerfilDriver() {
                           </div>
                         )}
                       </div>
-
-                      {/* Mensaje de error debajo del input */}
                       {isEditing && validationErrors.licencia && (
                         <p className="text-red-500 text-sm mt-1">
                           {validationErrors.licencia}
