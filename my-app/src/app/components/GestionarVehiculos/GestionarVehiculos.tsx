@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import ModalDeConfirmacion from "@components/modal/ModalDeConfirmacion";
 import RegistrarMantenimientoModal from "@components/MantenimientoModal/RegistrarMantenimientoModal";
 import { FiCheckCircle } from "react-icons/fi";
+import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 import { API_URL } from '@config/api';
 import { VerKilometraje } from "../auto/VerKilometraje";
 import VehiculoFilter from "@components/filters/VehiculoFilter";
@@ -129,20 +130,17 @@ export default function GestionarVehiculos() {
 
     return (
       <div className="flex items-center mt-2">
-        <div className="flex mr-1">
-          {[...Array(5)].map((_, i) => (
-            <span
-              key={i}
-              className={i < Math.round(vehiculo.promedioCalificacion!) ? "text-yellow-400" : "text-gray-300"}
-            >
-              ★
-            </span>
-          ))}
+        <div className="flex mr-1 text-yellow-400">
+          {[...Array(5)].map((_, i) =>
+            i < Math.round(vehiculo.promedioCalificacion!)
+              ? <AiFillStar key={i} />
+              : <AiOutlineStar key={i} />
+          )}
         </div>
-        <span className="text-sm font-medium text-gray-700">
+        <span className="text-sm font-medium text-gray-700 ml-1">
           {vehiculo.promedioCalificacion.toFixed(1)}
           {vehiculo.totalComentarios && (
-            <span className="text-gray-500">({vehiculo.totalComentarios})</span>
+            <span className="text-gray-500"> ({vehiculo.totalComentarios})</span>
           )}
         </span>
       </div>
@@ -166,12 +164,11 @@ export default function GestionarVehiculos() {
           try {
             const resComentarios = await fetch(`${API_URL}/comentarios/auto/${vehiculo.idAuto}`);
             if (resComentarios.ok) {
-              const comentarios = await resComentarios.json();
-              const promedio = comentarios.reduce((acc: number, curr: Comentario) => acc + curr.puntuacion, 0) / comentarios.length;
+              const json = await resComentarios.json();
               return {
                 ...vehiculo,
-                promedioCalificacion: isNaN(promedio) ? 0 : parseFloat(promedio.toFixed(1)),
-                totalComentarios: comentarios.length
+                promedioCalificacion: json.promedioCalificacion,
+                totalComentarios: json.totalComentarios,
               };
             }
             return vehiculo;
@@ -181,6 +178,7 @@ export default function GestionarVehiculos() {
           }
         })
       );
+
 
       setVehiculos(vehiculosConCalificaciones);
     } catch (err) {
