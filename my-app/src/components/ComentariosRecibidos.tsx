@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { FaStar } from 'react-icons/fa';
 
+
 type CommentedCar = {
   modelo: string;
   marca: string;
@@ -18,6 +19,9 @@ const variableDeDireccion = 'comentarios-direction';
 export default function ComentariosRecibidos() {
   const [items, setItems] = useState<CommentedCar[]>([]);
   const [loading, setLoading] = useState(true);
+  const [respuestasVisibles, setRespuestasVisibles] = useState<boolean[]>([]);
+  const [respuestasTexto, setRespuestasTexto] = useState<string[]>([]);
+   
 
   // Inicializar con valores de localStorage o por defecto
   const [sortBy, setSortBy] = useState<'date' | 'rating'>(() => {
@@ -51,6 +55,7 @@ export default function ComentariosRecibidos() {
         if (!res.ok) throw new Error('Error al obtener datos');
         const data: CommentedCar[] = await res.json();
         setItems(data);
+
       } catch (error) {
         console.error('Error al cargar datos:', error);
       } finally {
@@ -60,6 +65,15 @@ export default function ComentariosRecibidos() {
     fetchData();
   }, [hostId, sortBy, direction]);
 
+  useEffect(() => {
+    setRespuestasVisibles(Array(items.length).fill(false));
+    setRespuestasTexto(Array(items.length).fill(''));
+  }, [items]);
+  
+
+  
+
+
   // Ordenar items localmente
   const sortedItems = [...items].sort((a, b) => {
     const dir = direction === 'asc' ? 1 : -1;
@@ -68,6 +82,39 @@ export default function ComentariosRecibidos() {
     }
     return dir * (a.calificacionPromedio - b.calificacionPromedio);
   });
+
+
+  const toggleRespuesta = (index: number) => {
+    setRespuestasVisibles(prev => {
+      const newVisibles = [...prev];
+      newVisibles[index] = !newVisibles[index];
+      return newVisibles;
+    });
+  };
+  
+  const handleTextoRespuesta = (index: number, texto: string) => {
+    setRespuestasTexto(prev => {
+      const newTextos = [...prev];
+      newTextos[index] = texto;
+      return newTextos;
+    });
+  };
+  
+  const enviarRespuesta = (index: number) => {
+    const texto = respuestasTexto[index];
+    if (!texto?.trim()) {
+      alert('La respuesta no puede estar vacía.');
+      return;
+    }
+  
+    // Aquí deberías hacer la llamada al backend si lo necesitas
+    console.log(`Respuesta enviada al comentario ${index}:`, texto);
+  
+    // Limpiar campos
+    handleTextoRespuesta(index, '');
+    toggleRespuesta(index);
+  };
+  
 
   return (
     <div className="px-4 py-6 space-y-4 w-full max-w-screen-xl mx-auto">
@@ -132,7 +179,7 @@ export default function ComentariosRecibidos() {
           return (
             <div key={index} className="w-full border-3 border-yellow-400 rounded-lg p-4 bg-white shadow-sm">
               <div className="grid grid-cols-12 gap-4 items-start text-center">
-                <div className="col-span-12 sm:col-span-2 flex flex-col items-center justify-start">
+              <div className="col-span-12 sm:col-span-2 flex flex-col items-center justify-start">
                   <img
                     src={item.direccionImagen || defaultImage}
                     alt={`${item.marca} ${item.modelo}`}
@@ -146,10 +193,52 @@ export default function ComentariosRecibidos() {
                   <p>{item.name}</p>
                 </div>
 
-                <div className="col-span-12 sm:col-span-5 flex flex-col items-center justify-start">
-                  <strong className="text-gray-600 mb-10">Comentario</strong>
-                  <p>{item.comentarios}</p>
+                <div className="col-span-12 sm:col-span-4 flex flex-col items-center justify-start">
+                  <strong className="text-gray-600 mb-2">Comentario</strong>
+                  <p className="mb-4">{item.comentarios}</p>
+                  
+                  <>
+                   <button
+                    onClick={() => toggleRespuesta(index)}
+                    className="mt-2 px-4 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors"
+                    >
+                   {respuestasVisibles[index] ? 'Cancelar' : 'Responder'}
+                    </button>
+
+                    {respuestasVisibles[index] && (
+                      <div className="mt-2 w-full">
+                      <textarea
+                        className="w-full border p-2 rounded text-sm"
+                        rows={3}
+                        placeholder="Escribe tu respuesta..."
+                        value={respuestasTexto[index] || ''}
+                        onChange={(e) => handleTextoRespuesta(index, e.target.value)}
+                        maxLength={300}
+                      />
+                      <div className="text-right text-xs text-gray-500 mt-1">
+                        {respuestasTexto[index]?.length || 0}/300 caracteres
+                      </div>
+                <button
+                  onClick={() => enviarRespuesta(index)}
+                  className={`mt-1 px-3 py-1 rounded text-sm transition-colors ${
+                  respuestasTexto[index]?.trim()
+                   ? 'bg-blue-500 text-white hover:bg-blue-600'
+                      : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  }`}
+                 disabled={!respuestasTexto[index]?.trim()}
+                  >
+                   Enviar respuesta
+                </button>
+
+                  </div>
+                   )}
+                  </>
+
+
+                
                 </div>
+
+                  
 
                 <div className="col-span-3 sm:col-span-2 flex flex-col items-center justify-start">
                   <strong className="text-gray-600 mb-10">Calificación</strong>
@@ -165,15 +254,17 @@ export default function ComentariosRecibidos() {
                   </p>
                 </div>
 
-                <div className="col-span-3 sm:col-span-1 flex flex-col items-center justify-start">
+                <div className="col-span-3 sm:col-span-2 flex flex-col items-center justify-start">
                   <strong className="text-gray-600 mb-10">Fecha</strong>
                   <p>{item.date}</p>
                 </div>
               </div>
             </div>
           );
+
         })
       )}
+      
     </div>
   );
 }
