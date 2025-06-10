@@ -1,384 +1,571 @@
 "use client";
 
-import React, { useState, useRef } from "react";
-import { X, Upload } from "lucide-react";
-
+import React, { useState, useRef, useEffect } from "react";
+import { X, CreditCard, QrCode, DollarSign } from "lucide-react";
+import Image from "next/image";
 interface Props {
+  onClose: () => Promise<void>;
   onNext: (data: {
-    placa: string;
-    soat: string;
-    imagenes: File[];
-    idAuto: number;
+    tipo: "card" | "QR" | "cash";
+    cardNumber?: string;
+    expiration?: string;
+    cvv?: string;
+    cardHolder?: string;
+    qrImage?: File | null;
+    efectivoDetalle?: string;
   }) => void;
-  onClose: () => void;
 }
 
-const VehicleDataModal: React.FC<Props> = ({ onNext, onClose }) => {
-  const [placa, setPlaca] = useState("");
-  const [soat, setSoat] = useState("");
-  const [imagenes, setImagenes] = useState<File[]>([]);
-  const [errors, setErrors] = useState<{
-    placa?: string;
-    soat?: string;
-    imagenes?: string;
-  }>({});
+export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
+  const [selectedOption, setSelectedOption] = useState<"card" | "QR" | "cash" | null>(null);
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
+  const [cvv, setCvv] = useState("");
+  const [cardHolder, setCardHolder] = useState("");
+  const [qrImage, setQrImage] = useState<File | null>(null);
+  const [cashDetail, setCashDetail] = useState("");
   const [previewImg, setPreviewImg] = useState<string | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  //const currentYear = new Date().getFullYear();
 
-  // Función validadora mejorada para placas bolivianas: 4 dígitos seguidos de 3 letras
-  const validarPlaca = (valor: string) => {
-    const match = valor.match(/^(\d{4})([A-Z]{3})$/);
-    if (!match) return false;
-    const numero = parseInt(match[1], 10);
-    return numero >= 0 && numero <= 9999;
+  // Validación en tiempo real para cada campo cuando cambia
+  useEffect(() => {
+    if (selectedOption === "card" && touched.cardNumber) {
+      validateCardNumber(cardNumber);
+    }
+  }, [cardNumber, touched.cardNumber, selectedOption]);
+
+  useEffect(() => {
+    if (selectedOption === "card" && touched.expiryDate) {
+      validateExpiryDate(expiryDate);
+    }
+  }, [expiryDate, touched.expiryDate, selectedOption]);
+
+  useEffect(() => {
+    if (selectedOption === "card" && touched.cvv) {
+      validateCVV(cvv);
+    }
+  }, [cvv, touched.cvv, selectedOption]);
+
+  useEffect(() => {
+    if (selectedOption === "card" && touched.cardHolder) {
+      validateCardHolder(cardHolder);
+    }
+  }, [cardHolder, touched.cardHolder, selectedOption]);
+
+  // Funciones de validación individuales
+  const validateCardNumber = (value: string) => {
+    const cleanValue = value.replace(/\s/g, "");
+    if (!cleanValue) {
+      setErrors(prev => ({ ...prev, cardNumber: "Número de TARJETA_DEBITO requerido" }));
+      return false;
+    } else if (!/^\d+$/.test(cleanValue)) {
+      setErrors(prev => ({ ...prev, cardNumber: "Solo números permitidos" }));
+      return false;
+    } else if (cleanValue.length !== 16) {
+      setErrors(prev => ({ ...prev, cardNumber: "Debe tener 16 dígitos" }));
+      return false;
+    } else {
+      setErrors(prev => ({ ...prev, cardNumber: "" }));
+      return true;
+    }
   };
 
-  // Validar SOAT: exactamente 8 caracteres numéricos
-  const validarSOAT = (valor: string) => /^\d{8}$/.test(valor);
-
-  const camposValidos = () =>
-    validarPlaca(placa) &&
-    validarSOAT(soat) &&
-    imagenes.length >= 3 &&
-    imagenes.length <= 6 &&
-    imagenes.every((file) => ["image/jpeg", "image/png"].includes(file.type));
-
-  const validarYActualizarPlaca = (valor: string) => {
-    // Limitar a máximo 7 caracteres
-    const valorLimitado = valor.slice(0, 7);
-    setPlaca(valorLimitado);
-    
-    // Formatear errores específicos basados en el patrón correcto
-    if (valorLimitado.length === 7) {
-      if (!validarPlaca(valorLimitado)) {
-        setErrors((prev) => ({
-          ...prev,
-          placa: "Formato inválido. Debe ser 4 dígitos seguidos de 3 letras (ej. 1234ABC)",
-        }));
-      } else {
-        setErrors((prev) => ({ ...prev, placa: undefined }));
+  const validateExpiryDate = (value: string) => {
+    if (!value) {
+      setErrors(prev => ({ ...prev, expiryDate: "Fecha requerida" }));
+      return false;
+    } else if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(value)) {
+      setErrors(prev => ({ ...prev, expiryDate: "Fecha inválida (MM/YY)" }));
+      return false;
+    } else {
+      // Validar que la fecha esté en el rango válido 2025-2050
+      const [month, year] = value.split('/');
+      const expYear = 2000 + parseInt(year);
+      
+      // Solo permitir años entre 2025 y 2050
+      if (expYear < 2025 || expYear > 2050) {
+        setErrors(prev => ({ ...prev, expiryDate: "El año debe estar entre 2025 y 2050" }));
+        return false;
       }
-    } else if (valorLimitado.length > 0) {
-      setErrors((prev) => ({
-        ...prev,
-        placa: "La placa debe tener exactamente 7 caracteres (4 números + 3 letras)",
-      }));
-    } else {
-      setErrors((prev) => ({ ...prev, placa: undefined }));
+      
+      // Si el año es 2025, verificar que el mes no haya pasado ya
+      if (expYear === 2025) {
+        const currentMonth = new Date().getMonth() + 1; // getMonth() es 0-indexed
+        if (parseInt(month) < currentMonth) {
+          setErrors(prev => ({ ...prev, expiryDate: "Tarjeta expirada" }));
+          return false;
+        }
+      }
+      
+      setErrors(prev => ({ ...prev, expiryDate: "" }));
+      return true;
     }
   };
 
-  const validarYActualizarSOAT = (valor: string) => {
-    // Limitar a máximo 8 caracteres
-    const valorLimitado = valor.slice(0, 8);
-    setSoat(valorLimitado);
+  const validateCVV = (value: string) => {
+    if (!value) {
+      setErrors(prev => ({ ...prev, cvv: "CVV requerido" }));
+      return false;
+    } else if (!/^\d+$/.test(value)) {
+      setErrors(prev => ({ ...prev, cvv: "Solo números permitidos" }));
+      return false;
+    } else if (value.length !== 3) { // Exactamente 3 dígitos para Bolivia
+      setErrors(prev => ({ ...prev, cvv: "CVV debe ser de 3 dígitos" }));
+      return false;
+    } else {
+      setErrors(prev => ({ ...prev, cvv: "" }));
+      return true;
+    }
+  };
+
+  const validateCardHolder = (value: string) => {
+    if (!value.trim()) {
+      setErrors(prev => ({ ...prev, cardHolder: "Nombre del titular requerido" }));
+      return false;
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
+      setErrors(prev => ({ ...prev, cardHolder: "Solo caracteres alfabéticos permitidos" }));
+      return false;
+    } else if (/\s{2,}/.test(value)) {
+      setErrors(prev => ({ ...prev, cardHolder: "No se puede poner doble espacio" }));
+      return false;
+    } else {
+      setErrors(prev => ({ ...prev, cardHolder: "" }));
+      return true;
+    }
+  };
+
+  // Manejo de TARJETA_DEBITO de crédito con formato automático
+  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Permitir solo números y limitar a 19 caracteres (16 números + 3 espacios)
+    if (value === "" || /^[\d\s]+$/.test(value) && value.length <= 19) {
+      // Formatear el número con espacios cada 4 dígitos
+      const formattedValue = value
+        .replace(/\s/g, '') // Eliminar espacios existentes
+        .match(/.{1,4}/g)?.join(' ') || value; // Agregar espacios cada 4 dígitos
+      
+      setCardNumber(formattedValue);
+      
+      // Validación en tiempo real mientras escribe
+      if (touched.cardNumber) {
+        validateCardNumber(formattedValue);
+      }
+    }
+  };
+
+  // Manejo de fecha de expiración con formato automático
+  const handleExpiryDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
     
-    if (valorLimitado.length === 8) {
-      setErrors((prev) => ({
-        ...prev,
-        soat: validarSOAT(valorLimitado) ? undefined : "Formato inválido. Solo se permiten números.",
-      }));
-    } else if (valorLimitado.length > 0) {
-      setErrors((prev) => ({
-        ...prev,
-        soat: "El número de seguro debe tener exactamente 8 dígitos",
-      }));
-    } else {
-      setErrors((prev) => ({ ...prev, soat: undefined }));
+    // Solo permitir números y / y limitar a 5 caracteres (MM/YY)
+    if (value === "" || /^[\d/]+$/.test(value) && value.length <= 5) {
+      // Añadir la / automáticamente después de 2 dígitos
+      if (value.length === 2 && !value.includes('/') && expiryDate.length < value.length) {
+        setExpiryDate(value + '/');
+      } else if (value.length === 2 && value.includes('/')) {
+        setExpiryDate(value.replace('/', ''));
+      } else {
+        setExpiryDate(value);
+      }
+      
+      // Validación en tiempo real mientras escribe
+      if (touched.expiryDate && value.length === 5) {
+        validateExpiryDate(value);
+      }
     }
   };
 
-  const agregarImagenes = (files: File[]) => {
-    const validFiles = files.filter(
-      (file) =>
-        ["image/jpeg", "image/png"].includes(file.type) &&
-        file.size <= 5 * 1024 * 1024
-    );
-
-    if (validFiles.length !== files.length) {
-      setErrors((prev) => ({
-        ...prev,
-        imagenes: "Solo se permiten imágenes JPG/PNG de hasta 5MB"
-      }));
-    }
-
-    const totalImagenes = [...imagenes, ...validFiles];
-
-    if (totalImagenes.length > 6) {
-      setErrors((prev) => ({
-        ...prev,
-        imagenes: "Solo puedes subir hasta 6 imágenes del auto",
-      }));
-      return;
-    }
-
-    setImagenes(totalImagenes);
-
-    setErrors((prev) => ({
-      ...prev,
-      imagenes:
-        totalImagenes.length < 3
-          ? "Debes subir al menos 3 imágenes del auto (frontal, lateral y trasera)"
-          : undefined,
-    }));
-  };
-
-  const handleImagenesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      agregarImagenes(Array.from(e.target.files));
+  // Manejo de CVV con restricciones
+  const handleCVVChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Solo permitir números y limitar a exactamente 3 dígitos para Bolivia
+    if (value === "" || (/^\d+$/.test(value) && value.length <= 3)) {
+      setCvv(value);
+      
+      // Validación en tiempo real mientras escribe
+      if (touched.cvv) {
+        validateCVV(value);
+      }
     }
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
+  // Manejo del nombre del titular
+  const handleCardHolderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    // Reemplazar múltiples espacios consecutivos con un solo espacio
+    value = value.replace(/\s{2,}/g, " ");
+    
+    // Permitir solo letras, espacios y limitar a un máximo de 30 caracteres
+    if (/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(value) && value.length <= 30) {
+      setCardHolder(value);
+    }
+    
+    // Validación en tiempo real mientras escribe
+    if (touched.cardHolder) {
+      validateCardHolder(value);
+    }
   };
 
-  const handleDragLeave = () => {
-    setIsDragging(false);
+  // Marcar campo como tocado cuando el usuario interactúa con él
+  const handleBlur = (field: string) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+    
+    // Validar al perder el foco
+    switch (field) {
+      case 'cardNumber':
+        validateCardNumber(cardNumber);
+        break;
+      case 'expiryDate':
+        validateExpiryDate(expiryDate);
+        break;
+      case 'cvv':
+        validateCVV(cvv);
+        break;
+      case 'cardHolder':
+        validateCardHolder(cardHolder);
+        break;
+      case 'cashDetail':
+        if (!cashDetail.trim()) {
+          setErrors(prev => ({ ...prev, cashDetail: "Debes proporcionar una descripción para el EFECTIVO" }));
+        } else {
+          setErrors(prev => ({ ...prev, cashDetail: "" }));
+        }
+        break;
+    }
+  };
+
+  // Validación completa antes de enviar
+  const validate = () => {
+    let isValid = true;
+    const newErrors: Record<string, string> = {};
+
+    if (!termsAccepted) {
+      newErrors.terms = "Debes aceptar los términos";
+      isValid = false;
+    }
+
+    if (!selectedOption) {
+      newErrors.method = "Selecciona una forma de pago";
+      isValid = false;
+    }
+
+    if (selectedOption === "card") {
+      // Marcar todos los campos como tocados para mostrar todos los errores
+      setTouched({
+        cardNumber: true,
+        expiryDate: true,
+        cvv: true,
+        cardHolder: true
+      });
+      
+      const isCardNumberValid = validateCardNumber(cardNumber);
+      const isExpiryDateValid = validateExpiryDate(expiryDate);
+      const isCVVValid = validateCVV(cvv);
+      const isCardHolderValid = validateCardHolder(cardHolder);
+      
+      isValid = isCardNumberValid && isExpiryDateValid && isCVVValid && isCardHolderValid && termsAccepted;
+    } else if (selectedOption === "QR") {
+      if (!qrImage) {
+        setErrors(prev => ({ ...prev, qrImage: "Debes subir una imagen QR" }));
+        isValid = false;
+      } else if (!/\.(jpg|jpeg|png)$/i.test(qrImage.name)) {
+        setErrors(prev => ({ ...prev, qrImage: "Formato inválido. Solo .jpg, .jpeg o .png" }));
+        isValid = false;
+      }
+    } else if (selectedOption === "cash") {
+      if (!cashDetail.trim()) {
+        setErrors(prev => ({ ...prev, cashDetail: "Debes proporcionar una descripción para el EFECTIVO" }));
+        isValid = false;
+      }
+    }
+    
+    // Actualizar errors con newErrors si hay nuevos errores
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(prev => ({ ...prev, ...newErrors }));
+    }
+    
+    return isValid;
+  };
+
+  const handleSubmit = () => {
+    if (!validate()) return;
+
+    if (selectedOption === "card") {
+      onNext({
+        tipo: "card",
+        cardNumber,
+        expiration: expiryDate,
+        cvv,
+        cardHolder,
+      });
+    } else if (selectedOption === "QR") {
+      onNext({
+        tipo: "QR",
+        qrImage,
+      });
+    } else if (selectedOption === "cash") {
+      onNext({
+        tipo: "cash",
+        efectivoDetalle: cashDetail,
+      });
+    }
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    setIsDragging(false);
-    if (e.dataTransfer.files) {
-      agregarImagenes(Array.from(e.dataTransfer.files));
-    }
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  const handleRemoveImage = (index: number) => {
-    const nuevasImagenes = imagenes.filter((_, i) => i !== index);
-    setImagenes(nuevasImagenes);
-
-    setErrors((prev) => ({
-      ...prev,
-      imagenes:
-        nuevasImagenes.length < 3
-          ? "Debes subir al menos 3 imágenes del auto (frontal, lateral y trasera)"
-          : undefined,
-    }));
-  };
-
-  const handleSubmit = () => {
-    const nuevosErrores: typeof errors = {};
-
-    if (!validarPlaca(placa)) {
-      nuevosErrores.placa = "Formato inválido. Debe ser 4 dígitos seguidos de 3 letras (ej. 1234ABC)";
-    }
-    if (!validarSOAT(soat)) {
-      nuevosErrores.soat = "Formato inválido. El número de seguro debe tener exactamente 8 dígitos";
-    }
-    if (imagenes.length < 3 || imagenes.length > 6) {
-      nuevosErrores.imagenes = "Debes subir entre 3 y 6 imágenes";
-    }
-
-    setErrors(nuevosErrores);
-
-    if (Object.keys(nuevosErrores).length > 0) return;
-
-    onNext({
-      placa, soat, imagenes,
-      idAuto: 0
-    });
-  };
-
-  // Función para manejar los cambios en el campo de placa con formato específico
-  const handlePlacaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const valor = e.target.value.toUpperCase();
-    
-    // Permitir solo números en los primeros 4 caracteres
-    if (valor.length <= 4) {
-      if (/^\d*$/.test(valor)) {
-        validarYActualizarPlaca(valor);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      // Validar extensión del archivo
+      if (!/\.(jpg|jpeg|png)$/i.test(file.name)) {
+        setErrors(prev => ({ ...prev, qrImage: "Formato inválido. Solo .jpg, .jpeg o .png" }));
+        return;
       }
-    } 
-    // Permitir solo letras en los siguientes 3 caracteres
-    else if (valor.length <= 7) {
-      const numeros = valor.substring(0, 4);
-      const letras = valor.substring(4).replace(/[^A-Z]/g, '');
-      validarYActualizarPlaca(numeros + letras);
+      
+      setQrImage(file);
+      setPreviewImg(URL.createObjectURL(file));
+      setErrors((prev) => ({ ...prev, qrImage: "" }));
     }
   };
   
-  // Función para manejar los cambios en el campo de SOAT permitiendo solo números
-  const handleSoatChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const valor = e.target.value;
-    const valorFiltrado = valor.replace(/\D/g, ''); // Solo permite dígitos
-    validarYActualizarSOAT(valorFiltrado);
+  const handleDeleteImage = () => {
+    setQrImage(null);
+    setPreviewImg(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''; // Forzar reset para permitir re-subir la misma imagen
+    }
+  };
+    
+  const handleQrImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validar extensión del archivo
+      if (!/\.(jpg|jpeg|png)$/i.test(file.name)) {
+        setErrors(prev => ({ ...prev, qrImage: "Formato inválido. Solo .jpg, .jpeg o .png" }));
+        return;
+      }
+      
+      setQrImage(file);
+      setPreviewImg(URL.createObjectURL(file));
+      setErrors((prev) => ({ ...prev, qrImage: "" }));
+    }
+  };
+
+  const handleCancel = async () => {
+    setSelectedOption(null);
+    setCardNumber("");
+    setExpiryDate("");
+    setCvv("");
+    setCardHolder("");
+    setQrImage(null);
+    setPreviewImg(null);
+    setCashDetail("");
+    setErrors({});
+    setTouched({});
+    setTermsAccepted(false);
+    await onClose(); // Esto eliminará el vehículo si el usuario cancela
   };
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40">
-      <div className="bg-white text-[#11295B] p-10 rounded-3xl shadow-2xl max-w-xl w-full relative">
-        <button onClick={onClose} className="absolute right-6 top-6 text-2xl text-[#11295B]">
-          <X />
+      <div className="bg-white p-10 rounded-3xl shadow-2xl max-w-xl w-full relative text-[#11295B]">
+        <button onClick={handleCancel} className="absolute right-6 top-6 hover:text-red-500 transition">
+          <X size={24} />
         </button>
 
-        <h2 className="text-lg font-semibold text-center text-[#11295B]">Bienvenido a</h2>
-        <h1 className="text-3xl font-bold text-center text-[#FCA311] drop-shadow-sm mb-2">REDIBO</h1>
-        <h3 className="text-xl text-center font-semibold text-[#11295B] mb-1">REGISTRARSE COMO HOST</h3>
-        <p className="text-center text-sm text-gray-600 mb-6">Ingresa datos de tu vehículo</p>
+        <h2 className="text-lg font-semibold text-center">Bienvenido a</h2>
+        <h1 className="text-3xl font-bold text-center text-[#FCA311] mb-1">REDIBO</h1>
+        <h3 className="text-xl font-semibold text-center mb-2">FORMAS DE PAGO</h3>
+        <p className="text-center text-sm text-gray-600 mb-6">Elige cómo recibir el pago de tus rentas</p>
 
-        {/* Campo Placa */}
-        <div className="mb-4">
-          <div className="relative flex items-center">
-            <img src="/placa.svg" alt="icono placa" className="absolute left-3 w-6 h-6" />
-            <input
-              type="text"
-              placeholder="Placa (ej. 1234ABC)"
-              value={placa}
-              onChange={handlePlacaChange}
-              maxLength={7}
-              className={`pl-12 w-full border-2 rounded-lg px-4 py-3 outline-none text-lg placeholder:text-[#11295B]/50 font-semibold ${
-                errors.placa ? "border-red-500 text-red-500 placeholder-red-400" : "border-[#11295B]"
-              }`}
-            />
-          </div>
-          {errors.placa && <p className="text-sm text-red-500 mt-1">{errors.placa}</p>}
-          {!errors.placa && placa.length > 0 && placa.length < 7 && (
-            <p className="text-sm text-amber-500 mt-1">
-              La placa debe tener exactamente 7 caracteres ({7 - placa.length} restantes)
-            </p>
-          )}
-        </div>
-
-        {/* Campo SOAT */}
-        <div className="mb-4">
-          <div className="relative flex items-center">
-            <img src="/seguro.svg" alt="icono seguro" className="absolute left-3 w-6 h-6" />
-            <input
-              type="text"
-              inputMode="numeric" 
-              pattern="[0-9]*"
-              placeholder="Número de seguro (8 dígitos)"
-              value={soat}
-              onChange={handleSoatChange}
-              maxLength={8}
-              className={`pl-12 w-full border-2 rounded-lg px-4 py-3 outline-none text-lg placeholder:text-[#11295B]/50 font-semibold ${
-                errors.soat ? "border-red-500 text-red-500 placeholder-red-400" : "border-[#11295B]"
-              }`}
-            />
-          </div>
-          {errors.soat && <p className="text-sm text-red-500 mt-1">{errors.soat}</p>}
-          {!errors.soat && soat.length > 0 && soat.length < 8 && (
-            <p className="text-sm text-amber-500 mt-1">
-              El número de seguro debe tener exactamente 8 dígitos ({8 - soat.length} restantes)
-            </p>
-          )}
-        </div>
-
-        {/* Campo Imágenes */}
-        <div className={`mb-4 bg-gray-100 rounded-xl p-4 ${errors.imagenes ? "border-2 border-red-500" : ""}`}>
-          <label className="block font-semibold mb-1 text-[#11295B]">Imágenes del auto</label>
-          <p className="text-sm text-gray-600 mb-2">Asegúrate de tomar las fotos en un lugar bien iluminado</p>
-
-          <div
-            className={`border border-dashed rounded p-4 text-center cursor-pointer transition-all duration-200 ${
-              isDragging ? "bg-gray-300" : "bg-gray-200 hover:bg-gray-300"
-            }`}
-            onClick={() => fileInputRef.current?.click()}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-          >
-            <Upload className="mx-auto mb-2 w-6 h-6" />
-            <p className="font-medium">Subir imágenes del vehículo</p>
-            <p className="text-xs text-gray-500">Haz clic o arrastra aquí tus imágenes</p>
-          </div>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            accept="image/jpeg, image/png"
-            onChange={handleImagenesChange}
-            className="hidden"
-          />
-
-          {errors.imagenes ? (
-            <p className="text-sm text-red-500 mt-2">{errors.imagenes}</p>
-          ) : (
-            <p className="text-xs text-gray-500 mt-2">*Mínimo 3 fotos del vehículo: frontal, lateral y trasera</p>
-          )}
-
-          {/* Vista previa */}
-          {imagenes.length > 0 && (
-            <div className="flex flex-wrap mt-3 gap-3">
-              {imagenes.map((img, idx) => {
-                const src = URL.createObjectURL(img);
-                return (
-                  <div key={`${idx}-${img.name}`} className="relative w-20 h-20">
-                    <img
-                      src={src}
-                      alt={`imagen-${idx}`}
-                      onClick={() => setPreviewImg(src)}
-                      className="object-cover w-full h-full rounded border border-gray-300 cursor-pointer"
-                    />
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveImage(idx);
-                      }}
-                      title="Eliminar imagen"
-                      className="absolute -top-2 -right-2 bg-[#11295B] text-white rounded-full w-5 h-5 text-xs flex items-center justify-center"
-                    >
-                      <X size={12} />
-                    </button>
-                  </div>
-                );
-              })}
+        <div className="space-y-6">
+          {/* TARJETA */}
+          <div className={`rounded-xl shadow-md border-[1.5px] ${selectedOption === "card" ? "border-[#11295B]" : "border-gray-300"}`}>
+            <div className="flex items-center pl-4 py-3 border-b cursor-pointer" onClick={() => setSelectedOption("card")}> 
+              <input type="radio" checked={selectedOption === "card"} readOnly className="mr-2 accent-[#11295B]" />
+              <label className="text-sm font-medium flex items-center"><CreditCard size={16} className="mr-1" /> Número de TARJETA_DEBITO</label>
             </div>
-          )}
-        </div>
+            {selectedOption === "card" && (
+              <div className="p-4 space-y-3">
+                <div>
+                  <input 
+                    value={cardNumber} 
+                    onChange={handleCardNumberChange}
+                    onBlur={() => handleBlur('cardNumber')} 
+                    placeholder="1111 2222 3333 4444" 
+                    className={`w-full border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none ${errors.cardNumber ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]" : "border-[#11295B]"}`} 
+                  />
+                  {touched.cardNumber && errors.cardNumber && (
+                    <p className="text-xs text-[#DC2626] mt-1">{errors.cardNumber}</p>
+                  )}
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <input 
+                      value={expiryDate} 
+                      onChange={handleExpiryDateChange}
+                      onBlur={() => handleBlur('expiryDate')} 
+                      placeholder="MM/YY" 
+                      className={`w-full border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none ${errors.expiryDate ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]" : "border-[#11295B]"}`} 
+                    />
+                    {touched.expiryDate && errors.expiryDate && (
+                      <p className="text-xs text-[#DC2626] mt-1">{errors.expiryDate}</p>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <input 
+                      value={cvv} 
+                      onChange={handleCVVChange}
+                      onBlur={() => handleBlur('cvv')} 
+                      placeholder="CVV" 
+                      className={`w-full border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none ${errors.cvv ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]" : "border-[#11295B]"}`} 
+                    />
+                    {touched.cvv && errors.cvv && (
+                      <p className="text-xs text-[#DC2626] mt-1">{errors.cvv}</p>
+                    )}
+                  </div>
+                </div>
+                
+                <div>
+                  <input 
+                    value={cardHolder} 
+                    onChange={handleCardHolderChange}
+                    onBlur={() => handleBlur('cardHolder')} 
+                    placeholder="Nombre del titular" 
+                    className={`w-full border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none ${errors.cardHolder ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]" : "border-[#11295B]"}`} 
+                  />
+                  {touched.cardHolder && errors.cardHolder && (
+                    <p className="text-xs text-[#DC2626] mt-1">{errors.cardHolder}</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
 
-        {/* Botón Siguiente */}
-        <button
-          onClick={handleSubmit}
-          className={`w-full text-white py-3 rounded-xl font-semibold text-lg mt-2 transition-all duration-200 ${
-            camposValidos()
-              ? "bg-[#FCA311] hover:bg-[#e29510]"
-              : "bg-[#FCA311]/60 cursor-not-allowed"
-          }`}
-          disabled={!camposValidos()}
-        >
-          Siguiente
-        </button>
-      </div>
-
-      {/* Modal de Previsualización */}
-      {previewImg && (
-        <div
-          className="fixed inset-0 bg-black/60 z-[10000] flex items-center justify-center"
-          onClick={() => setPreviewImg(null)}
-        >
-          <div className="relative max-w-3xl w-full mx-4">
-            <img
-              src={previewImg}
-              alt="Previsualización"
-              className="w-full h-auto rounded-xl shadow-xl"
-            />
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setPreviewImg(null);
-              }}
-              title="Cerrar imagen"
-              className="absolute top-2 right-2 text-white text-xl bg-[#11295B]/70 hover:bg-[#11295B] rounded-full w-8 h-8 flex items-center justify-center transition-colors"
+          {/* QR */}
+          <div className={`rounded-xl shadow-md border-[1.5px] ${selectedOption === "QR" ? "border-[#11295B]" : "border-gray-300"}`}>
+            <div
+              className="flex items-center pl-4 py-3 border-b cursor-pointer"
+              onClick={() => setSelectedOption("QR")}
             >
-              <X size={20} />
-            </button>
+              <input type="radio" checked={selectedOption === "QR"} readOnly className="mr-2 accent-[#11295B]" />
+              <label className="text-sm font-medium flex items-center">
+                <QrCode size={16} className="mr-1" /> Imagen de QR
+              </label>
+            </div>
+
+            {selectedOption === "QR" && (
+              <div className="p-4">
+                <label className="block font-semibold mb-1 text-[#11295B]">Imagen QR</label>
+                <p className="text-sm text-gray-600 mb-2">Asegúrate que el código sea legible</p>
+
+                <div
+                  className={`relative w-32 h-24 border-[1.5px] border-dashed rounded-xl text-center flex items-center justify-center cursor-pointer transition-all duration-200 ${
+                    errors.qrImage ? "border-[#DC2626]" : "border-[#11295B] hover:bg-gray-100"
+                  }`}
+                  onClick={() => fileInputRef.current?.click()}
+                  onDrop={handleDrop}
+                  onDragOver={(e) => e.preventDefault()}
+                >
+                  {previewImg ? (
+                    <>
+                      <Image
+                        src={previewImg}
+                        alt="QR"
+                        width={500} // puedes ajustar según el tamaño deseado
+                        height={500}
+                        className="w-full h-full object-contain rounded"
+                      />
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteImage();
+                        }}
+                        className="absolute top-1 right-1 bg-[#11295B] p-1 rounded-full hover:bg-[#11295B]"
+                        title="Eliminar imagen"
+                      >
+                        <X size={14} className="text-white" />
+                      </button>
+                    </>
+                  ) : (
+                    <QrCode size={24} className="text-gray-400" />
+                  )}
+                </div>
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png"
+                  onChange={handleQrImageChange}
+                  className="hidden"
+                />
+
+                {errors.qrImage ? (
+                  <p className="text-sm text-[#DC2626] text-center mt-2">{errors.qrImage}</p>
+                ) : (
+                  <p className="text-xs text-gray-500 mt-2">*Solo formatos .jpg, .jpeg o .png</p>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* EFECTIVO */}
+          <div className={`rounded-xl shadow-md border-[1.5px] ${selectedOption === "cash" ? "border-[#11295B]" : "border-gray-300"}`}>
+            <div className="flex items-center pl-4 py-3 border-b cursor-pointer" onClick={() => setSelectedOption("cash")}> 
+              <input type="radio" checked={selectedOption === "cash"} readOnly className="mr-2 accent-[#11295B]" />
+              <label className="text-sm font-medium flex items-center"><DollarSign size={16} className="mr-1" /> Dinero EFECTIVO</label>
+            </div>
+            {selectedOption === "cash" && (
+              <div className="p-4">
+                <textarea 
+                  value={cashDetail} 
+                  onChange={(e) => setCashDetail(e.target.value)}
+                  onBlur={() => handleBlur('cashDetail')} 
+                  placeholder="Descripción" 
+                  className={`w-full h-24 border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none resize-none ${errors.cashDetail ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]" : "border-[#11295B]"}`}
+                />
+                {touched.cashDetail && errors.cashDetail && (
+                  <p className="text-sm text-[#DC2626] mt-2">{errors.cashDetail}</p>
+                )}
+              </div>
+            )}
           </div>
         </div>
-      )}
+
+        {/* TÉRMINOS */}
+        <div className="flex items-start mt-6">
+          <input 
+            type="checkbox" 
+            checked={termsAccepted} 
+            onChange={() => setTermsAccepted(!termsAccepted)} 
+            className="mt-1 mr-2 accent-[#FCA311]" 
+          />
+          <label className="text-xs text-gray-600">He leído y acepto los <span className="text-[#FCA311] font-medium">Términos y condiciones</span>.</label>
+        </div>
+        {errors.terms && <p className="text-sm text-[#DC2626] text-center mt-2">{errors.terms}</p>}
+        {errors.method && <p className="text-sm text-[#DC2626] text-center mt-2">{errors.method}</p>}
+
+        <div className="flex justify-between mt-8">
+          <button 
+            onClick={handleCancel} 
+            className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-8 rounded-full"
+          >
+            Cancelar
+          </button>
+          <button 
+            onClick={handleSubmit} 
+            className="bg-[#FCA311] hover:bg-[#e29510] text-white font-semibold py-2 px-8 rounded-full"
+          >
+            Registrar
+          </button>
+        </div>
+      </div>
     </div>
   );
-};
-
-export default VehicleDataModal;
+}
