@@ -380,5 +380,5 @@ const VehicleDataModal: React.FC<Props> = ({ onNext, onClose }) => {
     </div>
   );
 };
-// Exportamos el componente VehicleDataModa
+// Exportamos el componente VehicleDataModal
 export default VehicleDataModal;
