@@ -12,7 +12,7 @@ interface Props {
   }) => void;
   onClose: () => void;
 }
-
+// Modal para ingresar datos del vehículo al registrarse como host
 const VehicleDataModal: React.FC<Props> = ({ onNext, onClose }) => {
   const [placa, setPlaca] = useState("");
   const [soat, setSoat] = useState("");
