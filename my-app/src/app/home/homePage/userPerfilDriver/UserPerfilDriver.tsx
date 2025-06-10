@@ -864,7 +864,11 @@ export default function UserPerfilDriver() {
                                       }`}
                                   >
                                     <td className="px-4 py-2">
-                                      {renter.fecha_suscripcion ? renter.fecha_suscripcion.split("T")[0] : "—"}
+                                      {renter.fecha_suscripcion
+                                        ? new Date(renter.fecha_suscripcion).toLocaleDateString("es-BO", {
+                                            timeZone: "America/La_Paz"
+                                          })
+                                        : "—"}
                                     </td>
                                     <td className="px-4 py-2">{renter.nombre}</td>
                                     <td className="px-4 py-2">{renter.telefono}</td>
