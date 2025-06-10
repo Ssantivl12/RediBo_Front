@@ -1,4 +1,5 @@
 import { NotificationResponse } from '../types/notification';
+import { getAuthToken } from '../utils/userIdentifier';
 
 export type Notification = NotificationResponse;
 
@@ -49,47 +50,55 @@ class NotificationService {
 
     connect() {
       if (this.eventSource) {
-        this.disconnect();
+        this.eventSource.close();
       }
-  
+
       this.isActive = true;
+      const token = getAuthToken();
       
+      if (!token || !this.usuarioId) {
+        console.error('No hay token o ID de usuario disponible');
+        if (this.callbacks.onError) {
+          this.callbacks.onError(new Event('error'));
+        }
+        return this;
+      }
+
       try {
         console.log(`Intentando conectar SSE para usuario ${this.usuarioId}`);
         const url = `http://localhost:3001/api/notificaciones/sse/${this.usuarioId}`;
         console.log('URL de conexión SSE:', url);
-        
-        this.eventSource = new EventSource(url);
+
+        this.eventSource = new EventSource(`${url}?token=${encodeURIComponent(token)}`);
         console.log('EventSource creado');
 
-        // Verificar el estado de la conexión
-        const checkConnection = () => {
-          if (this.eventSource) {
-            console.log('Estado de la conexión SSE:', this.eventSource.readyState);
-            if (this.eventSource.readyState === EventSource.OPEN) {
-              console.log('Conexión SSE abierta');
-            } else if (this.eventSource.readyState === EventSource.CONNECTING) {
-              console.log('Conexión SSE en proceso');
-            } else if (this.eventSource.readyState === EventSource.CLOSED) {
-              console.log('Conexión SSE cerrada');
-            }
-          }
-        };
-  
         this.eventSource.onopen = () => {
-          console.log('SSE connection established');
+          console.log('Conexión SSE establecida');
           this.reconnectAttempts = 0;
-          checkConnection();
           if (this.callbacks.onConnect) {
             this.callbacks.onConnect();
           }
         };
-  
-        // Añadir listener para todos los eventos
-        this.eventSource.addEventListener('message', (event) => {
-          console.log('Evento message recibido:', event);
-        });
 
+        this.eventSource.onerror = (error) => {
+          console.error('Error en conexión SSE:', error);
+          if (this.callbacks.onError) {
+            this.callbacks.onError(error);
+          }
+          
+          if (this.eventSource) {
+            this.eventSource.close();
+            this.eventSource = null;
+          }
+
+          if (this.isActive && this.reconnectAttempts < this.maxReconnectAttempts) {
+            this.reconnectAttempts++;
+            const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
+            this.reconnect(delay);
+          }
+        };
+
+        // Event listeners para los diferentes tipos de eventos
         this.eventSource.addEventListener('nuevaNotificacion', (event) => {
           try {
             console.log('Evento nuevaNotificacion recibido:', event);
@@ -97,82 +106,43 @@ class NotificationService {
             console.log('Datos de nueva notificación:', data);
             if (this.callbacks.onNewNotification) {
               this.callbacks.onNewNotification(data);
-            } else {
-              console.warn('No hay callback registrado para nuevaNotificacion');
             }
           } catch (error) {
             console.error('Error al procesar nueva notificación:', error);
           }
         });
-  
+
         this.eventSource.addEventListener('notificacionLeida', (event) => {
           try {
             console.log('Evento notificacionLeida recibido:', event);
             const data = JSON.parse(event.data);
-            console.log('Datos de notificación leída:', data);
             if (this.callbacks.onNotificationRead) {
               this.callbacks.onNotificationRead(data.id);
-            } else {
-              console.warn('No hay callback registrado para notificacionLeida');
             }
           } catch (error) {
             console.error('Error al procesar notificación leída:', error);
           }
         });
-  
+
         this.eventSource.addEventListener('notificacionEliminada', (event) => {
           try {
             console.log('Evento notificacionEliminada recibido:', event);
             const data = JSON.parse(event.data);
-            console.log('Datos de notificación eliminada:', data);
             if (this.callbacks.onNotificationDeleted) {
               this.callbacks.onNotificationDeleted(data.id);
-            } else {
-              console.warn('No hay callback registrado para notificacionEliminada');
             }
           } catch (error) {
             console.error('Error al procesar notificación eliminada:', error);
           }
         });
 
-        this.eventSource.addEventListener('conectado', (event) => {
-          try {
-            console.log('Evento conectado recibido:', event);
-            const data = JSON.parse(event.data);
-            console.log(`SSE connected with client ID: ${data.id}`);
-          } catch (error) {
-            console.error('Error al procesar evento de conexión:', error);
-          }
-        });
-
-        this.eventSource.onerror = (error) => {
-          // Silenciar el error en la consola
-          if (this.eventSource) {
-            this.eventSource.close();
-            this.eventSource = null;
-          }
-
-          if (this.callbacks.onError) {
-            this.callbacks.onError(error);
-          }
-          
-          if (this.isActive && this.reconnectAttempts < this.maxReconnectAttempts) {
-            const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
-            this.reconnect(delay);
-            this.reconnectAttempts++;
-          } else if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-            this.disconnect();
-          }
-        };
-
-        // Verificar la conexión después de un breve retraso
-        setTimeout(checkConnection, 1000);
-      } catch {
+      } catch (error) {
+        console.error('Error al establecer conexión SSE:', error);
         if (this.isActive) {
           this.reconnect(1000);
         }
       }
-  
+
       return this;
     }
 
