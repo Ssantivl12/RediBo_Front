@@ -175,7 +175,7 @@ const CalificarModal: React.FC<CalificarModalProps> = ({ isOpen, onClose, inquil
            sameWordPattern ||
            specialCharPattern ||
            excessiveNumbers ||
-           veryLongWords ||
+           veryLongWords ||   
            tooFewVowels ||
            !hasRealContent;
   };
