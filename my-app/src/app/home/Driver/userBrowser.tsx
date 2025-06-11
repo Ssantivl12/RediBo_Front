@@ -1,10 +1,9 @@
 "use client";
-import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { debounce } from "lodash";
 import { FiMail, FiPhone, FiSearch, FiPlusCircle, FiX } from "react-icons/fi";
 import NavbarPerfilUsuario from '@/app/components/navbar/NavbarNeutro';
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 
 
 
@@ -209,7 +208,7 @@ const UserBrowser = () => {
             alt={`Foto de ${user.nombreCompleto}`}
             className="w-12 h-12 rounded-full object-cover border border-gray-200"
           />
-          
+
           <div className="flex-1 min-w-0">
             <h3 className="text-lg font-semibold truncate">
               {user.nombreCompleto}
@@ -278,25 +277,6 @@ const UserBrowser = () => {
           />
         </div>
 
-        {/* Lista de cards 
-        {loading ? (
-          <p className="text-center">Cargando usuarios...</p>
-        ) : filteredUsers.length === 0 ? (
-          <p className="text-center text-gray-600">No se encontraron usuarios.</p>
-        ) : (
-          <div className="overflow-x-auto pb-4">
-            <div className="flex space-x-4 w-max">
-              {filteredUsers.map((user) => (
-                <UserCard
-                  key={user.idUsuario}
-                  user={user}
-                  isSelected={selectedUsers.some((u) => u.idUsuario === user.idUsuario)}
-                  onAction={handleAddUser}
-                />
-              ))}
-            </div>
-          </div>
-        )}*/}
 
         {loading ? (
           <p className="text-center">Cargando usuarios...</p>
