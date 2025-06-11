@@ -136,7 +136,7 @@ export default function VerificacionPaso1Modal({
       )}
       {error && <p className="text-[var(--rojo)] text-ms font-[var(--tamaña-bold)] mt-1">{error}</p>}
       <BotonConfirm
-        texto="Continuar"
+        texto="Cancelar"
         onClick={handleConfirmar}
         disabled={codigo.length !== 6}
       />
