@@ -100,7 +100,12 @@ export default function RegistroDriver() {
 
   useEffect(() => {
     if (user?.telefono) {
-      setTelefonoUsuario(String(user.telefono)); // fuerza a texto
+      //setTelefonoUsuario(String(user.telefono)); // fuerza a texto
+      let telefono = String(user.telefono);
+      if (telefono.startsWith("+591")) {
+        telefono = telefono.slice(4);
+      }
+      setTelefonoUsuario(telefono);
     }
   }, [user]);
 
