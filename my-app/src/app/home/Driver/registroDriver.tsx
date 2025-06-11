@@ -507,11 +507,14 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
 
       <div className="mt-28 px-8 w-full flex justify-center">
         <div className="max-w-[1300px] w-full">
-          <h2 className="text-[1.8rem] font-bold mb-4 text-[#11295B] text-center">REGISTRO COMO DRIVER</h2>
-          <p className="text-base text-[#333] leading-relaxed text-left max-w-[1100px] mx-auto">
-            Conviértete en driver y ayuda a otros usuarios a llegar a sus destinos. Regístrate y activa tu disponibilidad para empezar a recibir solicitudes de viaje.
+          <h2 className="text-[1.8rem] font-extrabold mb-6 text-[#11295B] text-center tracking-wide">REGÍSTRATE COMO DRIVER</h2>
+          <p className="text-base text-[#444] leading-relaxed text-center max-w-[1000px] mx-auto">
+            Conviértete en driver y ayuda a otros usuarios a llegar a sus destinos.
+          </p>
+          <p className="text-base text-[#444] leading-relaxed text-left max-w-[1100px] mx-auto">
+            
             <br />
-            En este paso te pediremos una foto de perfil, datos personales para que los usuarios se relacionen con tu perfil, también añadirás fotos de tu licencia de conducir. Finalmente tendrás las opciones para elegir un método de pago.
+            En este paso te pediremos una foto de perfil, datos personales para que los usuarios se relacionen con tu perfil, también añadirás fotos de tu licencia de conducir. Finalmente podrás seleccionar los usuarios con quienes quieres relacionarte.
           </p>
         </div>
       </div>
@@ -640,7 +643,7 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
                         setMensajeErrorTelefono('');
                       }
                     }}
-                    className={`w-full pl-12 pr-4 pt-6 pb-2 rounded-lg border focus:outline-none focus:ring-1 ${
+                    className={`w-full pl-12 pr-4 pt-6 pb-2 rounded-lg border focus:outline-none bg-transparen focus:ring-1 ${
                       errorTelefono
                         ? 'border-red-500 text-red-500 placeholder:text-red-400 focus:ring-red-500'
                         : 'border-[#11295B] text-[#11295B] placeholder:text-[#11295B]/50 focus:ring-[#11295B]'
