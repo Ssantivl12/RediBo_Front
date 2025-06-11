@@ -439,7 +439,6 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
     return valido;
   };
 
-
   {/*const handleSubmit = () => {
     const esValido = validarCampos();
 
@@ -658,9 +657,6 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
                 </>
               )}
             </div>
-
-
-
 
 
             <div className="relative w-full mt-4">
@@ -1005,14 +1001,14 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
                     localStorage.removeItem("registroDriverPaso1");
                     router.push('/home/homePage');
                   }}
-                  className="px-6 py-2 bg-[#E0E0E0] text-[#11295B] rounded-full text-sm font-semibold hover:bg-[#d6d6d6] transition"
+                  className="px-6 py-2 bg-[#E0E0E0] text-[#11295B] rounded-full text-sm font-semibold hover:bg-[#bcbcbc] hover:text-[#0f1c3e] transition duration-200 cursor-pointer active:scale-95"
                 >
                   Atrás
                 </button>
 
                 <button
                   onClick={handleSubmit}
-                  className="px-6 py-2 bg-[#FFA800] text-white rounded-full text-sm font-semibold hover:bg-[#e19900] transition"
+                  className="px-6 py-2 bg-[#FFA800] text-white rounded-full text-sm font-semibold hover:bg-[#ff8c00] transition duration-200 cursor-pointer active:scale-95"
                 >
                   Continuar
                 </button>
