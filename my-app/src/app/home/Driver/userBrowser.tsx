@@ -4,8 +4,6 @@ import { debounce } from "lodash";
 import { FiMail, FiPhone, FiSearch, FiPlusCircle, FiX } from "react-icons/fi";
 import NavbarPerfilUsuario from '@/app/components/navbar/NavbarNeutro';
 import { useRouter } from "next/navigation";
-import { profile } from "console";
-
 
 
 interface User {
@@ -226,10 +224,10 @@ const UserBrowser = () => {
         <div className="mt-4">
           <button
             onClick={() => onAction(user)}
-            className={`w-full py-1.5 rounded-full text-sm font-semibold transition duration-200 ${
+            className={`w-full py-1.5 rounded-full text-sm font-semibold transition duration-200 cursor-pointer ${
               isSelected
                 ? "bg-gray-200 text-[#505050] hover:bg-gray-300"
-                : "bg-[#FFA800] text-white hover:bg-[#e29400]"
+                : "bg-[#FFA800] text-white hover:bg-[#ff8c00]"
             }`}
           >
             {isSelected ? (
