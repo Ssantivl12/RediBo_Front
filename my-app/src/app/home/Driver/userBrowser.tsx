@@ -365,10 +365,10 @@ const UserBrowser = () => {
               </tbody>
             </table>
 
-            <div className="flex justify-end mt-6">
+            <div className="flex justify-center mt-6">
               <button
                 onClick={handleRegisterDriver}
-                className="px-6 py-2 bg-[#FFA800] text-white rounded-full text-sm font-semibold hover:bg-[#e19900] transition"
+                className="px-8 py-3 bg-[#FFA800] text-white rounded-full text-lg font-bold cursor-pointer shadow-md hover:bg-[#ff8c00] transition duration-300 transform hover:scale-105"
               >
                 Finalizar registro
               </button>
