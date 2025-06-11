@@ -48,7 +48,7 @@ const DriversModal: React.FC<Props> = ({ isOpen, onClose }) => {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto relative"
+        className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto relative"
       >
         <button
           onClick={onClose}
@@ -58,7 +58,7 @@ const DriversModal: React.FC<Props> = ({ isOpen, onClose }) => {
         </button>
 
         <h2 className="text-2xl font-semibold text-center text-blue-900 mb-6">
-          Renters donde estoy como Driver
+          Drivers que están suscritos a mi cuenta
         </h2>
 
         {loading ? (
