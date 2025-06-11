@@ -31,8 +31,6 @@ const UserBrowser = () => {
   const [loading, setLoading] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [toastType, setToastType] = useState<"error" | "success">("error");
 
 
   useEffect(() => {
@@ -146,9 +144,6 @@ const UserBrowser = () => {
       const errorText = await res.text();
       console.log("🧾 Detalle del error:", errorText);
   
-      {/*if (!res.ok) throw new Error("Falló el registro");
-      localStorage.setItem("registroExitosoDriver", "true");
-      router.push("/home/homePage?registroExitoso=1");*/}
       if (!res.ok) {
         const errorText = await res.text();
         console.error("❌ Error del backend:", errorText);
@@ -164,7 +159,6 @@ const UserBrowser = () => {
     } catch (err) {
       console.error("Error:", err);
       toast.error(" Error al registrar driver");
-      //alert("❌ Error al registrar driver");
     }
   };
   const scrollLeft = () => {
@@ -178,8 +172,6 @@ const UserBrowser = () => {
       scrollRef.current.scrollBy({ left: 300, behavior: "smooth" });
     }
   };  
-  
-
   
   const UserCard = ({
     user,
