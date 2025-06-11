@@ -74,7 +74,7 @@ const UserBrowser = () => {
 
   useEffect(() => {
   return () => {
-    debouncedSearch.cancel(); // Limpieza segura del debounce al desmontar
+    debouncedSearch.cancel(); 
   };
 }, [debouncedSearch]);
 
@@ -145,15 +145,8 @@ const UserBrowser = () => {
       console.log("🧾 Detalle del error:", errorText);
   
       if (!res.ok) throw new Error("Falló el registro");
-      // ✅ Bandera para activar modal en homePage
       localStorage.setItem("registroExitosoDriver", "true");
-
-      // ✅ Redirección automática
       router.push("/home/homePage?registroExitoso=1");
-      // setShowSuccessModal(true); 
-      //alert("Driver registrado con éxito ✅");
-
-      //window.location.href = "/home/homePage?success=driver";
 
   
       setSelectedUsers([]);
