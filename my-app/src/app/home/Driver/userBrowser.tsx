@@ -24,6 +24,8 @@ const getUserProfileImage = (fotoPerfil: string | undefined): string => {
   
 };
 
+const MAX_RENTERS = 5;
+
 const UserBrowser = () => {
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
@@ -87,6 +89,18 @@ const UserBrowser = () => {
   }, [searchQuery, allUsers]);
 
   const handleAddUser = (user: User) => {
+    if (selectedUsers.length >= MAX_RENTERS) {
+    toast.custom((t) => (
+      <div
+        className={`${
+          t.visible ? "animate-enter" : "animate-leave"
+        } max-w-sm w-full bg-yellow-100 text-yellow-900 rounded-lg shadow-lg pointer-events-auto p-4 font-semibold`}
+      >
+        ⚠️ Solo puedes seleccionar hasta {MAX_RENTERS} renters.
+      </div>
+    ));
+    return;
+  }
     if (!selectedUsers.find((u) => u.idUsuario === user.idUsuario)) {
       setSelectedUsers([...selectedUsers, user]);
     }
