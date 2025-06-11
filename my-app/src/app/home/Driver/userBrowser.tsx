@@ -28,11 +28,8 @@ const UserBrowser = () => {
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const router = useRouter();
-  const [fallback, setFallback] = useState(false); 
 
 
 
@@ -98,7 +95,6 @@ const UserBrowser = () => {
       const datosPaso1 = localStorage.getItem("registroDriverPaso1");
       const token = localStorage.getItem("token");
       if (!token) {
-        setError("No se encontró el token de autenticación.");
         setLoading(false);
         return;
       }
@@ -203,7 +199,7 @@ const UserBrowser = () => {
             src={profilePhotoUrl ? getUserProfileImage(profilePhotoUrl) : "/user-default.svg"}
             alt={`Foto de ${user.nombreCompleto}`}
             className="w-12 h-12 rounded-full object-cover border border-gray-200"
-            onError={() => setFallback(true)}
+            //onError={() => setFallback(true)}
           />
 
           <div className="flex-1 min-w-0">
