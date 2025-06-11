@@ -174,19 +174,16 @@ const UserBrowser = () => {
   const UserCard = ({
     user,
     isSelected,
-    //onAction,
     onAdd,
     onRemove,
   }: {
     user: User;
     isSelected: boolean;
-    //onAction: (user: User) => void;
     onAdd: (user: User) => void;
     onRemove: (user: User) => void;
   }) => {
     const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
 
-  // Actualiza la URL cuando cambia el usuario
   useEffect(() => {
     if (user?.fotoPerfil) {
       setProfilePhotoUrl(user.fotoPerfil);
@@ -227,7 +224,6 @@ const UserBrowser = () => {
 
         <div className="mt-4">
           <button
-            //onClick={() => onAction(user)}
             onClick={handleClick}
             className={`w-full py-1.5 rounded-full text-sm font-semibold transition duration-200 cursor-pointer ${
               isSelected
@@ -251,9 +247,6 @@ const UserBrowser = () => {
       </div>
     );
   };
-
-
-
 
 
   return (
