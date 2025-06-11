@@ -65,10 +65,17 @@ const UserBrowser = () => {
     localStorage.setItem("selectedRenters", JSON.stringify(selectedUsers));
   }, [selectedUsers]);
 
-  const debouncedSearch = useCallback(
-    debounce((query) => setSearchQuery(query), 300),
-    []
-  );
+  const debouncedSearch = useMemo(() => {
+    return debounce((query: string) => {
+      setSearchQuery(query);
+    }, 300);
+  }, []);
+
+  useEffect(() => {
+  return () => {
+    debouncedSearch.cancel(); // Limpieza segura del debounce al desmontar
+  };
+}, [debouncedSearch]);
 
   const filteredUsers = useMemo(() => {
     const q = searchQuery.toLowerCase();
