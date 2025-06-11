@@ -112,7 +112,7 @@ export default function VerificacionPaso1Modal({
         Reviza tu correo electronico
       </h2>
       <p className="text-left mb-6 text-[var(--azul-oscuro)]">Ingresa el código que enviamos a tu correo
-      <br></br> Es posible que debas esperar hasta un minuto para recibir este código</p>
+      </p>
 
       <CodigoVerificacion
         name="Ingresa código"
