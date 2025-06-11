@@ -1,10 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+interface FiltersBarProps {
+  onFilterChange: (filter: string) => void;
+  activeFilter: string;
+}
 
-export default function FiltersBar() {
-  const filtros = ['Filtro 1', 'Filtro 2', 'Filtro 3', 'Filtro 4', 'Filtro 5', 'Filtro 6', 'Filtro 7'];
-  const [filtroActivo, setFiltroActivo] = useState(filtros[0]);
+export default function FiltersBar({ onFilterChange, activeFilter }: FiltersBarProps) {
+  const filtros = ['todos', 'Filtro 1', 'Filtro 2', 'Filtro 3', 'Filtro 4', 'Filtro 5', 'Filtro 6', 'Filtro 7'];
+
+  const handleFilterClick = (filtro: string) => {
+    onFilterChange(filtro);
+  };
 
   return (
     <div className="flex justify-center items-center px-4 py-2 bg-white font-[var(--fuente-principal)] border-b-[2px] border-[rgba(0,0,0,0.2)] shadow-[0_4px_10px_rgba(0,0,0,0.25)] rounded-b-[20px]">
@@ -12,9 +18,9 @@ export default function FiltersBar() {
         {filtros.map((filtro) => (
           <span
             key={filtro}
-            onClick={() => setFiltroActivo(filtro)}
+            onClick={() => handleFilterClick(filtro)}
             className={`cursor-pointer whitespace-nowrap ${
-              filtro === filtroActivo
+              filtro === activeFilter
                 ? 'text-[var(--naranja)] font-bold underline'
                 : ''
             }`}
