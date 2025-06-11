@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDrivers } from '@/hooks/useDrivers';
 
 interface Props {
@@ -8,6 +8,8 @@ interface Props {
 
 const DriversModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const { drivers, loading } = useDrivers();
+  const [sortKey, setSortKey] = useState<'fechaAsignacion' | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
     const closeOnEscape = (e: KeyboardEvent) => {
@@ -17,11 +19,31 @@ const DriversModal: React.FC<Props> = ({ isOpen, onClose }) => {
     return () => window.removeEventListener('keydown', closeOnEscape);
   }, [onClose]);
 
+  const toggleSortByFecha = () => {
+    if (sortKey === 'fechaAsignacion') {
+      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortKey('fechaAsignacion');
+      setSortDirection('asc');
+    }
+  };
+
+  const sortedDrivers = useMemo(() => {
+    if (sortKey === 'fechaAsignacion') {
+      return [...drivers].sort((a, b) => {
+        const fechaA = new Date(a.fechaAsignacion || '').getTime();
+        const fechaB = new Date(b.fechaAsignacion || '').getTime();
+        return sortDirection === 'asc' ? fechaA - fechaB : fechaB - fechaA;
+      });
+    }
+    return drivers;
+  }, [drivers, sortKey, sortDirection]);
+
   if (!isOpen) return null;
 
   return (
     <div
-      className="fixed inset-0 bg-opacity-50 z-50 flex items-center justify-center"
+      className="fixed inset-0 bg-opacity-40 backdrop-blur-sm z-50 flex items-center justify-center"
       onClick={onClose}
     >
       <div
@@ -34,8 +56,9 @@ const DriversModal: React.FC<Props> = ({ isOpen, onClose }) => {
         >
           ×
         </button>
+
         <h2 className="text-2xl font-semibold text-center text-blue-900 mb-6">
-          Drivers suscritos
+          Renters donde estoy como Driver
         </h2>
 
         {loading ? (
@@ -47,23 +70,31 @@ const DriversModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <table className="min-w-full text-left border border-blue-900 rounded-lg overflow-hidden">
               <thead className="bg-blue-900 text-white">
                 <tr>
-                  <th className="py-2 px-4 border-r">Nombre</th>
+                  <th
+                    className="py-2 px-4 border-r cursor-pointer select-none"
+                    onClick={toggleSortByFecha}
+                  >
+                    Fecha de Suscripción{' '}
+                    {sortKey === 'fechaAsignacion' && (
+                      <span>{sortDirection === 'asc' ? '▲' : '▼'}</span>
+                    )}
+                  </th>
+                  <th className="py-2 px-4 border-r">Nombre Completo</th>
                   <th className="py-2 px-4 border-r">Teléfono</th>
-                  <th className="py-2 px-4 border-r">Correo</th>
-                  <th className="py-2 px-4">Fecha asignación</th>
+                  <th className="py-2 px-4">Correo Electrónico</th>
                 </tr>
               </thead>
               <tbody className="text-blue-900">
-                {drivers.map((driver, index) => (
+                {sortedDrivers.map((driver, index) => (
                   <tr key={index} className="bg-white hover:bg-gray-100 border-t border-gray-200">
-                    <td className="py-2 px-4 border-r">{driver.nombreCompleto}</td>
-                    <td className="py-2 px-4 border-r">{driver.telefono}</td>
-                    <td className="py-2 px-4 border-r">{driver.email}</td>
-                    <td className="py-2 px-4">
+                    <td className="py-2 px-4 border-r">
                       {driver.fechaAsignacion
                         ? new Date(driver.fechaAsignacion).toLocaleDateString()
                         : 'No registrada'}
                     </td>
+                    <td className="py-2 px-4 border-r">{driver.nombreCompleto}</td>
+                    <td className="py-2 px-4 border-r">{driver.telefono}</td>
+                    <td className="py-2 px-4">{driver.email}</td>
                   </tr>
                 ))}
               </tbody>
@@ -74,6 +105,5 @@ const DriversModal: React.FC<Props> = ({ isOpen, onClose }) => {
     </div>
   );
 };
-//prueba
-export default DriversModal;
 
+export default DriversModal;
