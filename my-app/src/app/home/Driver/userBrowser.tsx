@@ -181,11 +181,15 @@ const UserBrowser = () => {
   const UserCard = ({
     user,
     isSelected,
-    onAction,
+    //onAction,
+    onAdd,
+    onRemove,
   }: {
     user: User;
     isSelected: boolean;
-    onAction: (user: User) => void;
+    //onAction: (user: User) => void;
+    onAdd: (user: User) => void;
+    onRemove: (user: User) => void;
   }) => {
     const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
 
@@ -198,6 +202,10 @@ const UserBrowser = () => {
     }
   }, [user]);
 
+  const handleClick = () => {
+      isSelected ? onRemove(user) : onAdd(user);
+    };
+  
     return (
       <div
         className="w-65 min-h-fit px-4 py-3 m-3 bg-white rounded-xl border border-gray-300 shadow-sm hover:shadow-md transition duration-300 font-inter justify-between"
@@ -226,7 +234,8 @@ const UserBrowser = () => {
 
         <div className="mt-4">
           <button
-            onClick={() => onAction(user)}
+            //onClick={() => onAction(user)}
+            onClick={handleClick}
             className={`w-full py-1.5 rounded-full text-sm font-semibold transition duration-200 cursor-pointer ${
               isSelected
                 ? "bg-gray-200 text-[#505050] hover:bg-gray-300"
@@ -309,7 +318,9 @@ const UserBrowser = () => {
                     isSelected={selectedUsers.some(
                       (u) => u.idUsuario === user.idUsuario
                     )}
-                    onAction={handleAddUser}
+                    //onAction={handleAddUser}
+                    onAdd={handleAddUser}
+                    onRemove={(u) => handleRemoveUser(u.idUsuario)}
                   />
                 ))}
               </div>
