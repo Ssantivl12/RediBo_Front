@@ -8,7 +8,8 @@ interface Props {
 
 const DriversModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const { drivers, loading } = useDrivers();
-  const [sortKey, setSortKey] = useState<'fechaAsignacion' | null>(null);
+  const [sortKey, setSortKey] = useState<'fechaAsignacion' | 'nombreCompleto' | null>(null);
+  
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
@@ -27,16 +28,33 @@ const DriversModal: React.FC<Props> = ({ isOpen, onClose }) => {
       setSortDirection('asc');
     }
   };
+  const toggleSortByNombre = () => {
+    if (sortKey === 'nombreCompleto') {
+      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortKey('nombreCompleto');
+      setSortDirection('asc');
+    }
+  };
 
   const sortedDrivers = useMemo(() => {
+    const sorted = [...drivers];
     if (sortKey === 'fechaAsignacion') {
       return [...drivers].sort((a, b) => {
         const fechaA = new Date(a.fechaAsignacion || '').getTime();
         const fechaB = new Date(b.fechaAsignacion || '').getTime();
         return sortDirection === 'asc' ? fechaA - fechaB : fechaB - fechaA;
       });
+    } else if (sortKey === 'nombreCompleto') {
+      return sorted.sort((a, b) => {
+        const nameA = a.nombreCompleto.toLowerCase();
+        const nameB = b.nombreCompleto.toLowerCase();
+        return sortDirection === 'asc'
+          ? nameA.localeCompare(nameB)
+          : nameB.localeCompare(nameA);
+      });
     }
-    return drivers;
+  return sorted;
   }, [drivers, sortKey, sortDirection]);
 
   if (!isOpen) return null;
@@ -72,14 +90,25 @@ const DriversModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 <tr>
                   <th
                     className="py-2 px-4 border-r cursor-pointer select-none"
+                    onClick={toggleSortByNombre}
+                  >
+                    Fecha de suscripción{' '}
+                    {sortKey === 'nombreCompleto' && (
+                      <span>{sortDirection === 'asc' ? '▲' : '▼'}</span>
+                    )}
+                  </th>
+
+                  <th
+                    className="py-2 px-4 border-r cursor-pointer select-none"
                     onClick={toggleSortByFecha}
                   >
-                    Fecha de Suscripción{' '}
+                    Nombre completo{' '}
                     {sortKey === 'fechaAsignacion' && (
                       <span>{sortDirection === 'asc' ? '▲' : '▼'}</span>
                     )}
                   </th>
-                  <th className="py-2 px-4 border-r">Nombre Completo</th>
+
+              
                   <th className="py-2 px-4 border-r">Teléfono</th>
                   <th className="py-2 px-4">Correo Electrónico</th>
                 </tr>
