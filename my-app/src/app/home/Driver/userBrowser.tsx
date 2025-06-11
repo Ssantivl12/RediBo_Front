@@ -260,6 +260,33 @@ const UserBrowser = () => {
 
 
   return (
+  <>
+    <Toaster 
+      position="top-right"
+      toastOptions={{
+        duration: 5000,
+        style: {
+          background: '#DC2626',
+          color: '#ffffff',
+          fontSize: '14px',
+          padding: '12px 16px',
+          borderRadius: '12px',
+          fontWeight: 'bold',
+          boxShadow: '0 4px 10px rgba(0,0,0,0.15)',
+        },
+        success: {
+          style: {
+            background: '#16A34A',
+          },
+        },
+        error: {
+          iconTheme: {
+            primary: '#ffffff',
+            secondary: '#DC2626',
+          },
+        },
+      }}
+     />
     
     <div className="min-h-screen bg-white">
       {/* Navbar fijo */}
@@ -389,6 +416,7 @@ const UserBrowser = () => {
       </div>
       
     </div>
+  </>
   );
 };
 
