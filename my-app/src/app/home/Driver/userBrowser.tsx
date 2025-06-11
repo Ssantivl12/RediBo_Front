@@ -204,14 +204,12 @@ const UserBrowser = () => {
         className="w-65 min-h-fit px-4 py-3 m-3 bg-white rounded-xl border border-gray-300 shadow-sm hover:shadow-md transition duration-300 font-inter justify-between"
       >
         <div className="flex items-center space-x-4">
-          <Image
+          <img
             src={profilePhotoUrl ? getUserProfileImage(profilePhotoUrl) : "/user-default.svg"}
             alt={`Foto de ${user.nombreCompleto}`}
-            width={48}
-            height={48}
             className="w-12 h-12 rounded-full object-cover border border-gray-200"
           />
-
+          
           <div className="flex-1 min-w-0">
             <h3 className="text-lg font-semibold truncate">
               {user.nombreCompleto}
