@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { debounce } from "lodash";
 import { FiMail, FiPhone, FiSearch, FiPlusCircle, FiX } from "react-icons/fi";
 import NavbarPerfilUsuario from '@/app/components/navbar/NavbarNeutro';
