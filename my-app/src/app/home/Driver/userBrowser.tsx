@@ -148,10 +148,12 @@ const UserBrowser = () => {
         const errorText = await res.text();
         console.error("❌ Error del backend:", errorText);
         toast.error("❌ Falló el registro del driver.");
-        localStorage.setItem("registroExitosoDriver", "true");
-        router.push("/home/homePage?registroExitoso=1");
         return;
       }
+
+      
+      localStorage.setItem("registroExitosoDriver", "true");
+      router.push("/home/homePage?registroExitoso=1");
   
       setSelectedUsers([]);
       localStorage.removeItem("selectedRenters");
