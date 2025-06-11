@@ -573,7 +573,7 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
                       setMensajeErrorSexo('');
                     }
                   }}
-                  className={`w-full pt-6 pb-2 pl-12 pr-3 rounded-lg border focus:outline-none focus:ring-1 ${
+                  className={`w-full min-h-[60px] pt-6 pb-2 pl-12 pr-10 rounded-lg border focus:outline-none focus:ring-1 ${
                     errorSexo
                       ? 'border-red-500 text-red-500 focus:ring-red-500'
                       : 'border-[#11295B] text-[#11295B] focus:ring-[#11295B]'
