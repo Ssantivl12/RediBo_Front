@@ -211,9 +211,14 @@ const UserBrowser = () => {
   }, [user]);
 
   const handleClick = () => {
-      isSelected ? onRemove(user) : onAdd(user);
-    };
-  
+    if (isSelected) {
+      onRemove(user);
+    } else {
+      onAdd(user);
+    }
+  };
+
+
     return (
       <div
         className="w-65 min-h-fit px-4 py-3 m-3 bg-white rounded-xl border border-gray-300 shadow-sm hover:shadow-md transition duration-300 font-inter justify-between"
