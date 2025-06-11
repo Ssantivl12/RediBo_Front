@@ -21,7 +21,7 @@ export default function ModalInicioSesion({
   const [codigo, setCodigo] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [contador, setContador] = useState(30);
+  const [contador, setContador] = useState(90);
   const [puedeReenviar, setPuedeReenviar] = useState(false);
 
   const [intentosReenvio, setIntentosReenvio] = useState(0); // NUEVO ESTADO
