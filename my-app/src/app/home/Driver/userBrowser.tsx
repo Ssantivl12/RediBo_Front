@@ -4,7 +4,7 @@ import { debounce } from "lodash";
 import { FiMail, FiPhone, FiSearch, FiPlusCircle, FiX } from "react-icons/fi";
 import NavbarPerfilUsuario from '@/app/components/navbar/NavbarNeutro';
 import { useRouter } from "next/navigation";
-
+import toast, { Toaster } from "react-hot-toast";
 
 
 interface User {
@@ -31,8 +31,8 @@ const UserBrowser = () => {
   const [loading, setLoading] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-
-
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastType, setToastType] = useState<"error" | "success">("error");
 
 
   useEffect(() => {
@@ -103,12 +103,13 @@ const UserBrowser = () => {
       const datosPaso1 = localStorage.getItem("registroDriverPaso1");
       const token = localStorage.getItem("token");
       if (!token) {
+        toast.error(" No se encontró el token de autenticación, por favor vuelve a iniciar sesión");
         setLoading(false);
         return;
       }
 
       if (!datosPaso1) {
-        alert("❌ No se encontraron datos del paso 1");
+        toast.error("No se encontraron datos del paso 1");
         return;
       }
   
@@ -125,8 +126,9 @@ const UserBrowser = () => {
   
       const res = await fetch("http://localhost:3001/api/registro-driver", {
         method: "POST",
-        headers: { "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,},
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,},
         credentials: "include",
         body: JSON.stringify({
           sexo,
@@ -144,17 +146,25 @@ const UserBrowser = () => {
       const errorText = await res.text();
       console.log("🧾 Detalle del error:", errorText);
   
-      if (!res.ok) throw new Error("Falló el registro");
+      {/*if (!res.ok) throw new Error("Falló el registro");
       localStorage.setItem("registroExitosoDriver", "true");
-      router.push("/home/homePage?registroExitoso=1");
-
+      router.push("/home/homePage?registroExitoso=1");*/}
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("❌ Error del backend:", errorText);
+        toast.error("❌ Falló el registro del driver.");
+        localStorage.setItem("registroExitosoDriver", "true");
+        router.push("/home/homePage?registroExitoso=1");
+        return;
+      }
   
       setSelectedUsers([]);
       localStorage.removeItem("selectedRenters");
       localStorage.removeItem("registroDriverPaso1");
     } catch (err) {
       console.error("Error:", err);
-      alert("❌ Error al registrar driver");
+      toast.error(" Error al registrar driver");
+      //alert("❌ Error al registrar driver");
     }
   };
   const scrollLeft = () => {
