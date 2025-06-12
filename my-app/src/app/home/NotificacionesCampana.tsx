@@ -1,17 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNotifications } from '@/hooks/useNotificaciones';
-//import { useNotifications } from '../../../hooks/useNotificaciones';
 import NotificationIcon from '@/app/home/notificacionIcon';
 import { BellIcon } from 'lucide-react';
 import Link from 'next/link';
 import { getUserId } from '@/app/utils/userIdentifier';
 import api from '@/libs/axiosConfig';
 import ModalDetallesRenta from '@/app/components/modals/ModalDetallesRenta';
-//import ToastNotification from '../componentsModales/ToastNotification';
 import ToastNotification from '@/app/components/modals/ToastNotification';
 import type { Notificacion } from '@/app/types/notification';
 import type { Notification } from '@/app/services/NotificationService';
 import { motion, AnimatePresence, useAnimation } from 'framer-motion';
+import axios from 'axios';
+
+const API_URL = 'http://localhost:3001/api';
 
 export function NotificacionesCampana() {
   const [mostrarPanel, setMostrarPanel] = useState(false);
@@ -55,11 +56,23 @@ export function NotificacionesCampana() {
 
   const obtenerDetalleNotificacion = async (id: string) => {
     try {
-      const respuesta = await api.get(`/notificaciones/detalle-notificacion/${id}?usuarioId=${userId}`);
-      return respuesta.data;
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No hay token disponible');
+      }
+
+      const response = await axios.get(
+        `${API_URL}/notificaciones/detalle-notificacion/${id}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      return response.data;
     } catch (error) {
       console.error('Error al obtener detalle de notificación:', error);
-      return null;
+      throw error;
     }
   };
 
@@ -75,48 +88,46 @@ export function NotificacionesCampana() {
   };
 
   const handleMarcarComoLeido = async (notificacion: Notificacion) => {
-    if (!notificacion.leido) {
-      try {
-        await markAsRead(notificacion.id);
-        setNotifications(prev => 
-          prev.map(n => n.id === notificacion.id ? { ...n, leido: true } : n)
-        );
-      } catch (error) {
-        console.error("Error al marcar como leída:", error);
-      }
+    if (!notificacion.id) {
+      console.error('No se puede marcar como leída una notificación sin ID');
+      return;
     }
+    await markAsRead(notificacion.id);
   };
 
   const handleNotificacionClick = async (notificacion: Notificacion) => {
-    setMostrarPanel(false);
-
-    try {
-      await handleVerDetalles(notificacion);
-
-      if (!userId) {
-        console.error('userId no disponible');
-        return;
-      }
-
-      if (!notificacion.leido && !isProcessingRead) {
-        setIsProcessingRead(true);
-        try {
-          await handleMarcarComoLeido(notificacion);
-        } catch (error) {
-          console.error('Error al marcar notificación como leída:', error);
-        } finally {
-          setIsProcessingRead(false);
+    console.log('Notificación clickeada:', notificacion);
+    
+    if (!notificacion.leido) {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('No hay token disponible');
         }
+
+        await axios.put(
+          `${API_URL}/notificaciones/notificacion-leida/${notificacion.id}/${userId}`,
+          {},
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+
+        await markAsRead(notificacion.id);
+      } catch (error) {
+        console.error('Error al marcar notificación como leída:', error);
       }
-    } catch (err) {
-      console.error('Error al manejar clic en notificación:', err);
-      alert('No se pudo cargar el detalle de la notificación.');
     }
+    
+    setSelectedNotificacion(notificacion);
+    setMostrarPanel(false); // Cerramos el panel después de mostrar el modal
   };
 
   const handleCloseModal = () => {
     setSelectedNotificacion(null);
-    cargarNotificaciones();
+    cargarNotificaciones(); // Recargamos las notificaciones para actualizar el estado
   };
 
   const handleDelete = async (id: string) => {
@@ -124,27 +135,35 @@ export function NotificacionesCampana() {
       await api.delete(`/notificaciones/eliminar-notificacion/${id}`, {
         data: { usuarioId: userId },
       });
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
       setSelectedNotificacion(null);
       cargarNotificaciones();
-    } catch (err) {
-      console.error('Error al eliminar la notificación:', err);
+    } catch (error) {
+      console.error("Error al borrar notificación:", error);
     }
   };
 
   const transformarNotificacion = (item: Notificacion | Notification): Notificacion => {
+    console.log('Transformando notificación en componente:', item);
+    if (!item.id) {
+      console.error('Notificación sin ID:', item);
+      throw new Error('Notificación sin ID');
+    }
     return {
       id: item.id,
       titulo: item.titulo,
-      descripcion: 'mensaje' in item ? item.mensaje : '',
+      descripcion: 'descripcion' in item ? item.descripcion : item.mensaje,
       mensaje: item.mensaje,
-      fecha: item.creadoEn,
+      fecha: 'fecha' in item ? item.fecha : item.creadoEn,
       tipo: item.tipo || "No especificado",
       tipoEntidad: item.tipoEntidad || "No especificado",
-      imagenURL: 'imagenAuto' in item ? item.imagenAuto : undefined,
-      leido: 'leido' in item ? item.leido ?? false : false,
+      imagenURL: 'imagenURL' in item ? item.imagenURL : ('imagenAuto' in item ? item.imagenAuto : undefined),
+      leido: 'leido' in item ? item.leido : false,
       creadoEn: item.creadoEn,
     };
   };
+
+  const notisTransformadas = notifications.map(transformarNotificacion);
 
   useEffect(() => {
     if (notifications && notifications.length > 0) {
@@ -185,6 +204,11 @@ export function NotificacionesCampana() {
       prevNotificationsRef.current = notisTransformadas;
     }
   }, [notifications , bellControls]);
+
+  // Agregar un useEffect para monitorear el estado del modal
+  useEffect(() => {
+    console.log('Estado del modal:', { selectedNotificacion, mostrarPanel });
+  }, [selectedNotificacion, mostrarPanel]);
 
   return (    
     <>

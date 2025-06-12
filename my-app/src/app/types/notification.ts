@@ -51,7 +51,8 @@ export interface ConteoNoLeidas {
 }
 
 export interface NotificationResponse {
-  id: string;
+  idNotificacion: string;
+  idUsuario: number;
   titulo: string;
   mensaje: string;
   tipo: string;
@@ -60,6 +61,7 @@ export interface NotificationResponse {
   leido: boolean;
   imagenAuto?: string;
   imagenURL?: string;
+  idEntidad: string;
 }
 
 export interface NotificationError {

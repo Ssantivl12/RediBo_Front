@@ -30,18 +30,27 @@ export function useNotifications() {
       console.log("Respuesta API notificaciones:", data);
       
       if (response.ok) {
-        const transformarNotificacion = (n: NotificationResponse): Notificacion => ({
-          id: n.id,
-          titulo: n.titulo,
-          descripcion: n.mensaje,
-          mensaje: n.mensaje,
-          fecha: n.creadoEn,
-          tipo: n.tipo || "No especificado",
-          tipoEntidad: n.tipoEntidad || "No especificado",
-          imagenURL: n.imagenAuto,
-          leido: n.leido,
-          creadoEn: n.creadoEn,
-        });
+        const transformarNotificacion = (n: NotificationResponse): Notificacion => {
+          console.log('Transformando notificación:', n);
+          if (!n.idNotificacion) {
+            console.error('Notificación sin ID:', n);
+            throw new Error('Notificación sin ID');
+          }
+          const notificacion: Notificacion = {
+            id: n.idNotificacion,
+            titulo: n.titulo,
+            descripcion: n.mensaje,
+            mensaje: n.mensaje,
+            fecha: n.creadoEn,
+            tipo: n.tipo || "No especificado",
+            tipoEntidad: n.tipoEntidad || "No especificado",
+            imagenURL: n.imagenAuto,
+            leido: n.leido,
+            creadoEn: n.creadoEn,
+          };
+          console.log('Notificación transformada:', notificacion);
+          return notificacion;
+        };
 
         const notificacionesMapped = data.notificaciones.map(transformarNotificacion);
         

@@ -55,119 +55,92 @@ class NotificationService {
       this.isActive = true;
       
       try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('No hay token de autenticación disponible');
+        }
+
         console.log(`Intentando conectar SSE para usuario ${this.usuarioId}`);
-        const url = `http://localhost:3001/api/notificaciones/sse/${this.usuarioId}`;
+        const url = `http://localhost:3001/api/notificaciones/sse?token=${token}`;
         console.log('URL de conexión SSE:', url);
         
-        this.eventSource = new EventSource(url);
-        console.log('EventSource creado');
+        // Crear EventSource con el token como parámetro de consulta
+        this.eventSource = new EventSource(url, {
+          withCredentials: true
+        });
 
-        // Verificar el estado de la conexión
-        const checkConnection = () => {
-          if (this.eventSource) {
-            console.log('Estado de la conexión SSE:', this.eventSource.readyState);
-            if (this.eventSource.readyState === EventSource.OPEN) {
-              console.log('Conexión SSE abierta');
-            } else if (this.eventSource.readyState === EventSource.CONNECTING) {
-              console.log('Conexión SSE en proceso');
-            } else if (this.eventSource.readyState === EventSource.CLOSED) {
-              console.log('Conexión SSE cerrada');
-            }
-          }
-        };
-  
         this.eventSource.onopen = () => {
-          console.log('SSE connection established');
+          console.log('Conexión SSE establecida');
+          this.isActive = true;
           this.reconnectAttempts = 0;
-          checkConnection();
           if (this.callbacks.onConnect) {
             this.callbacks.onConnect();
           }
         };
-  
-        // Añadir listener para todos los eventos
-        this.eventSource.addEventListener('message', (event) => {
-          console.log('Evento message recibido:', event);
-        });
 
-        this.eventSource.addEventListener('nuevaNotificacion', (event) => {
+        this.eventSource.onerror = (error) => {
+          console.error('Error en la conexión SSE:', error);
+          this.isActive = false;
+          if (this.callbacks.onError) {
+            this.callbacks.onError(error);
+          }
+          this.eventSource?.close();
+          
+          if (this.isActive && this.reconnectAttempts < this.maxReconnectAttempts) {
+            const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
+            this.reconnect(delay);
+            this.reconnectAttempts++;
+          }
+        };
+
+        this.eventSource.onmessage = (event) => {
           try {
-            console.log('Evento nuevaNotificacion recibido:', event);
+            console.log('Mensaje recibido:', event.data);
             const data = JSON.parse(event.data);
-            console.log('Datos de nueva notificación:', data);
             if (this.callbacks.onNewNotification) {
               this.callbacks.onNewNotification(data);
-            } else {
-              console.warn('No hay callback registrado para nuevaNotificacion');
+            }
+          } catch (error) {
+            console.error('Error al procesar mensaje:', error);
+          }
+        };
+
+        // Añadir listeners para eventos específicos
+        this.eventSource.addEventListener('nuevaNotificacion', (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (this.callbacks.onNewNotification) {
+              this.callbacks.onNewNotification(data);
             }
           } catch (error) {
             console.error('Error al procesar nueva notificación:', error);
           }
         });
-  
+
         this.eventSource.addEventListener('notificacionLeida', (event) => {
           try {
-            console.log('Evento notificacionLeida recibido:', event);
             const data = JSON.parse(event.data);
-            console.log('Datos de notificación leída:', data);
             if (this.callbacks.onNotificationRead) {
               this.callbacks.onNotificationRead(data.id);
-            } else {
-              console.warn('No hay callback registrado para notificacionLeida');
             }
           } catch (error) {
             console.error('Error al procesar notificación leída:', error);
           }
         });
-  
+
         this.eventSource.addEventListener('notificacionEliminada', (event) => {
           try {
-            console.log('Evento notificacionEliminada recibido:', event);
             const data = JSON.parse(event.data);
-            console.log('Datos de notificación eliminada:', data);
             if (this.callbacks.onNotificationDeleted) {
               this.callbacks.onNotificationDeleted(data.id);
-            } else {
-              console.warn('No hay callback registrado para notificacionEliminada');
             }
           } catch (error) {
             console.error('Error al procesar notificación eliminada:', error);
           }
         });
 
-        this.eventSource.addEventListener('conectado', (event) => {
-          try {
-            console.log('Evento conectado recibido:', event);
-            const data = JSON.parse(event.data);
-            console.log(`SSE connected with client ID: ${data.id}`);
-          } catch (error) {
-            console.error('Error al procesar evento de conexión:', error);
-          }
-        });
-
-        this.eventSource.onerror = (error) => {
-          // Silenciar el error en la consola
-          if (this.eventSource) {
-            this.eventSource.close();
-            this.eventSource = null;
-          }
-
-          if (this.callbacks.onError) {
-            this.callbacks.onError(error);
-          }
-          
-          if (this.isActive && this.reconnectAttempts < this.maxReconnectAttempts) {
-            const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
-            this.reconnect(delay);
-            this.reconnectAttempts++;
-          } else if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-            this.disconnect();
-          }
-        };
-
-        // Verificar la conexión después de un breve retraso
-        setTimeout(checkConnection, 1000);
-      } catch {
+      } catch (error) {
+        console.error('Error al crear EventSource:', error);
         if (this.isActive) {
           this.reconnect(1000);
         }
@@ -213,6 +186,49 @@ class NotificationService {
       console.error('Error en conexión SSE:', error);
       this.reconnect();
     }
-  }
+
+    private connectSSE(token: string) {
+      try {
+        console.log('Intentando conectar SSE para usuario', token);
+        const baseUrl = 'http://localhost:3001/api/notificaciones/sse';
+        console.log('URL de conexión SSE:', baseUrl);
+
+        // Crear EventSource con el token como query parameter
+        const eventSourceUrl = new URL(baseUrl);
+        eventSourceUrl.searchParams.append('token', token);
+        
+        this.eventSource = new EventSource(eventSourceUrl.toString(), {
+          withCredentials: true
+        });
+
+        console.log('EventSource creado con URL:', eventSourceUrl.toString());
+
+        this.eventSource.onopen = () => {
+          console.log('Conexión SSE establecida');
+          this.isActive = true;
+          this.reconnectAttempts = 0;
+        };
+
+        this.eventSource.onerror = () => {
+          console.error('Error en conexión SSE');
+          this.isActive = false;
+          this.handleError(new Error('Error en conexión SSE'));
+        };
+
+        this.eventSource.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            console.log('Notificación recibida:', data);
+            this.onNewNotification(data);
+          } catch (error) {
+            console.error('Error al procesar mensaje SSE:', error);
+          }
+        };
+      } catch (error) {
+        console.error('Error al crear EventSource:', error);
+        this.handleError(new Error('Error al crear EventSource'));
+      }
+    }
+}
   
-  export default NotificationService;
+export default NotificationService;
