@@ -34,6 +34,7 @@ export default function Home() {
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
   const [showModal, setShowModal] = useState(false);
   const alertsContainerRef = useRef<HTMLDivElement>(null);
+  const bellButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const fetchAlerts = async () => {
@@ -59,6 +60,28 @@ export default function Home() {
     fetchAlerts();
     fetchCars();
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        showAlerts &&
+        alertsContainerRef.current &&
+        bellButtonRef.current &&
+        !alertsContainerRef.current.contains(event.target as Node) &&
+        !bellButtonRef.current.contains(event.target as Node)
+      ) {
+        setShowAlerts(false);
+      }
+    };
+
+    if (showAlerts) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showAlerts]);
 
   const unviewedAlertsCount = alerts.filter(alert => !alert.viewed).length;
 
@@ -114,6 +137,7 @@ export default function Home() {
           <div className="flex items-center space-x-2 sm:space-x-4">
             <CalendarButton />
             <button
+              ref={bellButtonRef}
               data-id="notification-bell"
               onClick={() => {
                 toggleAlerts();
