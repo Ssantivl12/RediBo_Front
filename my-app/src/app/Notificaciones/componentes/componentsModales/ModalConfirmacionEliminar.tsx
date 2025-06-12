@@ -21,7 +21,7 @@ const ModalConfirmacionEliminar = ({
       onClick={(e) => e.stopPropagation()}
   >
 
-    <div className="fixed inset-0 backdrop-blur-sm bg-white/50 flex items-center justify-center">
+    <div className="fixed inset-0 backdrop-blur-sm bg-white/50 flex items-center justify-center px-4">
       <div className="bg-white rounded-lg shadow-lg max-w-sm w-full p-6">
         <h2 className="text-lg font-semibold mb-2 text-gray-800">¿Eliminar notificación?</h2>
         <p className="text-sm text-gray-600 mb-6">
