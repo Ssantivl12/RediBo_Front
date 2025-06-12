@@ -84,7 +84,7 @@ const CalificarModal: React.FC<CalificarModalProps> = ({ isOpen, onClose, inquil
     return forbiddenChars.test(text);
   };
 
-  const isOnlyNumeric = (text: string): boolean => {
+  const isOnlyNumeric = (text: string): boolean => {  
     const trimmedText = text.trim();
     return /^\d+$/.test(trimmedText) && trimmedText.length > 0;
   };
@@ -137,25 +137,25 @@ const CalificarModal: React.FC<CalificarModalProps> = ({ isOpen, onClose, inquil
 
     const sameWordPattern = /\b(\w+)(\s+\1){3,}\b/i.test(trimmedText);
     
-    // NUEVO: Detección de repeticiones parciales mejorada
+    
     const detectPartialRepetitions = (): boolean => {
-      // Buscar patrones de repetición parcial al final del texto
+     
       for (let i = 0; i < words.length - 1; i++) {
         const currentWord = words[i];
         const nextWord = words[i + 1];
         
-        // Si la palabra actual se repite y la siguiente es un prefijo de la actual
+        
         if (currentWord.length >= 3 && nextWord.length >= 2) {
-          // Verificar si la siguiente palabra es el comienzo de la actual
+          
           if (currentWord.startsWith(nextWord)) {
-            // Contar cuántas veces aparece la palabra base antes
+           
             let repetitionCount = 0;
             for (let j = 0; j <= i; j++) {
               if (words[j] === currentWord) {
                 repetitionCount++;
               }
             }
-            // Si ya se repitió 2 o más veces y ahora hay una parcial, es sospechoso
+           
             if (repetitionCount >= 2) {
               return true;
             }
@@ -163,13 +163,13 @@ const CalificarModal: React.FC<CalificarModalProps> = ({ isOpen, onClose, inquil
         }
       }
       
-      // Buscar patrones de repetición donde las últimas 2-3 palabras son iguales
+      
       if (words.length >= 3) {
         const lastWord = words[words.length - 1];
         const secondLastWord = words[words.length - 2];
         
         if (lastWord.length >= 2 && secondLastWord === lastWord) {
-          // Contar repeticiones de esta palabra en el texto
+         
           let count = 0;
           words.forEach(word => {
             if (word === lastWord) count++;
@@ -178,7 +178,7 @@ const CalificarModal: React.FC<CalificarModalProps> = ({ isOpen, onClose, inquil
         }
       }
       
-      // Detectar repeticiones de 2 palabras seguidas
+      
       if (words.length >= 2) {
         let consecutiveRepeats = 1;
         for (let i = 1; i < words.length; i++) {
@@ -252,7 +252,7 @@ const CalificarModal: React.FC<CalificarModalProps> = ({ isOpen, onClose, inquil
     
     const forbiddenChars = /[#@$%^&*]/g;
     if (forbiddenChars.test(value)) {
-      showWarningMessage("El comentario no debe contener estos caracteres: #,@,$,%,^,&,*");
+      showWarningMessage("Error:El comentario no debe contener estos caracteres: #,@,$,%,^,&,*");
      
       value = value.replace(forbiddenChars, '');
     }
@@ -428,7 +428,7 @@ const CalificarModal: React.FC<CalificarModalProps> = ({ isOpen, onClose, inquil
         <div className="mb-6">
           {showSuccessMessage && (
             <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded-md text-sm mb-2 text-center">
-              Calificación enviada exitosamente
+              ¡Calificaion enviada con exito!
             </div>
           )}
           
@@ -487,7 +487,7 @@ const CalificarModal: React.FC<CalificarModalProps> = ({ isOpen, onClose, inquil
 
             {comentarioEnviado && (
               <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded-md text-sm">
-                ¡Comentario enviado exitosamente!
+                ¡Comentario enviado con exito!
               </div>
             )}
           </div>
