@@ -110,7 +110,9 @@ export default function Home() {
 
         <header className="z-10 flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-300 bg-white sticky top-0">
           <h1 className="text-lg sm:text-xl font-bold text-orange-500">REDIBO</h1>
+          
           <div className="flex items-center space-x-2 sm:space-x-4">
+            <CalendarButton />
             <button
               data-id="notification-bell"
               onClick={() => {
@@ -155,7 +157,7 @@ export default function Home() {
             </div>
           </div>
         </header>
-        <CalendarButton />
+        
         {/* Main content */}
         <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <HostView cars={cars} />

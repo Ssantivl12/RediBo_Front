@@ -104,7 +104,7 @@ interface Props {
         onClick={toggleDashboard}
         ref={buttonRef}
         className="p-2 rounded-full transition-all duration-300 ease-in-out
-                   absolute top-[60px] right-10 z-20 shadow-md hover:shadow-xl
+                   right-10 z-20 shadow-md hover:shadow-xl
                    hover:scale-110 hover:rotate-1 hover:bg-blue-100 cursor-pointer"
       >
         <Image src="/calendar.png" alt="Calendario" width={50} height={50} />
