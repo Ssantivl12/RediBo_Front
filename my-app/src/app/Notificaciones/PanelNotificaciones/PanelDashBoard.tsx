@@ -238,27 +238,32 @@ export default function PanelDashBoard({ usuarioId }: PanelDashBoardProps) {
                     </div>
 
                     <div className='col-span-2 flex items-center'>
-                       <h3 className='text-base md:text-xl font-semibold text-gray-800 whitespace-pre-line'>
-                        {notificacion.titulo === 'Tiempo de Renta Concluido'
-                          ? notificacion.titulo.replace(' de ', ' de\n ')
+                      <h3 className='text-base md:text-xl font-semibold text-gray-800'>
+                        {(notificacion.titulo === 'Tiempo de Renta Concluido'
+                          ? notificacion.titulo.replace(' de ', ' de\n')
                           : notificacion.titulo.replace(' ', '\n')
-                        }
+                        ).split('\n').map((linea, idx) => (
+                          <React.Fragment key={idx}>
+                          {linea}
+                          <br />
+                          </React.Fragment>
+                          ))}
                       </h3>
                     </div>
 
-                     <div className='col-span-5 flex items-center ml-4'>
+                     <div className='col-span-3 flex items-center ml-4'>
                       <p className='text-sm md:text-base text-gray-600 text-left line-clamp-2'
                        dangerouslySetInnerHTML={{__html: notificacion.descripcion}}>
                       </p>
                     </div>
 
-                     <div>
-                      <p className='col-span-5 text-sm md:text-base text-gray-500 font-medium'>
-                        {formatDate(notificacion.fecha)}
-                      </p>
-                    </div>
+                     <div className="col-span-4 flex items-center justify-end">
+                        <p className="text-sm md:text-base text-gray-500 font-medium whitespace-nowrap">
+                          {formatDate(notificacion.fecha)}
+                        </p>
+                      </div>
 
-                    <div className='col-span-3 flex flex-col items-end justify-center gap-1'>
+                    <div className='col-span-2 flex flex-col items-end justify-center gap-1'>
                         {!notificacion.leido && (
                           <span className='text-xs md:text-sm bg-amber-200 text-amber-800 px-2 py-1 rounded-full font-medium'>
                             Nueva
