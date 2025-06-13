@@ -1,11 +1,11 @@
+//HomePage.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/hooks/useUser';
 import { useSearchParams } from "next/navigation";
-
-import NavbarInicioSesion from '@/app/components/navbar/NavbarInicioSesion';
+import NavbarSecundario from '@/app/components/navbar/NavbarSecundario';
 import FiltersBar from '@/app/components/filters/FiltersBar';
 import Footer from '@/app/components/footer/FooterLogin';
 import LoginModal from '@/app/components/auth/authInicioSesion/LoginModal';
@@ -14,22 +14,24 @@ import VehicleDataModal from '@/app/components/auth/authRegistroHost/VehicleData
 import PaymentModal from '@/app/components/auth/authRegistroHost/PaymentModal';
 import CompleteProfileModal from '@/app/components/auth/authRegistroHost/CompleteProfileModal';
 import ModalLoginExitoso from '@/app/components/modals/ModalLoginExitoso';
+import Carousel from '@/app/home/carousel/carousel';
+import OtraVista from '@/app/components/view/VistaBoton2/OtraVista';
 
-
-export default function MainHome() {
+export default function MainHome(){
+  const params = useSearchParams();
+  const registroExitoso = params.get('registroExitoso');
   const [activeModal, setActiveModal] = useState<'login' | 'register' | 'vehicleData' | 'paymentData' | 'completeProfile' | 'succesModal' | null>(null);
-
   const [showLoginSuccessModal, setShowLoginSuccessModal] = useState(false);
-
+  const [activeBtn, setActiveBtn] = useState(0);
   const [vehicleData, setVehicleData] = useState<{
     placa: string;
     soat: string;
     imagenes: File[];
-    id_vehiculo: number;
+    idAuto: number;
   } | null>(null);
 
   const [paymentData, setPaymentData] = useState<{
-    tipo: "card" | "qr" | "cash";
+    tipo: "card" | "QR" | "cash";
     cardNumber?: string;
     expiration?: string;
     cvv?: string;
@@ -69,14 +71,14 @@ export default function MainHome() {
     placa: string;
     soat: string;
     imagenes: File[];
-    id_vehiculo: number;
+    idAuto: number;
   }) => {
     setVehicleData(data);
     setActiveModal("paymentData");
   };
 
   const handlePaymentDataSubmit = (data: {
-  tipo: "card" | "qr" | "cash";
+  tipo: "card" | "QR" | "cash";
   cardNumber?: string;
   expiration?: string;
   cvv?: string;
@@ -93,25 +95,26 @@ export default function MainHome() {
     displayToast('¡Tu registro como host fue completado exitosamente!');
   };
 
-  const searchParams = useSearchParams();
+  //const searchParams = useSearchParams();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   useEffect(() => {
-    const registroExitoso = searchParams.get("registroExitoso");
-    if (registroExitoso === "1") {
+    if (registroExitoso === '1') {
       setShowSuccessModal(true);
-
-      // Quitar el query param sin recargar la página
       const newUrl = window.location.pathname;
-      window.history.replaceState(null, "", newUrl);
+      window.history.replaceState(null, '', newUrl);
     }
-  }, [searchParams]);
+  }, [registroExitoso]);
 
   
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background-principal)]">
       <header className="border-t border-b border-[rgba(215, 30, 30, 0.1)] shadow-[0_2px_6px_rgba(0,0,0,0.1)]">
-        <NavbarInicioSesion onBecomeHost={() => setActiveModal('vehicleData')} onBecomeDriver={function (): void {
+        <NavbarSecundario 
+         activeBtn={activeBtn}
+         setActiveBtn={setActiveBtn}
+         onBecomeHost={() => setActiveModal('vehicleData')} 
+         onBecomeDriver={function (): void {
           throw new Error('Function not implemented.');
         } } />
       </header>
@@ -122,7 +125,11 @@ export default function MainHome() {
 
       <main className="flex-grow p-8">
         <div className="/* scrollContent */">
-          <p>Contenido principal del usuario (tarjetas, información, etc.).</p>
+          {activeBtn === 0 && <Carousel />}
+          {activeBtn === 1 && <OtraVista/>} {/* puedes usar el componente que desees */}
+          {activeBtn === 2 && <div>Contenido del botón 3</div>}
+          {activeBtn === 3 && <div>Contenido del botón 4</div>}
+          {activeBtn === 4 && <div>Contenido del botón 5</div>}
         </div>
       </main>
 
@@ -156,9 +163,9 @@ export default function MainHome() {
         <PaymentModal
           onNext={handlePaymentDataSubmit}
           onClose={async () => {
-            if (vehicleData?.id_vehiculo) {
+            if (vehicleData?.idAuto) {
               const token = localStorage.getItem("token");
-              await fetch(`http://localhost:3001/api/vehiculos/eliminar-vehiculo/${vehicleData.id_vehiculo}`, {
+              await fetch(`http://localhost:3001/api/autos/eliminar-vehiculo/${vehicleData.idAuto}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
               });

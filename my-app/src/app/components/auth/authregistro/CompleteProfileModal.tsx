@@ -1,4 +1,4 @@
-/* import { backendip } from "@/libs/authServices"; */
+//import { backendip } from "@/libs/authServices";
 import styles from "./RegisterModal.module.css";
 import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
@@ -80,7 +80,7 @@ export default function CompleteProfileModal({
         setBirthDay("");
       }
     }
-  }, [birthMonth, birthYear]);
+  }, [birthDay, birthMonth, birthYear]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,9 +197,9 @@ export default function CompleteProfileModal({
         credentials: "include",
         body: JSON.stringify({
           email: userEmail,
-          nombre_completo: name.trim(),
-          fecha_nacimiento: birthDate.toISOString(),
-          telefono: "+591" + cleanPhone,
+          nombreCompleto: name.trim(),
+          fechaNacimiento: birthDate.toISOString(),
+          telefono:cleanPhone,
         }),
       }
     );

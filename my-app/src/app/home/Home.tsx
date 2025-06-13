@@ -1,7 +1,8 @@
+//home.tsx
 "use client";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation"; // ✅
-import Navbar from "../components/navbar/Navbar";
+import NavbarPrincipal from "../components/navbar/NavbarPrincipal";
 import FiltersBar from "../components/filters/FiltersBar";
 import Footer from "../components/footer/Footer";
 import PasswordRecoveryModal from "../components/auth/authRecuperarContrasena/PasswordRecoveryModal";
@@ -11,7 +12,7 @@ import LoginModal from "../components/auth/authInicioSesion/LoginModal";
 import styles from "./Home.module.css";
 import RegisterModal from "../components/auth/authregistro/RegisterModal";
 import CompleteProfileModal from "@/app/components/auth/authregistro/CompleteProfileModal";
-
+import Carousel from "./carousel/carousel";
 import ModalLoginExitoso from '@/app/components/modals/ModalLoginExitoso';
 
 export default function HomePage() {
@@ -103,10 +104,9 @@ const [showCompleteProfileModal, setShowCompleteProfileModal] =
     }
   }, []);
   return (
-    
     <div className={styles.container}>
       <header className={styles.headerTop}>
-        <Navbar 
+        <NavbarPrincipal 
           onLoginClick={() => setActiveModal("login")}
           onRegisterClick={() => setActiveModal("register")}
         />
@@ -118,7 +118,7 @@ const [showCompleteProfileModal, setShowCompleteProfileModal] =
 
       <main className={styles.body}>
         <div className={styles.scrollContent}>
-          <p>Contenido principal del usuario (tarjetas, información, etc.).</p>
+          <Carousel />
         </div>
       </main>
 
