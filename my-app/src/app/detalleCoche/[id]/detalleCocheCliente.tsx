@@ -9,6 +9,8 @@ import SolicitudReserva from '@/app/components/Auto/PanelSolicitud/solicitudRese
 import Estrellas from '@/app/components/Auto/Estrellas';
 import { useEffect, useState } from 'react';
 import { Auto, Comentario } from '@/types/auto';
+import useIsLoggedIn from '@/hooks/useIsLoggedIn'; // Importamos el hook
+import Link from 'next/link'; // Añade esta línea
 
 interface Props {
   auto: Auto;
@@ -17,9 +19,25 @@ interface Props {
 export default function DetalleCocheCliente({ auto }: Props) {
   const [comentarios, setComentarios] = useState<Comentario[]>([]);
   const [mostrarPanel, setMostrarPanel] = useState(false);
-  const [mostrarSolicitudResercva, setMostrarModalSolicitud] = useState(false);
+  const [mostrarSolicitudReserva, setMostrarModalSolicitud] = useState(false);
   const [botonBloqueado, setBotonBloqueado] = useState(false);
   const [tiempoRestante, setTiempoRestante] = useState(0);
+  const [mostrarAvisoNoLoggeado, setMostrarAvisoNoLoggeado] = useState(false); // Estado para el toast
+  const isLoggedIn = useIsLoggedIn(); // Usamos el hook
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    
+    if (mostrarAvisoNoLoggeado) {
+      timeoutId = setTimeout(() => {
+        setMostrarAvisoNoLoggeado(false);
+      }, 3000);
+    }
+    
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [mostrarAvisoNoLoggeado]);
 
   useEffect(() => {
     import('@/libs/autoServices').then(({ getComentariosDeAuto }) => {
@@ -68,6 +86,11 @@ export default function DetalleCocheCliente({ auto }: Props) {
   };
 
   const handleEnviarSolicitud = () => {
+    if (!isLoggedIn) {
+      setMostrarAvisoNoLoggeado(true);
+      return;
+    }
+
     if (!botonBloqueado) {
       setMostrarModalSolicitud(true);
     }
@@ -80,8 +103,23 @@ export default function DetalleCocheCliente({ auto }: Props) {
 
   return (
     <>
+      {/* Toast de aviso para solicitud */}
+      {mostrarAvisoNoLoggeado && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-lg shadow-xl z-50 flex items-center animate-fadeInOut">
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="h-5 w-5 mr-2" 
+            viewBox="0 0 20 20" 
+            fill="currentColor"
+          >
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+          </svg>
+          <span>Para enviar una solicitud, <Link href="/login" className="font-bold underline">inicie sesión</Link> o <Link href="/registro" className="font-bold underline">regístrese</Link></span>
+        </div>
+      )}
+
       <SolicitudReserva
-        mostrar={mostrarSolicitudResercva}
+        mostrar={mostrarSolicitudReserva}
         onClose={() => setMostrarModalSolicitud(false)}
         auto={auto}
         onSolicitudConfirmada={handleConfirmarSolicitud}
@@ -171,7 +209,9 @@ export default function DetalleCocheCliente({ auto }: Props) {
                     onClick={handleEnviarSolicitud}
                     disabled={botonBloqueado}
                   >
-                    {botonBloqueado ? 'Solicitud enviada' : 'Enviar solicitud'}
+                    {botonBloqueado 
+                      ? `Solicitud enviada (${Math.floor(tiempoRestante/60)}:${(tiempoRestante%60).toString().padStart(2, '0')})` 
+                      : 'Enviar solicitud'}
                   </button>
                 </div>
               </div>

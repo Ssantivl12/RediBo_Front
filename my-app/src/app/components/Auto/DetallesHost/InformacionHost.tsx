@@ -1,11 +1,15 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import useIsLoggedIn from '@/hooks/useIsLoggedIn'; // Asegúrate de tener este hook
 
 export default function InformacionHost() {
   const searchParams = useSearchParams();
   const [error, setError] = useState(false);
+  const [mostrarAviso, setMostrarAviso] = useState(false);
+  const isLoggedIn = useIsLoggedIn();
   
   const edad = searchParams.get('edad');
   const telefono = searchParams.get('telefono');
@@ -14,8 +18,27 @@ export default function InformacionHost() {
   const marca = searchParams.get('marca') || '';
   const modelo = searchParams.get('modelo') || '';
   
+  // Efecto para ocultar automáticamente el aviso
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    
+    if (mostrarAviso) {
+      timeoutId = setTimeout(() => {
+        setMostrarAviso(false);
+      }, 3000);
+    }
+    
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [mostrarAviso]);
 
   const handleContactClick = () => {
+    if (!isLoggedIn) {
+      setMostrarAviso(true);
+      return;
+    }
+
     try {
       if (!telefono) {
         throw new Error('No hay número de teléfono disponible');
@@ -36,7 +59,22 @@ export default function InformacionHost() {
   };
 
   return (
-    <div className="flex-1 md:ml-8 mt-4 md:mt-0 text-base text-gray-800 w-full px-4 md:px-0"> 
+    <div className="flex-1 md:ml-8 mt-4 md:mt-0 text-base text-gray-800 w-full px-4 md:px-0 relative"> 
+      {/* Toast de aviso */}
+      {mostrarAviso && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-lg shadow-xl z-50 flex items-center animate-fadeInOut">
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="h-5 w-5 mr-2" 
+            viewBox="0 0 20 20" 
+            fill="currentColor"
+          >
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+          </svg>
+          <span>Para contactar al host, <Link href="/login" className="font-bold underline">inicie sesión</Link> o <Link href="/registro" className="font-bold underline">regístrese</Link></span>
+        </div>
+      )}
+
       <div className="space-y-2 mb-5">
         <p><span className="font-bold">Edad:</span> {edad} Años</p>
         <p><span className="font-bold">Teléfono:</span> {telefono}</p>
