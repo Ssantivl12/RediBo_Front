@@ -17,7 +17,6 @@ export default function InfoHost({ usuario, marca, modelo }: Props) {
   const [mostrarAviso, setMostrarAviso] = useState(false);
   const isLoggedIn =  useIsLoggedIn();
 
-  // Efecto para ocultar automáticamente el aviso después de 3 segundos
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
     
