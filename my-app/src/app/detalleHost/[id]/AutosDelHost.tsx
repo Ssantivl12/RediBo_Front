@@ -36,7 +36,29 @@ const OptimizedImage = ({
   sizes?: string;
 }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const placeholderSrc = "/placeholder.svg";
+  const [hasError, setHasError] = useState(false);
+  const fallbackImage = "/imagenesIconos/default.png"; 
+  const validSrc = src && src.trim() !== "" ? src : fallbackImage;
+  const [imgSrc, setImgSrc] = useState(validSrc);
+  const handleError = () => {
+    if (!hasError && imgSrc !== fallbackImage) {
+      setHasError(true);
+      setImgSrc(fallbackImage);
+    }
+  };
+
+  const handleLoad = () => {
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    const newValidSrc = src && src.trim() !== "" ? src : fallbackImage;
+    if (newValidSrc !== imgSrc) {
+      setImgSrc(newValidSrc);
+      setHasError(newValidSrc === fallbackImage);
+      setIsLoading(true);
+    }
+  }, [src]);
 
   return (
     <div className="relative w-full h-48 bg-gray-100 rounded-lg">
@@ -46,27 +68,32 @@ const OptimizedImage = ({
         </div>
       )}
       <Image
-        src={src || placeholderSrc}
+        src={imgSrc}
         alt={alt}
         fill
         sizes={sizes}
         quality={85}
         priority={priority}
         placeholder="blur"
-        blurDataURL="data:image/svg+xml;base64,..."
+        blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjFmMWYxIi8+PC9zdmc+"
         className={`object-cover transition-opacity duration-300 ${
           isLoading ? "opacity-0" : "opacity-100"
         } ${className}`}
-        onLoad={() => setIsLoading(false)}
+        onLoad={handleLoad}
+        onError={handleError}
       />
+      {hasError && (
+        <div className="absolute top-2 right-2 bg-red-500/80 text-white text-xs px-2 py-1 rounded z-20">
+          Imagen no disponible
+        </div>
+      )}
     </div>
   );
 };
 
 export default function AutosDelHost({ autos }: Props) {
-  // Estado local para almacenar links con query params, solo en cliente
   const [links, setLinks] = useState<{ [key: number]: string }>({});
-
+  
   useEffect(() => {
     if (typeof window !== "undefined") {
       const reservaData = localStorage.getItem("reservaData");
@@ -100,12 +127,15 @@ export default function AutosDelHost({ autos }: Props) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
       {autos.map((auto, index) => {
-        const imageSrc =
-          auto.imagenes && auto.imagenes.length > 0
-            ? auto.imagenes[0].direccionImagen.startsWith('/imagenesAutos')
-              ? auto.imagenes[0].direccionImagen
-              : `/imagenesAutos/${auto.marca}/${auto.imagenes[0].direccionImagen}`
-            : "";
+        let imageSrc = "";
+        if (auto.imagenes && auto.imagenes.length > 0) {
+          const primeraImagen = auto.imagenes[0].direccionImagen;
+          if (primeraImagen.startsWith('http') || primeraImagen.startsWith('/')) {
+            imageSrc = primeraImagen;
+          } else {
+            imageSrc = `/imagenesAutos/${auto.marca}/${primeraImagen}`;
+          }
+        }
 
         return (
           <div
@@ -113,18 +143,12 @@ export default function AutosDelHost({ autos }: Props) {
             className="bg-white shadow-md p-4 rounded-lg flex flex-col"
           >
             <div className="w-full h-48 bg-gray-100 rounded-lg relative">
-              {imageSrc ? (
-                <OptimizedImage
-                  src={imageSrc}
-                  alt={`${auto.marca} ${auto.modelo}`}
-                  priority={index < 2}
-                  sizes="(max-width: 768px) 100vw, 400px"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-xs text-gray-500">
-                  Sin imagen
-                </div>
-              )}
+              <OptimizedImage
+                src={imageSrc}
+                alt={`${auto.marca} ${auto.modelo}`}
+                priority={index < 2}
+                sizes="(max-width: 768px) 100vw, 400px"
+              />
             </div>
 
             <h3 className="text-base font-bold text-[#11295b] mt-4">
@@ -142,7 +166,6 @@ export default function AutosDelHost({ autos }: Props) {
                 <p className="text-lg font-bold text-[#11295b]">{auto.precio} BOB</p>
               </div>
 
-              {/* Si el link aun no está calculado en cliente, muestra enlace simple sin query */}
               <Link
                 href={links[auto.idAuto] || `/detalleCoche/${auto.idAuto}`}
                 className="bg-[#fca311] hover:bg-[#e4920b] text-white px-4 py-2 rounded text-sm font-bold"
