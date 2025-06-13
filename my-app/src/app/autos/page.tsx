@@ -9,6 +9,7 @@ import Link from "next/link"
 import Estrellas from "@/app/components/Auto/Estrellas"
 import OrdenadoPor from "@/app/components/Auto/Ordenamiento/OrdenadoPor"
 import BarraReserva from "@/app/components/listaAutos/barraReserva"
+import { useUser } from "@/hooks/useUser";
 
 interface OptimizedImageProps {
   src: string;
@@ -105,6 +106,8 @@ export default function AutosPage() {
   const [fechasReserva, setFechasReserva] = useState<{ inicio: string; fin: string } | null>(null)
   const [cargando, setCargando] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
+  const user = useUser();
+  console.log("👤 Usuario actual:", user); {/** comentario pa verificar */}
   
   const [promediosPorAuto, setPromediosPorAuto] = useState<{ [key: number]: number }>({})
   
@@ -132,6 +135,16 @@ export default function AutosPage() {
       if (lastCardElement) observer.unobserve(lastCardElement)
     }
   }, [autosFiltrados, imagesToLoad])
+
+  useEffect(() => {
+    if (!user || !user.host) return;
+
+    const autosSinLosDelHost = autos.filter(
+     auto => auto.propietario?.idUsuario !== user.idUsuario
+   );
+
+    setAutosFiltrados(autosSinLosDelHost);
+  }, [user, autos]);
 
   const calcularPromedio = (comentarios: Comentario[]): number => {
     const comentariosValidos = comentarios.filter(c => c.calificacion > 0 && c.contenido?.trim() !== '');
@@ -184,39 +197,47 @@ export default function AutosPage() {
   }
 
   const buscarAutosDisponibles = async (fechaInicio: string, fechaFin: string) => {
+    const inicio = new Date(fechaInicio).toISOString().split("T")[0];
+    const fin = new Date(fechaFin).toISOString().split("T")[0];
+
+    setFechasReserva({ inicio: fechaInicio, fin: fechaFin });
+    setCargando(true);
+
     try {
-      const inicio = new Date(fechaInicio).toISOString().split("T")[0]
-      const fin = new Date(fechaFin).toISOString().split("T")[0]
+      const { data } = await getAutosDisponiblesPorFecha(inicio, fin);
+      console.log("🚗 Autos obtenidos:", data.map(auto => ({
+        idAuto: auto.idAuto,
+        propietarioId: auto.propietario?.idUsuario,
+      })));
 
-      console.log(`Buscando autos disponibles entre ${inicio} y ${fin}`)
+      // 1. Filtrar autos si el usuario es host
+      const filtrados = user && user.host
+        ? data.filter(auto => auto.propietario?.idUsuario !== user.idUsuario)
+        : data;
 
-      setFechasReserva({ inicio: fechaInicio, fin: fechaFin })
-      setCargando(true)
+      // 2. Cargar promedios actualizados si es necesario
+      const nuevosPromedios = await cargarComentariosAutos(filtrados);
 
-      const { data } = await getAutosDisponiblesPorFecha(inicio, fin)
-
-      setAutos(data)
-      setBusquedaActiva(true)
-      setImagesToLoad(8)
-      
-      // Cargar comentarios y luego ordenar por mejor calificación
-      const nuevosPromedios = await cargarComentariosAutos(data)
-      
-      // Ordenar por mejor calificación usando los promedios recién cargados
-      const autosOrdenados = [...data].sort((a, b) => {
+      // 3. Ordenar por mejor calificación (mayor a menor)
+      const ordenados = [...filtrados].sort((a, b) => {
         const promedioA = nuevosPromedios[a.idAuto] ?? (a.calificacionPromedio ?? 0);
         const promedioB = nuevosPromedios[b.idAuto] ?? (b.calificacionPromedio ?? 0);
         return promedioB - promedioA;
       });
-      
-      setAutosFiltrados(autosOrdenados)
+
+      // 4. Guardar autos
+      setAutos(ordenados);
+      setAutosFiltrados(ordenados);
+      setImagesToLoad(8);
+      setBusquedaActiva(true);
     } catch (error) {
-      console.error("Error al buscar autos disponibles:", error)
-      setError("Hubo un error al buscar autos disponibles. Por favor intente nuevamente.")
+      console.error("Error al buscar autos disponibles:", error);
+      setError("Hubo un error al buscar autos disponibles. Por favor intente nuevamente.");
     } finally {
-      setCargando(false)
+      setCargando(false);
     }
-  }
+  };
+
 
   const filtrarAutos = (busqueda: string) => {
     const autosBase = autos
@@ -315,7 +336,9 @@ export default function AutosPage() {
       <div className="max-w-4xl mx-auto px-4 py-2">
         {/* Barra de reserva */}
         <div className="mb-4">
-          <BarraReserva onBuscarDisponibilidad={buscarAutosDisponibles} />
+          {typeof window !== 'undefined' && (
+            <BarraReserva onBuscarDisponibilidad={buscarAutosDisponibles} />
+          )}
         </div>
 
         {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">{error}</div>}
