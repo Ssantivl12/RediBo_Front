@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import FiltersBar from "@components/filters/FiltersBar";
+import FiltersBarAutos from '@/app/components/filters/FiltersBarAutos';
 import ListadoDeAutos from "@components/listadoDeAutos/ListadoDeAutos";
 import styles from "./GestionarSolicitudes.module.css";
 import { API_URL } from '@config/api';
@@ -118,7 +118,7 @@ export default function GestionarSolicitudes() {
     <div className={styles.container}>
       <header className={styles.headerFilters}>
         <div className={styles.body}>
-          <FiltersBar 
+          <FiltersBarAutos 
             onFilterChange={handleFilterChange} 
             activeFilter={activeFilter} 
           />
