@@ -138,7 +138,7 @@ export function NotificacionesCampana() {
       fecha: item.creadoEn,
       tipo: item.tipo || "No especificado",
       tipoEntidad: item.tipoEntidad || "No especificado",
-      imagenURL: 'imagenAuto' in item ? item.imagenAuto : undefined,
+      imagenURL: item.imagenURL,
       leido: 'leido' in item ? item.leido ?? false : false,
       creadoEn: item.creadoEn,
       entidadId: item.entidadId
@@ -205,7 +205,6 @@ export function NotificacionesCampana() {
           )}
         </button>
 
-        <AnimatePresence>
           {mostrarPanel && (
             <motion.div
               key="panel-notificaciones"
@@ -279,7 +278,6 @@ export function NotificacionesCampana() {
             </div>
           </motion.div>
         )}
-        </AnimatePresence>
       </div>
 
       <AnimatePresence>
