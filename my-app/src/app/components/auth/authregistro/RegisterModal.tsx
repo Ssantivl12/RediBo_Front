@@ -22,7 +22,7 @@ export default function RegisterModal({
       setTimeout(() => {
         console.log("➡️ Redirigiendo a Google OAuth");
         window.location.href =
-          "http://localhost:3001/api/auth/google";
+          `${process.env.NEXT_PUBLIC_APIBACK}/api/auth/google`;
       }, 300); // 300ms = 0.3 segundos
     } catch (error) {
       console.error("❌ Error en registro con Google", error);
@@ -344,7 +344,7 @@ if (nameValue.trim().length < 3) {
       // Si pasa validaciones de formato, ahora verificamos si ya está en uso en BD
       try {
         const phoneCheckResponse = await fetch(
-          "http://localhost:3001/api/check-phone",
+          `${process.env.NEXT_PUBLIC_APIBACK}/api/check-phone`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -398,7 +398,7 @@ if (nameValue.trim().length < 3) {
       };
 
       const res = await fetch(
-        "http://localhost:3001/api/register",
+        `${process.env.NEXT_PUBLIC_APIBACK}/api/register`,
         {
         method: "POST",
         headers: { "Content-Type": "application/json" },

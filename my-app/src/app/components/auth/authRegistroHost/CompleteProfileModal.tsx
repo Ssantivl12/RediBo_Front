@@ -92,7 +92,7 @@ const CompleteProfileModal: React.FC<Props> = ({
         })
       });
 
-      const response = await fetch("http://localhost:3001/api/registro-host", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APIBACK}/api/registro-host`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
