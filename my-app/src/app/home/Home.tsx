@@ -33,13 +33,13 @@ const [showCompleteProfileModal, setShowCompleteProfileModal] =
   const [showToast2, setShowToast2] = useState(false); // Para el mensaje de usuario bloqueado
   const navegarAPagarRenta = () => {
     
-    router.push('/rentador/pagarRenta/1');
+    router.push('/rentador/pagarRenta/6');
   };
 const navegarAGestionarSolicitudes = () => {
-  router.push('/arrendador/gestionarSolicitudes/1');
+  router.push('/arrendador/gestionarSolicitudes/13');
 };
 const navegarAGestionarAutos = () => {
-  router.push('/arrendador/gestionarAutos/1');
+  router.push('/arrendador/gestionarAutos/13');
 };
   const handleLoginSubmit = () => {
     setModalState("passwordRecovery");

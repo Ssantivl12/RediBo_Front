@@ -53,3 +53,22 @@ body {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
+
+.bg-naranja {
+  background-color: var(--naranja);
+  transition: background-color 0.3s ease;
+}
+
+.bg-naranja:hover {
+  background-color: var(--naranja-hover);
+}
+
+.bg-azul-oscuro {
+  background-color: var(--blanco);
+  color: var(--azul-oscuro);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.bg-azul-oscuro:hover {
+  background-color: var(--hueso);
+}
