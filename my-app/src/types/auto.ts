@@ -96,7 +96,7 @@ export interface AutoConDisponibilidad {
   modelo: string;
   marca: string;
   precio: string;
-  calificacionPromedio?: number | null;
+  comentarios?: Comentario[];
   disponible: boolean;
   imagenes: Imagen[];
 }

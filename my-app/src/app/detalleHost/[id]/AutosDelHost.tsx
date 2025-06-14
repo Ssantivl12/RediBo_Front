@@ -8,12 +8,26 @@ interface Imagen {
   direccionImagen: string;
 }
 
+interface Comentario {
+  idComentario: number;
+  idCalificador: number;
+  nombreCompleto: string;
+  contenido: string;
+  comentario: string;
+  calificacion: number;
+  puntuacion: number;
+  fechaCreacion: string;
+  usuario: {
+    nombreCompleto: string;
+  };
+}
+
 interface AutoConDisponibilidad {
   idAuto: number;
   modelo: string;
   marca: string;
   precio: string;
-  calificacionPromedio?: number | null;
+  comentarios?: Comentario[];
   disponible: boolean;
   imagenes?: Imagen[];
 }
@@ -40,6 +54,7 @@ const OptimizedImage = ({
   const fallbackImage = "/imagenesIconos/default.png"; 
   const validSrc = src && src.trim() !== "" ? src : fallbackImage;
   const [imgSrc, setImgSrc] = useState(validSrc);
+
   const handleError = () => {
     if (!hasError && imgSrc !== fallbackImage) {
       setHasError(true);
@@ -93,7 +108,51 @@ const OptimizedImage = ({
 
 export default function AutosDelHost({ autos }: Props) {
   const [links, setLinks] = useState<{ [key: number]: string }>({});
-  
+  const [comentariosPorAuto, setComentariosPorAuto] = useState<{[key: number]: Comentario[]}>({});
+  const [cargandoComentarios, setCargandoComentarios] = useState(true);
+
+  const calcularPromedio = (comentarios: Comentario[] = []): number => {
+    const comentariosValidos = comentarios.filter(c => c.calificacion > 0);
+    if (comentariosValidos.length === 0) return 0;
+    
+    const suma = comentariosValidos.reduce((total, comentario) => {
+      return total + comentario.calificacion;
+    }, 0);
+    
+    return parseFloat((suma / comentariosValidos.length).toFixed(1));
+  };
+
+  useEffect(() => {
+    const fetchComentarios = async () => {
+      try {
+        const { getComentariosDeAuto } = await import('@/libs/autoServices');
+        const comentariosData = await Promise.all(
+          autos.map(async auto => {
+            const { data } = await getComentariosDeAuto(auto.idAuto);
+            return { idAuto: auto.idAuto, comentarios: data };
+          })
+        );
+        
+        const comentariosMap = comentariosData.reduce((acc, curr) => {
+          acc[curr.idAuto] = curr.comentarios;
+          return acc;
+        }, {} as {[key: number]: Comentario[]});
+        
+        setComentariosPorAuto(comentariosMap);
+      } catch (error) {
+        console.error("Error obteniendo comentarios:", error);
+      } finally {
+        setCargandoComentarios(false);
+      }
+    };
+
+    if (autos.length > 0) {
+      fetchComentarios();
+    } else {
+      setCargandoComentarios(false);
+    }
+  }, [autos]);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const reservaData = localStorage.getItem("reservaData");
@@ -124,17 +183,33 @@ export default function AutosDelHost({ autos }: Props) {
     return <p className="text-gray-500">El host no tiene autos disponibles.</p>;
   }
 
+  if (cargandoComentarios) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+        {autos.map((auto) => (
+          <div key={auto.idAuto} className="bg-white shadow-md p-4 rounded-lg flex flex-col">
+            <div className="w-full h-48 bg-gray-200 rounded-lg animate-pulse"></div>
+            <div className="h-6 w-3/4 bg-gray-200 rounded mt-4 animate-pulse"></div>
+            <div className="h-4 w-1/2 bg-gray-200 rounded mt-2 animate-pulse"></div>
+            <div className="h-4 w-full bg-gray-200 rounded mt-4 animate-pulse"></div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
       {autos.map((auto, index) => {
+        const comentarios = comentariosPorAuto[auto.idAuto] || [];
+        const promedio = calcularPromedio(comentarios);
+        
         let imageSrc = "";
         if (auto.imagenes && auto.imagenes.length > 0) {
           const primeraImagen = auto.imagenes[0].direccionImagen;
-          if (primeraImagen.startsWith('http') || primeraImagen.startsWith('/')) {
-            imageSrc = primeraImagen;
-          } else {
-            imageSrc = `/imagenesAutos/${auto.marca}/${primeraImagen}`;
-          }
+          imageSrc = primeraImagen.startsWith('http') || primeraImagen.startsWith('/') 
+            ? primeraImagen 
+            : `/imagenesAutos/${auto.marca}/${primeraImagen}`;
         }
 
         return (
@@ -156,8 +231,11 @@ export default function AutosDelHost({ autos }: Props) {
             </h3>
 
             <div className="text-sm text-[#292929] font-semibold mt-1 flex items-center gap-2">
-              <span>{(auto.calificacionPromedio ?? 0).toFixed(1)}</span>
-              <Estrellas promedio={auto.calificacionPromedio ?? 0} />
+              <span>{promedio.toFixed(1)}</span>
+              <Estrellas promedio={promedio} />
+              <span className="text-xs text-gray-400">
+                ({comentarios.length} {comentarios.length === 1 ? 'reseña' : 'reseñas'})
+              </span>
             </div>
 
             <div className="flex justify-between items-center mt-2">
