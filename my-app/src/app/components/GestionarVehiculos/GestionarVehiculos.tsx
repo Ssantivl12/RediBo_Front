@@ -745,7 +745,7 @@ export default function GestionarVehiculos() {
               <button
                 onClick={() => setPaginaActual(paginaActual - 1)}
                 disabled={paginaActual === 1}
-                className={`bg-[#11295B] text-white w-8 h-8 rounded-full ${paginaActual === 1 ? "opacity-40 cursor-not-allowed" : ""
+                className={`bg-[#11295B] text-white w-8 h-8 rounded-full ${paginaActual === 1 ? "opacity-40 pointer-events-none" : ""
                   }`}
               >
                 &lt;
@@ -791,7 +791,7 @@ export default function GestionarVehiculos() {
               <button
                 onClick={() => setPaginaActual(paginaActual + 1)}
                 disabled={paginaActual === totalPaginas}
-                className={`bg-[#11295B] text-white w-8 h-8 rounded-full ${paginaActual === totalPaginas ? "opacity-40 cursor-not-allowed" : ""
+                className={`bg-[#11295B] text-white w-8 h-8 rounded-full ${paginaActual === totalPaginas ? "opacity-40 pointer-events-none" : ""
                   }`}
               >
                 &gt;
