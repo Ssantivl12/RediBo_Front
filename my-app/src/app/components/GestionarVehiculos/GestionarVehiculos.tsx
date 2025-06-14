@@ -747,16 +747,26 @@ export default function GestionarVehiculos() {
               <div className="flex items-center gap-1">
                 <input
                   type="number"
-                  value={paginaActual}
+                  defaultValue={paginaActual}
                   min={1}
                   max={totalPaginas}
-                  onChange={(e) => {
+                  onBlur={(e) => {
                     const nuevaPagina = Number(e.target.value);
                     if (!isNaN(nuevaPagina) && nuevaPagina >= 1 && nuevaPagina <= totalPaginas) {
                       setPaginaActual(nuevaPagina);
                     }
                   }}
-                  className="w-12 text-center border border-gray-300 rounded px-1 py-0.5 focus:outline-none focus:ring-2 focus:ring-[#11295B]"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      const target = e.target as HTMLInputElement;
+                      const nuevaPagina = Number(target.value);
+                      if (!isNaN(nuevaPagina) && nuevaPagina >= 1 && nuevaPagina <= totalPaginas) {
+                        setPaginaActual(nuevaPagina);
+                        target.blur(); // Opcional: saca el foco después de presionar Enter
+                      }
+                    }
+                  }}
+                  className="w-10 text-center border-none appearance-none bg-transparent text-[#11295B] font-semibold focus:outline-none focus:ring-0"
                 />
                 <span className="text-[#11295B] font-medium">/ {totalPaginas}</span>
               </div>
@@ -835,12 +845,12 @@ export default function GestionarVehiculos() {
         title="¿Confirma los datos del mantenimiento?"
         message={
           datosMantenimientoTemp ?
-          `Fecha inicio: ${datosMantenimientoTemp.fechaInicio}
+            `Fecha inicio: ${datosMantenimientoTemp.fechaInicio}
           Fecha fin: ${datosMantenimientoTemp.fechaFin}
           Descripción: ${datosMantenimientoTemp.descripcion}
           Costo: $${datosMantenimientoTemp.costo}
           Tipo: ${datosMantenimientoTemp.tipoMantenimiento}` :
-          "¿Está seguro de registrar este mantenimiento?"
+            "¿Está seguro de registrar este mantenimiento?"
         }
         confirmText="CONFIRMAR"
         cancelText="CANCELAR"
