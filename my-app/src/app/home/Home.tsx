@@ -1,7 +1,7 @@
 //home.tsx
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation"; // ✅
 import NavbarPrincipal from "../components/navbar/NavbarPrincipal";
 import FiltersBar from "../components/filters/FiltersBar";
@@ -14,12 +14,12 @@ import styles from "./Home.module.css";
 import RegisterModal from "../components/auth/authregistro/RegisterModal";
 import CompleteProfileModal from "@/app/components/auth/authregistro/CompleteProfileModal";
 import Carousel from "./carousel/carousel";
-import ModalLoginExitoso from '@/app/components/modals/ModalLoginExitoso';
+import ModalLoginExitoso from "@/app/components/modals/ModalLoginExitoso";
 
 export default function HomePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-const [showCompleteProfileModal, setShowCompleteProfileModal] =
+  const [showCompleteProfileModal, setShowCompleteProfileModal] =
     useState(false);
   const [hasRedirected, setHasRedirected] = useState(false); // 👈 Evita doble redirect
 
@@ -31,16 +31,18 @@ const [showCompleteProfileModal, setShowCompleteProfileModal] =
   >(null);
   const [showToast, setShowToast] = useState(false);
   const [showToast2, setShowToast2] = useState(false); // Para el mensaje de usuario bloqueado
+  
+  const [activeFilter, setActiveFilter] = useState("todos");
+
   const navegarAPagarRenta = () => {
-    
-    router.push('/rentador/pagarRenta/6');
+    router.push("/rentador/pagarRenta/6");
   };
-const navegarAGestionarSolicitudes = () => {
-  router.push('/arrendador/gestionarSolicitudes/13');
-};
-const navegarAGestionarAutos = () => {
-  router.push('/arrendador/gestionarAutos/13');
-};
+  const navegarAGestionarSolicitudes = () => {
+    router.push("/arrendador/gestionarSolicitudes/13");
+  };
+  const navegarAGestionarAutos = () => {
+    router.push("/arrendador/gestionarAutos/13");
+  };
   const handleLoginSubmit = () => {
     setModalState("passwordRecovery");
   };
@@ -63,7 +65,7 @@ const navegarAGestionarAutos = () => {
   };
 
   useEffect(() => {
-     /* const params = new URLSearchParams(window.location.search); */
+    /* const params = new URLSearchParams(window.location.search); */
     const autoLogin = searchParams.get("googleAutoLogin");
     const token = searchParams.get("token");
     const email = searchParams.get("email");
@@ -101,29 +103,31 @@ const navegarAGestionarAutos = () => {
       cleanUrl.searchParams.delete("email");
       window.history.replaceState({}, "", cleanUrl.toString());
     }
-
   }, [searchParams, hasRedirected]);
 
   const [showLoginSuccessModal, setShowLoginSuccessModal] = useState(false);
 
   useEffect(() => {
-    const loginSuccess = localStorage.getItem('loginSuccess');
-    if (loginSuccess === 'true') {
+    const loginSuccess = localStorage.getItem("loginSuccess");
+    if (loginSuccess === "true") {
       setShowLoginSuccessModal(true);
-      localStorage.removeItem('loginSuccess');
+      localStorage.removeItem("loginSuccess");
     }
   }, []);
   return (
     <div className={styles.container}>
       <header className={styles.headerTop}>
-        <NavbarPrincipal 
+        <NavbarPrincipal
           onLoginClick={() => setActiveModal("login")}
           onRegisterClick={() => setActiveModal("register")}
         />
       </header>
 
       <header className={styles.headerFilters}>
-        <FiltersBar />
+        <FiltersBar
+          activeFilter={activeFilter}
+          onFilterChange={(filter) => setActiveFilter(filter)}
+        />
       </header>
 
       <main className={styles.body}>
@@ -134,36 +138,34 @@ const navegarAGestionarAutos = () => {
       <div className="min-h-screen flex flex-col">
         {/* Main content */}
         <main className="flex-1 px-6 py-12 flex flex-col items-center">
-          
           {/* Groups container */}
           <div className="w-full max-w-6xl flex flex-wrap justify-center gap-8">
-            
             {/* Group Section - Componente específico que pediste */}
             <div className="w-full max-w-sm p-6 rounded-lg shadow-md bg-white transition-all duration-300 hover:shadow-lg">
               <h2 className="mt-0 pb-3 text-2xl text-blue-600 border-b-2 border-gray-200">
                 Grupo CodeLovers
               </h2>
-              
+
               <div className="mt-4 text-black flex flex-col items-center gap-4">
                 <p className="text-center">
                   Funcionalidades del equipo de desarrollo CodeLovers:
                 </p>
-                
-                <button 
+
+                <button
                   className="bg-blue-600 text-white border-none rounded px-6 py-3 text-base cursor-pointer transition-colors duration-300 hover:bg-blue-800 w-full max-w-xs"
                   onClick={navegarAGestionarSolicitudes}
                 >
                   Gestionar Solicitudes de Agenda
                 </button>
-                
-                <button 
+
+                <button
                   className="bg-blue-600 text-white border-none rounded px-6 py-3 text-base cursor-pointer transition-colors duration-300 hover:bg-blue-800 w-full max-w-xs"
                   onClick={navegarAPagarRenta}
                 >
                   Pagar Renta
                 </button>
-                
-                <button 
+
+                <button
                   className="bg-blue-600 text-white border-none rounded px-6 py-3 text-base cursor-pointer transition-colors duration-300 hover:bg-blue-800 w-full max-w-xs"
                   onClick={navegarAGestionarAutos}
                 >
@@ -171,7 +173,6 @@ const navegarAGestionarAutos = () => {
                 </button>
               </div>
             </div>
-            
           </div>
         </main>
       </div>
@@ -191,17 +192,17 @@ const navegarAGestionarAutos = () => {
       )}
       {modalState === "codeVerification" && (
         <CodeVerificationModal
-        onClose={handleBackToPasswordRecovery}
-        onCodeVerificationSubmit={handleCodeVerificationSubmit}
-        onBlocked={() => {
-          setModalState(null);
-          setActiveModal("login"); // Redirige al Login al finalizar
-          setShowToast2(true); // muestra el pop-up
+          onClose={handleBackToPasswordRecovery}
+          onCodeVerificationSubmit={handleCodeVerificationSubmit}
+          onBlocked={() => {
+            setModalState(null);
+            setActiveModal("login"); // Redirige al Login al finalizar
+            setShowToast2(true); // muestra el pop-up
 
             // Ocultar el toast automáticamente después de 3 segundos
             setTimeout(() => setShowToast2(false), 10000);
-        }} // ✅ Redirige al login si el backend dice "bloqueado"
-      />
+          }} // ✅ Redirige al login si el backend dice "bloqueado"
+        />
       )}
       {modalState === "newPassword" && (
         <NewPasswordModal
@@ -214,8 +215,7 @@ const navegarAGestionarAutos = () => {
 
             // Ocultar el toast automáticamente después de 3 segundos
             setTimeout(() => setShowToast(false), 10000);
-          }} 
-          
+          }}
         />
       )}
       {showToast && (
@@ -229,20 +229,22 @@ const navegarAGestionarAutos = () => {
         </div>
       )}
       {showLoginSuccessModal && (
-              <ModalLoginExitoso onClose={() => setShowLoginSuccessModal(false)} />
-            )}
+        <ModalLoginExitoso onClose={() => setShowLoginSuccessModal(false)} />
+      )}
 
       {showLoginSuccessModal && (
         <ModalLoginExitoso onClose={() => setShowLoginSuccessModal(false)} />
       )}
 
-      {activeModal === 'login' && (
-        <LoginModal onClose={() => setActiveModal(null)} onRegisterClick={() => setActiveModal('register')}
-      onPasswordRecoveryClick={handleLoginSubmit} // 👈 Aquí usas la función
-      />
+      {activeModal === "login" && (
+        <LoginModal
+          onClose={() => setActiveModal(null)}
+          onRegisterClick={() => setActiveModal("register")}
+          onPasswordRecoveryClick={handleLoginSubmit} // 👈 Aquí usas la función
+        />
       )}
 
- {activeModal === "register" && (
+      {activeModal === "register" && (
         <RegisterModal
           onClose={() => setActiveModal(null)}
           onLoginClick={() => setActiveModal("login")}

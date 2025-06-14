@@ -1,26 +1,34 @@
 //HomePage.tsx
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useUser } from '@/hooks/useUser';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/hooks/useUser";
 import { useSearchParams } from "next/navigation";
-import NavbarSecundario from '@/app/components/navbar/NavbarSecundario';
-import FiltersBar from '@/app/components/filters/FiltersBar';
-import Footer from '@/app/components/footer/FooterLogin';
-import LoginModal from '@/app/components/auth/authInicioSesion/LoginModal';
-import RegisterModal from '@/app/components/auth/authregistro/RegisterModal';
-import VehicleDataModal from '@/app/components/auth/authRegistroHost/VehicleDataModal';
-import PaymentModal from '@/app/components/auth/authRegistroHost/PaymentModal';
-import CompleteProfileModal from '@/app/components/auth/authRegistroHost/CompleteProfileModal';
-import ModalLoginExitoso from '@/app/components/modals/ModalLoginExitoso';
-import Carousel from '@/app/home/carousel/carousel';
-import OtraVista from '@/app/components/view/VistaBoton2/OtraVista';
+import NavbarSecundario from "@/app/components/navbar/NavbarSecundario";
+import FiltersBar from "@/app/components/filters/FiltersBar";
+import Footer from "@/app/components/footer/FooterLogin";
+import LoginModal from "@/app/components/auth/authInicioSesion/LoginModal";
+import RegisterModal from "@/app/components/auth/authregistro/RegisterModal";
+import VehicleDataModal from "@/app/components/auth/authRegistroHost/VehicleDataModal";
+import PaymentModal from "@/app/components/auth/authRegistroHost/PaymentModal";
+import CompleteProfileModal from "@/app/components/auth/authRegistroHost/CompleteProfileModal";
+import ModalLoginExitoso from "@/app/components/modals/ModalLoginExitoso";
+import Carousel from "@/app/home/carousel/carousel";
+import OtraVista from "@/app/components/view/VistaBoton2/OtraVista";
 
-export default function MainHome(){
+export default function MainHome() {
   const params = useSearchParams();
-  const registroExitoso = params.get('registroExitoso');
-  const [activeModal, setActiveModal] = useState<'login' | 'register' | 'vehicleData' | 'paymentData' | 'completeProfile' | 'succesModal' | null>(null);
+  const registroExitoso = params.get("registroExitoso");
+  const [activeModal, setActiveModal] = useState<
+    | "login"
+    | "register"
+    | "vehicleData"
+    | "paymentData"
+    | "completeProfile"
+    | "succesModal"
+    | null
+  >(null);
   const [showLoginSuccessModal, setShowLoginSuccessModal] = useState(false);
   const [activeBtn, setActiveBtn] = useState(0);
   const [vehicleData, setVehicleData] = useState<{
@@ -43,21 +51,23 @@ export default function MainHome(){
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
+  const [activeFilter, setActiveFilter] = useState("todos");
+
   const router = useRouter();
   const user = useUser();
 
-   useEffect(() => {
-    const token = localStorage.getItem('token');
+  useEffect(() => {
+    const token = localStorage.getItem("token");
     if (!token) {
-      router.push('/');
+      router.push("/");
     }
   }, [user, router]);
-  
+
   useEffect(() => {
-    const loginSuccess = localStorage.getItem('loginSuccess');
-    if (loginSuccess === 'true') {
+    const loginSuccess = localStorage.getItem("loginSuccess");
+    if (loginSuccess === "true") {
       setShowLoginSuccessModal(true);
-      localStorage.removeItem('loginSuccess');
+      localStorage.removeItem("loginSuccess");
     }
   }, []);
 
@@ -78,55 +88,59 @@ export default function MainHome(){
   };
 
   const handlePaymentDataSubmit = (data: {
-  tipo: "card" | "QR" | "cash";
-  cardNumber?: string;
-  expiration?: string;
-  cvv?: string;
-  cardHolder?: string;
-  qrImage?: File | null;
-  efectivoDetalle?: string;
-}) => {
-  setPaymentData(data);
-  setActiveModal('completeProfile');
-};
+    tipo: "card" | "QR" | "cash";
+    cardNumber?: string;
+    expiration?: string;
+    cvv?: string;
+    cardHolder?: string;
+    qrImage?: File | null;
+    efectivoDetalle?: string;
+  }) => {
+    setPaymentData(data);
+    setActiveModal("completeProfile");
+  };
 
   const handleRegistrationComplete = () => {
     setActiveModal(null);
-    displayToast('¡Tu registro como host fue completado exitosamente!');
+    displayToast("¡Tu registro como host fue completado exitosamente!");
   };
 
   //const searchParams = useSearchParams();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   useEffect(() => {
-    if (registroExitoso === '1') {
+    if (registroExitoso === "1") {
       setShowSuccessModal(true);
       const newUrl = window.location.pathname;
-      window.history.replaceState(null, '', newUrl);
+      window.history.replaceState(null, "", newUrl);
     }
   }, [registroExitoso]);
 
-  
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background-principal)]">
       <header className="border-t border-b border-[rgba(215, 30, 30, 0.1)] shadow-[0_2px_6px_rgba(0,0,0,0.1)]">
-        <NavbarSecundario 
-         activeBtn={activeBtn}
-         setActiveBtn={setActiveBtn}
-         onBecomeHost={() => setActiveModal('vehicleData')} 
-         onBecomeDriver={function (): void {
-          throw new Error('Function not implemented.');
-        } } />
+        <NavbarSecundario
+          activeBtn={activeBtn}
+          setActiveBtn={setActiveBtn}
+          onBecomeHost={() => setActiveModal("vehicleData")}
+          onBecomeDriver={function (): void {
+            throw new Error("Function not implemented.");
+          }}
+        />
       </header>
 
       <header className="/* headerFilters */">
-        <FiltersBar />
+        <FiltersBar
+          activeFilter={activeFilter}
+          onFilterChange={(filter) => setActiveFilter(filter)}
+        />
       </header>
 
       <main className="flex-grow p-8">
         <div className="/* scrollContent */">
           {activeBtn === 0 && <Carousel />}
-          {activeBtn === 1 && <OtraVista/>} {/* puedes usar el componente que desees */}
+          {activeBtn === 1 && <OtraVista />}{" "}
+          {/* puedes usar el componente que desees */}
           {activeBtn === 2 && <div>Contenido del botón 3</div>}
           {activeBtn === 3 && <div>Contenido del botón 4</div>}
           {activeBtn === 4 && <div>Contenido del botón 5</div>}
@@ -137,50 +151,53 @@ export default function MainHome(){
         <Footer />
       </footer>
 
-      {activeModal === 'login' && (
+      {activeModal === "login" && (
         <LoginModal
           onClose={() => setActiveModal(null)}
-          onRegisterClick={() => setActiveModal('register')}
-          onPasswordRecoveryClick={() => console.log('Recuperar contraseña')}
+          onRegisterClick={() => setActiveModal("register")}
+          onPasswordRecoveryClick={() => console.log("Recuperar contraseña")}
         />
       )}
 
-      {activeModal === 'register' && (
+      {activeModal === "register" && (
         <RegisterModal
           onClose={() => setActiveModal(null)}
-          onLoginClick={() => setActiveModal('login')}
+          onLoginClick={() => setActiveModal("login")}
         />
       )}
 
-      {activeModal === 'vehicleData' && (
+      {activeModal === "vehicleData" && (
         <VehicleDataModal
           onNext={handleVehicleDataSubmit}
           onClose={() => setActiveModal(null)}
         />
       )}
 
-      {activeModal === 'paymentData' && vehicleData && (
+      {activeModal === "paymentData" && vehicleData && (
         <PaymentModal
           onNext={handlePaymentDataSubmit}
           onClose={async () => {
             if (vehicleData?.idAuto) {
               const token = localStorage.getItem("token");
-              await fetch(`http://localhost:3001/api/autos/eliminar-vehiculo/${vehicleData.idAuto}`, {
-                method: "DELETE",
-                headers: { Authorization: `Bearer ${token}` },
-              });
+              await fetch(
+                `http://localhost:3001/api/autos/eliminar-vehiculo/${vehicleData.idAuto}`,
+                {
+                  method: "DELETE",
+                  headers: { Authorization: `Bearer ${token}` },
+                }
+              );
             }
             setActiveModal(null);
           }}
         />
       )}
 
-      {activeModal === 'completeProfile' && vehicleData && paymentData && (
+      {activeModal === "completeProfile" && vehicleData && paymentData && (
         <CompleteProfileModal
           vehicleData={vehicleData}
           paymentData={paymentData}
           onComplete={handleRegistrationComplete}
-          onClose={() => setActiveModal('paymentData')}
+          onClose={() => setActiveModal("paymentData")}
         />
       )}
 
@@ -217,21 +234,26 @@ export default function MainHome(){
                   strokeWidth="2"
                   viewBox="0 0 24 24"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
               </div>
             </div>
 
             {/* Mensaje de éxito */}
-            <h2 className="text-xl font-bold text-green-600 mb-1">¡Registro completado!</h2>
-            <p className="text-gray-700">Tu registro como driver se completó exitosamente.</p>
+            <h2 className="text-xl font-bold text-green-600 mb-1">
+              ¡Registro completado!
+            </h2>
+            <p className="text-gray-700">
+              Tu registro como driver se completó exitosamente.
+            </p>
           </div>
         </div>
       )}
 
-
-
-      
       {showLoginSuccessModal && (
         <ModalLoginExitoso onClose={() => setShowLoginSuccessModal(false)} />
       )}
