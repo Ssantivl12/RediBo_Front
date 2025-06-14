@@ -472,191 +472,121 @@ export default function GestionarVehiculos() {
     }
   };
 
-  const renderBotonAccion = (vehiculo: Vehiculo) => {
-    const { estadoActual } = vehiculo;
-    console.log("Estado actual:", estadoActual);
-    const accionPosible = estadoActual.datos.accionPosible;
-    console.log("Acción posible:", accionPosible);
-    if (!accionPosible) return null;
-    if (accionPosible === 'CANCELAR_RESERVA') {
-      return (
-        <div className="flex items-center w-full">
-          <div className="ml-auto flex gap-2">
-            <button
-              onClick={() => {
-                const vehiculoActual = vehiculos.find(v => v.idAuto === vehiculo.idAuto);
-                if (vehiculoActual) {
-                  fetchComentarios(vehiculo.idAuto);
-                  setVehiculoSeleccionado(vehiculo.idAuto);
-                }
-              }}
-              className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-            >
-              Ver comentarios
-            </button>
-            <button
-              onClick={() => setModalKilometraje(true)}
-              className="ml-auto bg-[#FCA311] hover:bg-yellow-500 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-            >
-              Ver Kilometraje
-            </button>
-          </div>
-        </div>
-      );
-    } else if (accionPosible === 'FINALIZAR_RENTA') {
-      return (
-        <div className="flex items-center w-full">
-          <button
-            onClick={() => handleLiberarRenta(vehiculo.idAuto)}
-            className="bg-[#FCA311] hover:bg-yellow-500 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-          >
-            Liberar Auto
-          </button>
-          <div className="ml-auto flex gap-2">
-            <button
-              onClick={() => {
-                const vehiculoActual = vehiculos.find(v => v.idAuto === vehiculo.idAuto);
-                if (vehiculoActual) {
-                  fetchComentarios(vehiculo.idAuto);
-                  setVehiculoSeleccionado(vehiculo.idAuto);
-                }
-              }}
-              className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-            >
-              Ver comentarios
-            </button>
-            <button
-              onClick={() => setModalKilometraje(true)}
-              className="ml-auto bg-[#FCA311] hover:bg-yellow-500 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-            >
-              Ver Kilometraje
-            </button>
-          </div>
-        </div>
+const renderBotonAccion = (vehiculo: Vehiculo) => {
+  const { estadoActual } = vehiculo;
+  console.log("Estado actual:", estadoActual);
+  const accionPosible = estadoActual.datos.accionPosible;
+  console.log("Acción posible:", accionPosible);
+  
+  if (!accionPosible) return null;
 
-      );
-    } else if (accionPosible === 'FINALIZAR_MANTENIMIENTO') {
-      return (
-        <div className="flex items-center w-full">
-          <button
-            onClick={() => handleTerminarMantenimiento(vehiculo.idAuto)}
-            className="bg-[#FCA311] hover:bg-yellow-500 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-          >
-            Terminar Mantenimiento
-          </button>
-          <div className="ml-auto flex gap-2">
-            <button
-              onClick={() => {
-                const vehiculoActual = vehiculos.find(v => v.idAuto === vehiculo.idAuto);
-                if (vehiculoActual) {
-                  fetchComentarios(vehiculo.idAuto);
-                  setVehiculoSeleccionado(vehiculo.idAuto);
-                }
-              }}
-              className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-            >
-              Ver comentarios
-            </button>
-            <button
-              onClick={() => setModalKilometraje(true)}
-              className="ml-auto bg-[#FCA311] hover:bg-yellow-500 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-            >
-              Ver Kilometraje
-            </button>
-          </div>
-        </div>
-      );
-    } else if (accionPosible === 'CANCELAR_RESERVA') {
-      return (
-        <div className="flex items-center w-full">
-          <div className="ml-auto flex gap-2">
-            <button
-              onClick={() => {
-                const vehiculoActual = vehiculos.find(v => v.idAuto === vehiculo.idAuto);
-                if (vehiculoActual) {
-                  fetchComentarios(vehiculo.idAuto);
-                  setVehiculoSeleccionado(vehiculo.idAuto);
-                }
-              }}
-              className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-            >
-              Ver comentarios
-            </button>
-            <button
-              onClick={() => setModalKilometraje(true)}
-              className="ml-auto bg-[#FCA311] hover:bg-yellow-500 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-            >
-              Ver Kilometraje
-            </button>
-          </div>
-        </div>
-      );
-    } else if (accionPosible === 'MARCAR_NO_DISPONIBLE') {
-      return (
-        <div className="flex items-center w-full">
-          <button
-            onClick={() => handleMostrarModalMantenimiento(vehiculo.idAuto)}
-            className="bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-          >
-            Poner en Mantenimiento
-          </button>
-          <div className="ml-auto flex gap-2">
-            <button
-              onClick={() => {
-                const vehiculoActual = vehiculos.find(v => v.idAuto === vehiculo.idAuto);
-                if (vehiculoActual) {
-                  fetchComentarios(vehiculo.idAuto);
-                  setVehiculoSeleccionado(vehiculo.idAuto);
-                }
-              }}
-              className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-            >
-              Ver comentarios
-            </button>
-            <button
-              onClick={() => setModalKilometraje(true)}
-              className="ml-auto bg-[#FCA311] hover:bg-yellow-500 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-            >
-              Ver Kilometraje
-            </button>
-          </div>
-        </div>
-      );
-    } else if (accionPosible === 'MARCAR_DISPONIBLE') {
-      return (
-        <div className="flex items-center w-full">
-          <button
-            onClick={() => handleMostrarModalMantenimiento(vehiculo.idAuto)}
-            className="bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-          >
-            Poner en Mantenimiento
-          </button>
-          <div className="ml-auto flex gap-2">
-            <button
-              onClick={() => {
-                const vehiculoActual = vehiculos.find(v => v.idAuto === vehiculo.idAuto);
-                if (vehiculoActual) {
-                  fetchComentarios(vehiculo.idAuto);
-                  setVehiculoSeleccionado(vehiculo.idAuto);
-                }
-              }}
-              className="ml-auto bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-            >
-              Ver comentarios
-            </button>
-            <button
-              onClick={() => setModalKilometraje(true)}
-              className="ml-auto bg-[#FCA311] hover:bg-yellow-500 text-white text-base font-semibold px-4 py-2 rounded-md w-fit transition-colors"
-            >
-              Ver Kilometraje
-            </button>
-          </div>
-        </div>
-      );
-    } else {
-      return null;
+  
+  const botonesComunes = (
+    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+      <button
+        onClick={() => {
+          const vehiculoActual = vehiculos.find(v => v.idAuto === vehiculo.idAuto);
+          if (vehiculoActual) {
+            fetchComentarios(vehiculo.idAuto);
+            setVehiculoSeleccionado(vehiculo.idAuto);
+          }
+        }}
+        className="bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md transition-colors w-full sm:w-auto"
+      >
+        Ver comentarios
+      </button>
+      <button
+        onClick={() => setModalKilometraje(true)}
+        className="bg-[#FCA311] hover:bg-yellow-500 text-white text-base font-semibold px-4 py-2 rounded-md transition-colors w-full sm:w-auto"
+      >
+        Ver Kilometraje
+      </button>
+    </div>
+  );
+
+  
+  const configuraciones = {
+    'CANCELAR_RESERVA': {
+      botonPrincipal: null,
+      soloComunes: true
+    },
+    'FINALIZAR_RENTA': {
+      botonPrincipal: (
+        <button
+          onClick={() => handleLiberarRenta(vehiculo.idAuto)}
+          className="bg-[#FCA311] hover:bg-yellow-500 text-white text-base font-semibold px-4 py-2 rounded-md transition-colors w-full sm:w-auto"
+        >
+          Liberar Auto
+        </button>
+      ),
+      soloComunes: false
+    },
+    'FINALIZAR_MANTENIMIENTO': {
+      botonPrincipal: (
+        <button
+          onClick={() => handleTerminarMantenimiento(vehiculo.idAuto)}
+          className="bg-[#FCA311] hover:bg-yellow-500 text-white text-base font-semibold px-4 py-2 rounded-md transition-colors w-full sm:w-auto"
+        >
+          Terminar Mantenimiento
+        </button>
+      ),
+      soloComunes: false
+    },
+    'MARCAR_NO_DISPONIBLE': {
+      botonPrincipal: (
+        <button
+          onClick={() => handleMostrarModalMantenimiento(vehiculo.idAuto)}
+          className="bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md transition-colors w-full sm:w-auto"
+        >
+          Poner en Mantenimiento
+        </button>
+      ),
+      soloComunes: false
+    },
+    'MARCAR_DISPONIBLE': {
+      botonPrincipal: (
+        <button
+          onClick={() => handleMostrarModalMantenimiento(vehiculo.idAuto)}
+          className="bg-[#11295B] hover:bg-blue-800 text-white text-base font-semibold px-4 py-2 rounded-md transition-colors w-full sm:w-auto"
+        >
+          Poner en Mantenimiento
+        </button>
+      ),
+      soloComunes: false
     }
   };
+
+  
+  if (!accionPosible || !(accionPosible in configuraciones)) {
+    return null;
+  }
+
+  const config = configuraciones[accionPosible as keyof typeof configuraciones];
+
+ 
+  if (config.soloComunes) {
+    return (
+      <div className="flex flex-col sm:flex-row sm:justify-end w-full gap-2">
+        {botonesComunes}
+      </div>
+    );
+  }
+
+  
+  return (
+    <div className="flex flex-col sm:flex-row sm:justify-between w-full gap-2 sm:gap-4">
+      {/* Botón principal - en pantallas pequeñas va arriba */}
+      <div className="order-2 sm:order-1 flex justify-start">
+        {config.botonPrincipal}
+      </div>
+      
+      {/* Botones comunes - en pantallas pequeñas van abajo */}
+      <div className="order-1 sm:order-2 flex justify-end">
+        {botonesComunes}
+      </div>
+    </div>
+  );
+};
 
   if (cargando) {
     return (
