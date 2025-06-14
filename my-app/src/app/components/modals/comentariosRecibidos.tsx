@@ -1,9 +1,10 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { FaStar } from 'react-icons/fa';
-
+import { motion, AnimatePresence } from 'framer-motion';
 
 type CommentedCar = {
+  id: string;
   modelo: string;
   marca: string;
   direccionImagen: string | null;
@@ -17,64 +18,113 @@ const variableDeOrden = 'comentarios-sortBy';
 const variableDeDireccion = 'comentarios-direction';
 
 export default function ComentariosRecibidos() {
+  // 1. Estados
   const [items, setItems] = useState<CommentedCar[]>([]);
   const [loading, setLoading] = useState(true);
-  const [respuestasVisibles, setRespuestasVisibles] = useState<boolean[]>([]);
-  const [respuestasTexto, setRespuestasTexto] = useState<string[]>([]);
-   
+  const [respuestasVisibles, setRespuestasVisibles] = useState<{ [id: string]: boolean }>({});
+  const [respuestasTexto, setRespuestasTexto] = useState<{ [id: string]: string }>({});
+  const [respuestasEnviadas, setRespuestasEnviadas] = useState<{ [id: string]: string }>({});
+  const [cargadoRespuestas, setCargadoRespuestas] = useState(false);
 
-  // Inicializar con valores de localStorage o por defecto
+  // 2. Estados persistentes
   const [sortBy, setSortBy] = useState<'date' | 'rating'>(() => {
-    if (typeof window === 'undefined') return 'date'; // fallback SSR
+    if (typeof window === 'undefined') return 'date';
     return (localStorage.getItem(variableDeOrden) as 'date' | 'rating') || 'date';
   });
   const [direction, setDirection] = useState<'asc' | 'desc'>(() => {
-    if (typeof window === 'undefined') return 'desc'; // fallback SSR
+    if (typeof window === 'undefined') return 'desc';
     return (localStorage.getItem(variableDeDireccion) as 'asc' | 'desc') || 'desc';
   });
 
-  const defaultImage = 'https://images.unsplash.com/photo-1596165494776-c27e37f666fe?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
-  const hostId = 1;
+  const defaultImage =
+    'https://images.unsplash.com/photo-1596165494776-c27e37f666fe?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3';
 
-  // Guardar en localStorage al cambiar
+  // 3. Persistir sortBy y direction
   useEffect(() => {
     localStorage.setItem(variableDeOrden, sortBy);
   }, [sortBy]);
-
   useEffect(() => {
     localStorage.setItem(variableDeDireccion, direction);
   }, [direction]);
 
+  // 4. Cargar mock con IDs
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
+    const mockData: CommentedCar[] = [
+      {
+        id: 'honda-civic-2025-05-01',
+        modelo: 'Civic',
+        marca: 'Honda',
+        direccionImagen: 'https://media.istockphoto.com/id/899251594/es/foto/honda-civic-sedan-en-la-calle.jpg?s=612x612&w=0&k=20&c=eEzweppmMXJOshxYF63ozoyDtjmqxxH302rNr4P5rp0=',
+        comentarios: 'El auto estaba impecable y el dueño fue muy amable.',
+        calificacionPromedio: 4.8,
+        date: '2025-05-01',
+        name: 'Carlos Rojas',
+      },
+      {
+        id: 'tesla-model3-2025-04-21',
+        modelo: 'RAV4',
+        marca: 'Toyota',
+        direccionImagen:
+          'https://media.istockphoto.com/id/2153276505/es/foto/retrato-de-un-suv-toyota-rav4-en-blanco-y-negro-circulando-por-un-distrito-del-centro-de-la.jpg?s=612x612&w=0&k=20&c=Wu31-VpkZk750dbggYNJvJmZctnhvVySYUBmoEKlA9A=',
+        comentarios: 'Increíble experiencia, definitivamente lo volvería a alquilar.',
+        calificacionPromedio: 5,
+        date: '2025-04-21',
+        name: 'Diego Flores',
+      },
+      {
+        id: 'toyota-corolla-2025-06-05',
+        modelo: 'Corolla',
+        marca: 'Toyota',
+        direccionImagen: 'https://media.istockphoto.com/id/1490889104/es/foto/toyota-corolla-h%C3%ADbrido.jpg?s=612x612&w=0&k=20&c=grvsyYdyg2uPiK3v-K5ZBCuttu5KU8UlLPLMHzs12B4=',
+        comentarios: 'Buen coche, aunque el aire acondicionado falló un poco.',
+        calificacionPromedio: 3.5,
+        date: '2025-06-05',
+        name: 'Luis Fernández',
+      },
+    ];
+    setItems(mockData);
+    setLoading(false);
+  }, []);
+
+  // 5. Leer respuestas guardadas una sola vez
+  useEffect(() => {
+    const guardadas = localStorage.getItem('respuestasEnviadas');
+    if (guardadas) {
       try {
-        const res = await fetch(
-          `http://localhost:3001/api/cars/comments?hostId=${hostId}&sortBy=${sortBy}&direction=${direction}`
-        );
-        if (!res.ok) throw new Error('Error al obtener datos');
-        const data: CommentedCar[] = await res.json();
-        setItems(data);
-
-      } catch (error) {
-        console.error('Error al cargar datos:', error);
-      } finally {
-        setLoading(false);
+        setRespuestasEnviadas(JSON.parse(guardadas));
+      } catch {
+        setRespuestasEnviadas({});
       }
-    };
-    fetchData();
-  }, [hostId, sortBy, direction]);
+    }
+    setCargadoRespuestas(true);
+  }, []);
 
+  // 6. Persistir respuestasEnviadas tras la carga inicial
   useEffect(() => {
-    setRespuestasVisibles(Array(items.length).fill(false));
-    setRespuestasTexto(Array(items.length).fill(''));
-  }, [items]);
-  
+    if (cargadoRespuestas) {
+      localStorage.setItem('respuestasEnviadas', JSON.stringify(respuestasEnviadas));
+    }
+  }, [respuestasEnviadas, cargadoRespuestas]);
 
-  
+  // 7. Funciones para respuestas
+  const toggleRespuesta = (id: string) => {
+    setRespuestasVisibles(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+  const handleTextoRespuesta = (id: string, texto: string) => {
+    setRespuestasTexto(prev => ({ ...prev, [id]: texto }));
+  };
+  const enviarRespuesta = (id: string) => {
+    const texto = respuestasTexto[id]?.trim();
+    if (!texto) {
+      alert('La respuesta no puede estar vacía.');
+      return;
+    }
+    setRespuestasEnviadas(prev => ({ ...prev, [id]: texto }));
+    handleTextoRespuesta(id, '');
+    setRespuestasVisibles(prev => ({ ...prev, [id]: false }));
+  };
 
-
-  // Ordenar items localmente
+  // 8. Ordenar items localmente
   const sortedItems = [...items].sort((a, b) => {
     const dir = direction === 'asc' ? 1 : -1;
     if (sortBy === 'date') {
@@ -83,53 +133,25 @@ export default function ComentariosRecibidos() {
     return dir * (a.calificacionPromedio - b.calificacionPromedio);
   });
 
-
-  const toggleRespuesta = (index: number) => {
-    setRespuestasVisibles(prev => {
-      const newVisibles = [...prev];
-      newVisibles[index] = !newVisibles[index];
-      return newVisibles;
-    });
-  };
-  
-  const handleTextoRespuesta = (index: number, texto: string) => {
-    setRespuestasTexto(prev => {
-      const newTextos = [...prev];
-      newTextos[index] = texto;
-      return newTextos;
-    });
-  };
-  
-  const enviarRespuesta = (index: number) => {
-    const texto = respuestasTexto[index];
-    if (!texto?.trim()) {
-      alert('La respuesta no puede estar vacía.');
-      return;
-    }
-  
-    // Aquí deberías hacer la llamada al backend si lo necesitas
-    console.log(`Respuesta enviada al comentario ${index}:`, texto);
-  
-    // Limpiar campos
-    handleTextoRespuesta(index, '');
-    toggleRespuesta(index);
-  };
-  
-
+  // 9. Renderizado
   return (
-    <div className="px-4 py-6 space-y-4 w-full max-w-screen-xl mx-auto">
-      <div className="sticky top-[64px] z-20 bg-white border-b py-2 px-4">
-        <div className="flex gap-4 items-center">
+    <div className="px-4 py-0 space-y-4 w-full max-w-screen-xl mx-auto">
+      <div className="sticky top-0 z-20 bg-white border-b py-2 px-4">
+        <div className="flex gap-4 items-center top-0">
           <label>Ordenar por:</label>
           <button
             onClick={() => setSortBy('date')}
-            className={`border px-2 py-1 rounded ${sortBy === 'date' ? 'bg-gray-300 font-semibold' : 'bg-white'}`}
+            className={`border px-2 py-1 rounded ${
+              sortBy === 'date' ? 'bg-gray-300 font-semibold' : 'bg-white'
+            }`}
           >
             Fecha 📅
           </button>
           <button
             onClick={() => setSortBy('rating')}
-            className={`border px-2 py-1 rounded ${sortBy === 'rating' ? 'bg-gray-300 font-semibold' : 'bg-white'}`}
+            className={`border px-2 py-1 rounded ${
+              sortBy === 'rating' ? 'bg-gray-300 font-semibold' : 'bg-white'
+            }`}
           >
             Calificación ⭐
           </button>
@@ -137,134 +159,131 @@ export default function ComentariosRecibidos() {
           <label>Dirección:</label>
           <button
             onClick={() => setDirection('asc')}
-            className={`border px-2 py-1 rounded ${direction === 'asc' ? 'bg-gray-300 font-semibold' : 'bg-white'}`}
+            className={`border px-2 py-1 rounded ${
+              direction === 'asc' ? 'bg-gray-300 font-semibold' : 'bg-white'
+            }`}
           >
             Ascendente ⬆️
           </button>
           <button
             onClick={() => setDirection('desc')}
-            className={`border px-2 py-1 rounded ${direction === 'desc' ? 'bg-gray-300 font-semibold' : 'bg-white'}`}
+            className={`border px-2 py-1 rounded ${
+              direction === 'desc' ? 'bg-gray-300 font-semibold' : 'bg-white'
+            }`}
           >
             Descendente ⬇️
           </button>
         </div>
       </div>
 
-      {loading ? (
-        <div className="flex justify-center items-center py-20">
-          <svg
-            className="animate-spin h-10 w-10 text-yellow-500"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            ></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-            ></path>
-          </svg>
-        </div>
-      ) : (
-        sortedItems.map((item, index) => {
-          const ratingStars = Math.min(Math.max(Math.round(item.calificacionPromedio), 0), 5);
-          return (
-            <div key={index} className="w-full border-3 border-yellow-400 rounded-lg p-4 bg-white shadow-sm">
-              <div className="grid grid-cols-12 gap-4 items-start text-center">
-              <div className="col-span-12 sm:col-span-2 flex flex-col items-center justify-start">
-                  <img
-                    src={item.direccionImagen || defaultImage}
-                    alt={`${item.marca} ${item.modelo}`}
-                    className="w-full h-30 object-cover rounded"
-                  />
-                  <h2 className="text-lg font-semibold mt-2">{`${item.marca} ${item.modelo}`}</h2>
-                </div>
+      {/* Contenedor con animación layout */}
+      <motion.div layout>
+        <AnimatePresence>
+          {sortedItems.map(item => {
+            const id = item.id;
+            const ratingStars = Math.min(Math.max(Math.round(item.calificacionPromedio), 0), 5);
+            const respGuardada = respuestasEnviadas[id] || '';
+            const respVisible = respuestasVisibles[id] || false;
+            const textoResp = respuestasTexto[id] || '';
 
-                <div className="col-span-6 sm:col-span-2 flex flex-col items-center justify-start">
-                  <strong className="text-gray-600 mb-10">Inquilino</strong>
-                  <p>{item.name}</p>
-                </div>
-
-                <div className="col-span-12 sm:col-span-4 flex flex-col items-center justify-start">
-                  <strong className="text-gray-600 mb-2">Comentario</strong>
-                  <p className="mb-4">{item.comentarios}</p>
-                  
-                  <>
-                   <button
-                    onClick={() => toggleRespuesta(index)}
-                    className="mt-2 px-4 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors"
-                    >
-                   {respuestasVisibles[index] ? 'Cancelar' : 'Responder'}
-                    </button>
-
-                    {respuestasVisibles[index] && (
-                      <div className="mt-2 w-full">
-                      <textarea
-                        className="w-full border p-2 rounded text-sm"
-                        rows={3}
-                        placeholder="Escribe tu respuesta..."
-                        value={respuestasTexto[index] || ''}
-                        onChange={(e) => handleTextoRespuesta(index, e.target.value)}
-                        maxLength={300}
-                      />
-                      <div className="text-right text-xs text-gray-500 mt-1">
-                        {respuestasTexto[index]?.length || 0}/300 caracteres
-                      </div>
-                <button
-                  onClick={() => enviarRespuesta(index)}
-                  className={`mt-1 px-3 py-1 rounded text-sm transition-colors ${
-                  respuestasTexto[index]?.trim()
-                   ? 'bg-blue-500 text-white hover:bg-blue-600'
-                      : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                  }`}
-                 disabled={!respuestasTexto[index]?.trim()}
-                  >
-                   Enviar respuesta
-                </button>
-
+            return (
+              <motion.div
+                key={id}
+                layout
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3 }}
+                className="w-full border-3 border-yellow-400 rounded-lg p-4 bg-white shadow-sm mb-4"
+              >
+                <div className="grid grid-cols-12 gap-4 items-start text-center">
+                  <div className="col-span-12 sm:col-span-2 flex flex-col items-center justify-start">
+                    <img
+                      src={item.direccionImagen || defaultImage}
+                      alt={`${item.marca} ${item.modelo}`}
+                      className="w-full h-30 object-cover rounded"
+                    />
+                    <h2 className="text-lg font-semibold mt-2">
+                      {item.marca} {item.modelo}
+                    </h2>
                   </div>
-                   )}
-                  </>
 
+                  <div className="col-span-6 sm:col-span-2 flex flex-col items-center justify-start">
+                    <strong className="text-gray-600 mb-10">Inquilino</strong>
+                    <p>{item.name}</p>
+                  </div>
 
-                
+                  <div className="col-span-12 sm:col-span-4 flex flex-col items-center justify-start">
+                    <strong className="text-gray-600 mb-2">Comentario</strong>
+                    <p className="mb-4">{item.comentarios}</p>
+
+                    {respGuardada ? (
+                      <div className="mb-4 p-2 bg-blue-50 border border-blue-200 rounded w-full text-left">
+                        <p className="text-sm text-blue-800">
+                          <strong>Tu respuesta:</strong> {respGuardada}
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => toggleRespuesta(id)}
+                          className="mt-2 px-4 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors"
+                        >
+                          {respVisible ? 'Cancelar' : 'Responder'}
+                        </button>
+                        {respVisible && (
+                          <div className="mt-2 w-full">
+                            <textarea
+                              className="w-full border p-2 rounded text-sm"
+                              rows={3}
+                              placeholder="Escribe tu respuesta..."
+                              value={textoResp}
+                              onChange={e => handleTextoRespuesta(id, e.target.value)}
+                              maxLength={300}
+                            />
+                            <div className="text-right text-xs text-gray-500 mt-1">
+                              {textoResp.length}/300 caracteres
+                            </div>
+                            <button
+                              onClick={() => enviarRespuesta(id)}
+                              className={`mt-1 px-3 py-1 rounded text-sm transition-colors ${
+                                textoResp.trim()
+                                  ? 'bg-blue-500 text-white hover:bg-blue-600'
+                                  : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                              }`}
+                              disabled={!textoResp.trim()}
+                            >
+                              Enviar respuesta
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+
+                  <div className="col-span-3 sm:col-span-2 flex flex-col items-center justify-start">
+                    <strong className="text-gray-600 mb-10">Calificación</strong>
+                    <p className="flex justify-center gap-1">
+                      {[...Array(5)].map((_, i) => (
+                        <FaStar
+                          key={i}
+                          color={i < ratingStars ? '#FBBF24' : '#D1D5DB'}
+                          size={20}
+                        />
+                      ))}
+                    </p>
+                  </div>
+
+                  <div className="col-span-3 sm:col-span-2 flex flex-col items-center justify-start">
+                    <strong className="text-gray-600 mb-10">Fecha</strong>
+                    <p>{item.date}</p>
+                  </div>
                 </div>
-
-                  
-
-                <div className="col-span-3 sm:col-span-2 flex flex-col items-center justify-start">
-                  <strong className="text-gray-600 mb-10">Calificación</strong>
-                  <p className="flex justify-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <FaStar
-                        key={i}
-                        color={i < ratingStars ? '#FBBF24' : '#D1D5DB'}
-                        size={20}
-                        aria-label={i < ratingStars ? 'Estrella llena' : 'Estrella vacía'}
-                      />
-                    ))}
-                  </p>
-                </div>
-
-                <div className="col-span-3 sm:col-span-2 flex flex-col items-center justify-start">
-                  <strong className="text-gray-600 mb-10">Fecha</strong>
-                  <p>{item.date}</p>
-                </div>
-              </div>
-            </div>
-          );
-
-        })
-      )}
-      
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+      </motion.div>
     </div>
   );
 }

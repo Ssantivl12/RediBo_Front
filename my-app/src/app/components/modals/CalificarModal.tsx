@@ -2,16 +2,23 @@
 
 import React, { useState, useEffect } from 'react';
 
+interface Comentario {
+  id: number;
+  autor: string;
+  texto: string;
+  fecha?: string;
+  avatar?: string;
+  calificacion: number;
+}
+
 interface Inquilino {
   id: number;
   nombre: string;
-  foto: string;
-  calificacion: number;
-  comentarios: number;
-  verificado: boolean;
-  puedeCalificar?: boolean;
+  img: string;
+  promedio: number;
+  totalReseñas: number;
+  comentarios: Comentario[];
 }
-
 interface CalificarModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -323,7 +330,8 @@ const CalificarModal: React.FC<CalificarModalProps> = ({ isOpen, onClose, inquil
         
         setIsSubmitting(false);
         setComentarioEnviado(true);
-        
+        guardarComentarioLocal();
+
         setTimeout(() => {
           onClose();
         }, 1500);
@@ -362,12 +370,28 @@ const CalificarModal: React.FC<CalificarModalProps> = ({ isOpen, onClose, inquil
 
   if (!isOpen || !inquilino) return null;
 
+
+
+const guardarComentarioLocal = () => {
+  const key = 'comentariosInquilino';
+  const guardados = JSON.parse(localStorage.getItem(key) || '{}');
+
+  guardados[inquilino.id] = {
+    comentario,
+    rating,
+    fecha: new Date().toISOString(),
+  };
+
+  localStorage.setItem(key, JSON.stringify(guardados));
+};
+
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 flex items-center justify-center z-100 p-4 bg-opacity-80 backdrop-blur-sm">
       <div className="bg-white rounded-lg border-2 p-6 w-full max-w-md mx-auto relative min-h-fit" style={{ borderColor: '#FCA311' }}>
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl font-bold"
+className="absolute top-4 right-4 text-gray-400 hover:text-red-600 text-2xl font-bold cursor-pointer transition-colors duration-300"
         >
           ×
         </button>
@@ -376,9 +400,9 @@ const CalificarModal: React.FC<CalificarModalProps> = ({ isOpen, onClose, inquil
 
         <div className="flex items-start space-x-4 mb-4">
           <div className="w-20 h-20 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold text-xl flex-shrink-0">
-            {inquilino.foto ? (
+            {inquilino.img ? (
               <img 
-                src={inquilino.foto} 
+                src={inquilino.img} 
                 alt={inquilino.nombre}
                 className="w-full h-full object-cover"
                 onError={(e) => {
@@ -388,7 +412,7 @@ const CalificarModal: React.FC<CalificarModalProps> = ({ isOpen, onClose, inquil
                   if (parent) {
                     parent.innerHTML = inquilino.nombre.split(' ').map(n => n[0]).join('');
                   }
-                }}
+                }}  
               />
             ) : (
               inquilino.nombre.split(' ').map(n => n[0]).join('')
@@ -399,10 +423,10 @@ const CalificarModal: React.FC<CalificarModalProps> = ({ isOpen, onClose, inquil
               {inquilino.nombre}
             </h3>
             <p className="text-sm text-gray-600">
-              Auto alquilado: <span className="text-blue-600 font-medium">Toyota Corolla</span>
+              Auto alquilado: <span className="text-blue-600 font-medium">Chevrolet Onix</span>
             </p>
             <p className="text-sm text-gray-600">
-              Fecha finalización: <span className="font-medium">18 mayo 2025</span>
+              Fecha finalización: <span className="font-medium">08 mayo 2025</span>
             </p>
 
             <div className="flex items-center space-x-2 mt-3">
