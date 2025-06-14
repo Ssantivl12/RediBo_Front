@@ -165,8 +165,9 @@ export const VerComentarios: React.FC<ComentariosModalProps> = ({
                       setPaginaActual(nuevaPagina);
                     }
                   }}
-                  className="w-12 text-center border border-gray-300 rounded px-1 py-0.5 focus:outline-none focus:ring-2 focus:ring-[#11295B]"
+                  className="w-10 text-center border-none appearance-none bg-transparent text-[#11295B] font-semibold focus:outline-none focus:ring-0"
                 />
+
                 <span className="text-[#11295B] font-medium">/ {totalPaginas}</span>
               </div>
 
