@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Footer from '@components/footer/Footer';
-import styles from './pagarRenta.module.css';
 import EncabezadoAuto from '@components/auto/EncabezadoAuto';
 import GaleriaAuto from '@components/auto/GaleriaAuto';
 import PropietarioAuto from '@components/auto/PropietarioAuto';
@@ -14,7 +13,6 @@ import { API_URL } from '@config/api';
 
 export default function PagarRenta() {
   const params = useParams();
-  const [mostrarModal, setMostrarModal] = useState(false);
   interface CarData {
     titulo: string;
     tipo: string;
