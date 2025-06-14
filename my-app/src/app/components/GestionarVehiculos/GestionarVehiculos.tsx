@@ -85,6 +85,7 @@ export default function GestionarVehiculos() {
   const [comentarios, setComentarios] = useState<Comentario[]>([]);
   //Paginación
   const [paginaActual, setPaginaActual] = useState(1);
+  const [inputValue, setInputValue] = useState("1");
   const autosPorPagina = 5;
 
   // Función para cargar comentarios desde la API
@@ -121,7 +122,10 @@ export default function GestionarVehiculos() {
 
   useEffect(() => {
     cargarVehiculos();
+    setInputValue(String(paginaActual));
   }, []);
+
+
 
   const renderPromedioCalificacion = (vehiculo: Vehiculo) => {
     if (!vehiculo.promedioCalificacion || vehiculo.promedioCalificacion === 0) {
@@ -236,6 +240,7 @@ export default function GestionarVehiculos() {
   const totalPaginas = Math.ceil(vehiculosFiltrados.length / autosPorPagina);
   const indiceInicio = (paginaActual - 1) * autosPorPagina;
   const vehiculosPaginados = vehiculosFiltrados.slice(indiceInicio, indiceInicio + autosPorPagina);
+
 
 
   const handleLiberarRenta = (idAuto: number) => {
@@ -736,45 +741,58 @@ export default function GestionarVehiculos() {
           ))}
           {totalPaginas > 1 && (    // paginacion de los autos//
             <div className="flex justify-center items-center gap-4 mt-6">
+              {/* Botón anterior */}
               <button
                 onClick={() => setPaginaActual(paginaActual - 1)}
                 disabled={paginaActual === 1}
-                className={`bg-[#11295B] text-white w-8 h-8 rounded-full ${paginaActual === 1 ? 'opacity-40 cursor-not-allowed' : ''}`}
+                className={`bg-[#11295B] text-white w-8 h-8 rounded-full ${paginaActual === 1 ? "opacity-40 cursor-not-allowed" : ""
+                  }`}
               >
                 &lt;
               </button>
 
+              {/* Campo editable con estilo sin flechitas ni borde */}
               <div className="flex items-center gap-1">
                 <input
-                  type="number"
-                  defaultValue={paginaActual}
-                  min={1}
-                  max={totalPaginas}
-                  onBlur={(e) => {
-                    const nuevaPagina = Number(e.target.value);
+                  type="text"
+                  inputMode="numeric"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onFocus={(e) => e.target.select()} // 👉 selecciona el texto al enfocar
+                  onBlur={() => {
+                    const nuevaPagina = Number(inputValue);
                     if (!isNaN(nuevaPagina) && nuevaPagina >= 1 && nuevaPagina <= totalPaginas) {
                       setPaginaActual(nuevaPagina);
+                    } else {
+                      setInputValue(String(paginaActual));
                     }
                   }}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      const target = e.target as HTMLInputElement;
-                      const nuevaPagina = Number(target.value);
+                    if (e.key === "Enter") {
+                      const nuevaPagina = Number(inputValue);
                       if (!isNaN(nuevaPagina) && nuevaPagina >= 1 && nuevaPagina <= totalPaginas) {
                         setPaginaActual(nuevaPagina);
-                        target.blur(); // Opcional: saca el foco después de presionar Enter
+                        (e.target as HTMLInputElement).blur();
+                      } else {
+                        setInputValue(String(paginaActual));
                       }
                     }
                   }}
-                  className="w-10 text-center border-none appearance-none bg-transparent text-[#11295B] font-semibold focus:outline-none focus:ring-0"
+                  className="w-6 text-center bg-transparent text-[#11295B] font-semibold focus:outline-none"
+                  style={{
+                    MozAppearance: "textfield",
+                    WebkitAppearance: "none",
+                  }}
                 />
                 <span className="text-[#11295B] font-medium">/ {totalPaginas}</span>
               </div>
 
+              {/* Botón siguiente */}
               <button
                 onClick={() => setPaginaActual(paginaActual + 1)}
                 disabled={paginaActual === totalPaginas}
-                className={`bg-[#11295B] text-white w-8 h-8 rounded-full ${paginaActual === totalPaginas ? 'opacity-40 cursor-not-allowed' : ''}`}
+                className={`bg-[#11295B] text-white w-8 h-8 rounded-full ${paginaActual === totalPaginas ? "opacity-40 cursor-not-allowed" : ""
+                  }`}
               >
                 &gt;
               </button>
