@@ -694,8 +694,10 @@ export default function GestionarVehiculos() {
 
       {vehiculosFiltrados.length === 0 ? (
         <div className="flex justify-center items-center min-h-[300px]">
-          <p className="text-center text-lg font-medium text-gray-600">
-            {search.trim() !== "" ? "No se encontraron resultados." : "No se encontraron autos..."}
+          <p className="text-center text-lg font-semibold text-gray-600">
+            {search.trim()
+              ? "No se encontraron resultados para la búsqueda."
+              : "No hay vehículos disponibles en este momento."}
           </p>
         </div>
       ) : (
