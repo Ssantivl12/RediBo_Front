@@ -37,13 +37,6 @@ export default function Precio({ precioPorDia, dias = 1, montoGarantia = 500 }: 
         <span className="font-normal text-black">{dias}</span>
       </div>
 
-      {/* Subtotal */}
-      <div className="flex justify-between mt-3 border-t pt-2 border-gray-300">
-        <span className="font-medium text-black">Subtotal:</span>
-        <span className="font-medium text-black">{subtotalBOB.toFixed(2)} BOB</span>
-      </div>
-      <div className="font-normal text-black text-right mt-1">{subtotalUSD.toFixed(2)} USD</div>
-
       {/* Garantía */}
       <div className="flex justify-between mt-3">
         <span className="font-normal text-black">Garantía:</span>
