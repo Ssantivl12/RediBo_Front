@@ -1,6 +1,7 @@
 //home.tsx
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from 'next/navigation';
 import { useSearchParams } from "next/navigation"; // ✅
 import NavbarPrincipal from "../components/navbar/NavbarPrincipal";
 import FiltersBar from "../components/filters/FiltersBar";
@@ -16,7 +17,7 @@ import Carousel from "./carousel/carousel";
 import ModalLoginExitoso from '@/app/components/modals/ModalLoginExitoso';
 
 export default function HomePage() {
-
+  const router = useRouter();
   const searchParams = useSearchParams();
 const [showCompleteProfileModal, setShowCompleteProfileModal] =
     useState(false);
@@ -30,7 +31,16 @@ const [showCompleteProfileModal, setShowCompleteProfileModal] =
   >(null);
   const [showToast, setShowToast] = useState(false);
   const [showToast2, setShowToast2] = useState(false); // Para el mensaje de usuario bloqueado
-  
+  const navegarAPagarRenta = () => {
+    
+    router.push('/rentador/pagarRenta/6');
+  };
+const navegarAGestionarSolicitudes = () => {
+  router.push('/arrendador/gestionarSolicitudes/13');
+};
+const navegarAGestionarAutos = () => {
+  router.push('/arrendador/gestionarAutos/13');
+};
   const handleLoginSubmit = () => {
     setModalState("passwordRecovery");
   };
@@ -121,7 +131,50 @@ const [showCompleteProfileModal, setShowCompleteProfileModal] =
           <Carousel />
         </div>
       </main>
-
+      <div className="min-h-screen flex flex-col">
+        {/* Main content */}
+        <main className="flex-1 px-6 py-12 flex flex-col items-center">
+          
+          {/* Groups container */}
+          <div className="w-full max-w-6xl flex flex-wrap justify-center gap-8">
+            
+            {/* Group Section - Componente específico que pediste */}
+            <div className="w-full max-w-sm p-6 rounded-lg shadow-md bg-white transition-all duration-300 hover:shadow-lg">
+              <h2 className="mt-0 pb-3 text-2xl text-blue-600 border-b-2 border-gray-200">
+                Grupo CodeLovers
+              </h2>
+              
+              <div className="mt-4 text-black flex flex-col items-center gap-4">
+                <p className="text-center">
+                  Funcionalidades del equipo de desarrollo CodeLovers:
+                </p>
+                
+                <button 
+                  className="bg-blue-600 text-white border-none rounded px-6 py-3 text-base cursor-pointer transition-colors duration-300 hover:bg-blue-800 w-full max-w-xs"
+                  onClick={navegarAGestionarSolicitudes}
+                >
+                  Gestionar Solicitudes de Agenda
+                </button>
+                
+                <button 
+                  className="bg-blue-600 text-white border-none rounded px-6 py-3 text-base cursor-pointer transition-colors duration-300 hover:bg-blue-800 w-full max-w-xs"
+                  onClick={navegarAPagarRenta}
+                >
+                  Pagar Renta
+                </button>
+                
+                <button 
+                  className="bg-blue-600 text-white border-none rounded px-6 py-3 text-base cursor-pointer transition-colors duration-300 hover:bg-blue-800 w-full max-w-xs"
+                  onClick={navegarAGestionarAutos}
+                >
+                  Gestionar Autos (Mantenimiento y liberar auto)
+                </button>
+              </div>
+            </div>
+            
+          </div>
+        </main>
+      </div>
       <footer>
         <Footer />
       </footer>
