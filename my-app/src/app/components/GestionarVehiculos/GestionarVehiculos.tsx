@@ -823,12 +823,12 @@ export default function GestionarVehiculos() {
         title="¿Confirma los datos del mantenimiento?"
         message={
           datosMantenimientoTemp ?
-            `Tipo: ${datosMantenimientoTemp.tipoMantenimiento}
-         Fecha inicio: ${datosMantenimientoTemp.fechaInicio}
-         Fecha fin: ${datosMantenimientoTemp.fechaFin}
-         Costo: $${datosMantenimientoTemp.costo}
-         Descripción: ${datosMantenimientoTemp.descripcion}` :
-            "¿Está seguro de registrar este mantenimiento?"
+          `Fecha inicio: ${datosMantenimientoTemp.fechaInicio}
+          Fecha fin: ${datosMantenimientoTemp.fechaFin}
+          Descripción: ${datosMantenimientoTemp.descripcion}
+          Costo: $${datosMantenimientoTemp.costo}
+          Tipo: ${datosMantenimientoTemp.tipoMantenimiento}` :
+          "¿Está seguro de registrar este mantenimiento?"
         }
         confirmText="CONFIRMAR"
         cancelText="CANCELAR"
