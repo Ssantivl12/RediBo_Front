@@ -106,7 +106,7 @@ export function NotificacionesCampana() {
         }
 
         await axios.put(
-          `${API_URL}/notificaciones/notificacion-leida/${notificacion.id}/${userId}`,
+          `${API_URL}/notificaciones/notificacion-leida/${notificacion.id}`,
           {},
           {
             headers: {
@@ -135,7 +135,7 @@ export function NotificacionesCampana() {
       await api.delete(`/notificaciones/eliminar-notificacion/${id}`, {
         data: { usuarioId: userId },
       });
-      setNotifications((prev) => prev.filter((n) => n.id !== id));
+      setNotifications((prev) => prev.filter((n) => n.idNotificacion !== id));
       setSelectedNotificacion(null);
       cargarNotificaciones();
     } catch (error) {
@@ -261,7 +261,7 @@ export function NotificacionesCampana() {
                   <ul>
                     {notifications.slice(0, 3).map((notificacion) => (
                       <li
-                        key={notificacion.id}
+                        key={notificacion.idNotificacion}
                         onClick={() => handleNotificacionClick(transformarNotificacion(notificacion))}
                         className={`p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
                         notificacion.leido ? 'bg-white' : 'bg-amber-50'

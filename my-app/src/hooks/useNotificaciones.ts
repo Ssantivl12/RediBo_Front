@@ -73,7 +73,16 @@ export function useNotifications() {
     
     try {
       console.log("Obteniendo conteo de no leídas directo de la API");
-      const response = await fetch(`http://localhost:3001/api/notificaciones/notificaciones-no-leidas/${userId}`);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No hay token disponible');
+      }
+
+      const response = await fetch(`http://localhost:3001/api/notificaciones/notificaciones-no-leidas`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       const data = await response.json();
       
       if (response.ok) {
@@ -98,7 +107,7 @@ export function useNotifications() {
       console.log("Actualizando estado local antes de llamar API");
       setNotifications(prev => {
         const updated = prev.map(n => {
-          if (n.id === notificationId) {
+          if (n.idNotificacion === notificationId) {
             console.log(`Cambiando notificación ${n.id} a leída (estaba: ${n.leido})`);
             return { ...n, leido: true };
           }
@@ -124,7 +133,7 @@ export function useNotifications() {
     } catch (error:unknown) {
       if (error instanceof Error) console.error('Error al marcar notificación como leída:', error.message);
       setNotifications(prev => 
-        prev.map(n => n.id === notificationId ? { ...n, leido: false } : n)
+        prev.map(n => n.idNotificacion === notificationId ? { ...n, leido: false } : n)
       );
       await fetchUnreadCount();
     }
@@ -158,10 +167,10 @@ export function useNotifications() {
       .onNewNotification((notification) => {
         console.log("Nueva notificación recibida en hook:", notification);
         setNotifications(prev => {
-          const exists = prev.some(n => n.id === notification.id);
+          const exists = prev.some(n => n.idNotificacion === notification.idNotificacion);
           if (exists) {
             console.log("Notificación ya existe, actualizando");
-            return prev.map(n => n.id === notification.id ? notification : n);
+            return prev.map(n => n.idNotificacion === notification.idNotificacion ? notification : n);
           }
           
           console.log("Agregando nueva notificación al array");
@@ -182,8 +191,8 @@ export function useNotifications() {
         console.log("Evento notificación leída recibido en hook:", notificationId);
         setNotifications(prev => {
           const updated = prev.map(n => {
-            if (n.id === notificationId) {
-              console.log(`SSE: cambiando notificación ${n.id} a leída (estaba: ${n.leido})`);
+            if (n.idNotificacion === notificationId) {
+              console.log(`SSE: cambiando notificación ${n.idNotificacion} a leída (estaba: ${n.leido})`);
               return { ...n, leido: true };
             }
             return n;
@@ -201,7 +210,7 @@ export function useNotifications() {
       .onNotificationDeleted((notificationId) => {
         console.log("Evento notificación eliminada recibido en hook:", notificationId);
         setNotifications(prev => {
-          const updated = prev.filter(n => n.id !== notificationId);
+          const updated = prev.filter(n => n.idNotificacion !== notificationId);
           return updated;
         });
         
