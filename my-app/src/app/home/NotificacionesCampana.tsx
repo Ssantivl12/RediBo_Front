@@ -78,7 +78,7 @@ export function NotificacionesCampana() {
 
   const handleVerDetalles = async (notificacion: Notificacion) => {
     try {
-      const detalle = await obtenerDetalleNotificacion(notificacion.id);
+      const detalle = await obtenerDetalleNotificacion(notificacion.idNotificacion);
       if (detalle) {
         setSelectedNotificacion(notificacion);
       }
@@ -88,11 +88,11 @@ export function NotificacionesCampana() {
   };
 
   const handleMarcarComoLeido = async (notificacion: Notificacion) => {
-    if (!notificacion.id) {
+    if (!notificacion.idNotificacion) {
       console.error('No se puede marcar como leída una notificación sin ID');
       return;
     }
-    await markAsRead(notificacion.id);
+    await markAsRead(notificacion.idNotificacion);
   };
 
   const handleNotificacionClick = async (notificacion: Notificacion) => {
@@ -106,7 +106,7 @@ export function NotificacionesCampana() {
         }
 
         await axios.put(
-          `${API_URL}/notificaciones/notificacion-leida/${notificacion.id}`,
+          `${API_URL}/notificaciones/notificacion-leida/${notificacion.idNotificacion}`,
           {},
           {
             headers: {
@@ -115,7 +115,7 @@ export function NotificacionesCampana() {
           }
         );
 
-        await markAsRead(notificacion.id);
+        await markAsRead(notificacion.idNotificacion);
       } catch (error) {
         console.error('Error al marcar notificación como leída:', error);
       }
@@ -145,12 +145,12 @@ export function NotificacionesCampana() {
 
   const transformarNotificacion = (item: Notificacion | Notification): Notificacion => {
     console.log('Transformando notificación en componente:', item);
-    if (!item.id) {
+    if (!item.idNotificacion) {
       console.error('Notificación sin ID:', item);
       throw new Error('Notificación sin ID');
     }
     return {
-      id: item.id,
+      idNotificacion: item.idNotificacion,
       titulo: item.titulo,
       descripcion: 'descripcion' in item ? item.descripcion : item.mensaje,
       mensaje: item.mensaje,
@@ -174,8 +174,8 @@ export function NotificacionesCampana() {
         return;
       }
       
-      const notificacionesExistentes = new Map(prevNotificationsRef.current.map(n => [n.id, n]));
-      const nuevas = notisTransformadas.filter(nueva => !notificacionesExistentes.has(nueva.id));
+      const notificacionesExistentes = new Map(prevNotificationsRef.current.map(n => [n.idNotificacion, n]));
+      const nuevas = notisTransformadas.filter(nueva => !notificacionesExistentes.has(nueva.idNotificacion));
 
       if (nuevas.length > 0) {
         const notificacionMasReciente = nuevas.reduce((masReciente, actual) => {
@@ -332,7 +332,7 @@ export function NotificacionesCampana() {
               isOpen={true}
               notification={selectedNotificacion}
               onClose={handleCloseModal}
-              onDelete={() => handleDelete(selectedNotificacion.id)}
+              onDelete={() => handleDelete(selectedNotificacion.idNotificacion)}
             />
           </motion.div>
         )}

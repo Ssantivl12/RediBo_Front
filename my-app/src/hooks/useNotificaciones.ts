@@ -37,7 +37,7 @@ export function useNotifications() {
             throw new Error('Notificación sin ID');
           }
           const notificacion: Notificacion = {
-            id: n.idNotificacion,
+            idNotificacion: n.idNotificacion,
             titulo: n.titulo,
             descripcion: n.mensaje,
             mensaje: n.mensaje,
@@ -54,7 +54,7 @@ export function useNotifications() {
 
         const notificacionesMapped = data.notificaciones.map(transformarNotificacion);
         
-        console.log("Actualizando notificaciones en estado local", notificacionesMapped.map((n: Notificacion) => ({id: n.id, leido: n.leido})));
+        console.log("Actualizando notificaciones en estado local", notificacionesMapped.map((n: Notificacion) => ({id: n.idNotificacion, leido: n.leido})));
         setNotifications(notificacionesMapped);
       } else {
         console.error("Error en respuesta API:", data.error);
@@ -108,7 +108,7 @@ export function useNotifications() {
       setNotifications(prev => {
         const updated = prev.map(n => {
           if (n.idNotificacion === notificationId) {
-            console.log(`Cambiando notificación ${n.id} a leída (estaba: ${n.leido})`);
+            console.log(`Cambiando notificación ${n.idNotificacion} a leída (estaba: ${n.leido})`);
             return { ...n, leido: true };
           }
           return n;

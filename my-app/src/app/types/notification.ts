@@ -1,7 +1,7 @@
 export type PrioridadNotificacion = 'ALTA' | 'MEDIA' | 'BAJA';
 
 export interface Notificacion {
-  id: string;
+  idNotificacion: string;
   titulo: string;
   descripcion: string;
   mensaje: string;
