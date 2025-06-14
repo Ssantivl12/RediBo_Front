@@ -144,31 +144,36 @@ export const VerComentarios: React.FC<ComentariosModalProps> = ({
 
           {/* PAGINACIÓN SOLO SI HAY COMENTARIOS */}
           {comentariosOrdenados.length > 0 && (
-            <div className="flex items-center justify-center gap-6 mt-6">
+            <div className="flex justify-center items-center gap-4 mt-6">
               <button
-                onClick={() => cambiarPagina("anterior")}
+                onClick={() => setPaginaActual(paginaActual - 1)}
                 disabled={paginaActual === 1}
-                className={`rounded-full w-8 h-8 flex items-center justify-center transition ${
-                  paginaActual === 1
-                    ? "bg-gray-300 text-white opacity-50"
-                    : "bg-[#11295B] text-white hover:opacity-90"
-                }`}
-                style={{ cursor: paginaActual === 1 ? "default" : "pointer" }}
+                className={`bg-[#11295B] text-white w-8 h-8 rounded-full ${paginaActual === 1 ? 'opacity-40 cursor-not-allowed' : ''}`}
               >
                 &lt;
               </button>
-              <span className="text-[#11295B] font-medium">
-                {paginaActual} / {totalPaginas}
-              </span>
+
+              <div className="flex items-center gap-1">
+                <input
+                  type="number"
+                  value={paginaActual}
+                  min={1}
+                  max={totalPaginas}
+                  onChange={(e) => {
+                    const nuevaPagina = Number(e.target.value);
+                    if (!isNaN(nuevaPagina) && nuevaPagina >= 1 && nuevaPagina <= totalPaginas) {
+                      setPaginaActual(nuevaPagina);
+                    }
+                  }}
+                  className="w-12 text-center border border-gray-300 rounded px-1 py-0.5 focus:outline-none focus:ring-2 focus:ring-[#11295B]"
+                />
+                <span className="text-[#11295B] font-medium">/ {totalPaginas}</span>
+              </div>
+
               <button
-                onClick={() => cambiarPagina("siguiente")}
+                onClick={() => setPaginaActual(paginaActual + 1)}
                 disabled={paginaActual === totalPaginas}
-                className={`rounded-full w-8 h-8 flex items-center justify-center transition ${
-                  paginaActual === totalPaginas
-                    ? "bg-gray-300 text-white opacity-50"
-                    : "bg-[#11295B] text-white hover:opacity-90"
-                }`}
-                style={{ cursor: paginaActual === totalPaginas ? "default" : "pointer" }}
+                className={`bg-[#11295B] text-white w-8 h-8 rounded-full ${paginaActual === totalPaginas ? 'opacity-40 cursor-not-allowed' : ''}`}
               >
                 &gt;
               </button>
