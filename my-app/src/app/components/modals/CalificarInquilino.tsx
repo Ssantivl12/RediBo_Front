@@ -1,6 +1,6 @@
 'use client';
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState} from "react";
 import CalificarModal from "./CalificarModal";
 import ComentariosInquilino from "./ComentariosInquilino";
 
@@ -165,16 +165,16 @@ const inquilinos: Inquilino[] = [
 ];
 
 export default function CalificarInquilino() {
-  const [renderFlag, setRenderFlag] = useState(false);
+  //const [renderFlag, setRenderFlag] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isComentariosModalOpen, setIsComentariosModalOpen] = useState(false);
   const [selectedInquilino, setSelectedInquilino] = useState<Inquilino | null>(null);
 
-  useEffect(() => {
-    const handler = () => setRenderFlag(f => !f);
-    window.addEventListener("inquilinoCalificado", handler);
-    return () => window.removeEventListener("inquilinoCalificado", handler);
-  }, []);
+  //useEffect(() => {
+   // const handler = () => setRenderFlag(f => !f);
+   // window.addEventListener("inquilinoCalificado", handler);
+   // return () => window.removeEventListener("inquilinoCalificado", handler);
+  //}, []);
 
   const yaFueCalificado = (id: number) => {
     if (typeof window === 'undefined') return false;

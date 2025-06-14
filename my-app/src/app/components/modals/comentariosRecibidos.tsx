@@ -2,6 +2,8 @@
 import { useEffect, useState } from 'react';
 import { FaStar } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
+
 
 type CommentedCar = {
   id: string;
@@ -20,7 +22,7 @@ const variableDeDireccion = 'comentarios-direction';
 export default function ComentariosRecibidos() {
   // 1. Estados
   const [items, setItems] = useState<CommentedCar[]>([]);
-  const [loading, setLoading] = useState(true);
+  //const [loading, setLoading] = useState(true);
   const [respuestasVisibles, setRespuestasVisibles] = useState<{ [id: string]: boolean }>({});
   const [respuestasTexto, setRespuestasTexto] = useState<{ [id: string]: string }>({});
   const [respuestasEnviadas, setRespuestasEnviadas] = useState<{ [id: string]: string }>({});
@@ -83,7 +85,7 @@ export default function ComentariosRecibidos() {
       },
     ];
     setItems(mockData);
-    setLoading(false);
+    //setLoading(false);
   }, []);
 
   // 5. Leer respuestas guardadas una sola vez
@@ -198,7 +200,7 @@ export default function ComentariosRecibidos() {
               >
                 <div className="grid grid-cols-12 gap-4 items-start text-center">
                   <div className="col-span-12 sm:col-span-2 flex flex-col items-center justify-start">
-                    <img
+                    <Image
                       src={item.direccionImagen || defaultImage}
                       alt={`${item.marca} ${item.modelo}`}
                       className="w-full h-30 object-cover rounded"

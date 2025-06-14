@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 interface Comentario {
   id: number;
@@ -37,8 +38,8 @@ const CalificarModal: React.FC<CalificarModalProps> = ({ isOpen, onClose, inquil
   const [showWarning, setShowWarning] = useState<boolean>(false);
   
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [submitError, setSubmitError] = useState<string>('');
-  const [showSubmitError, setShowSubmitError] = useState<boolean>(false);
+  //const [submitError, setSubmitError] = useState<string>('');
+//  const [showSubmitError, setShowSubmitError] = useState<boolean>(false);
 
   useEffect(() => {
     if (!isOpen) {
@@ -52,8 +53,8 @@ const CalificarModal: React.FC<CalificarModalProps> = ({ isOpen, onClose, inquil
         setWarningMessage('');
         setShowWarning(false);
         setIsSubmitting(false);
-        setSubmitError('');
-        setShowSubmitError(false);
+       // setSubmitError('');
+       // setShowSubmitError(false);
       }, 300);
     }
   }, [isOpen]);
@@ -85,11 +86,11 @@ const CalificarModal: React.FC<CalificarModalProps> = ({ isOpen, onClose, inquil
     }, 2000);
   };
 
-  const validateForbiddenCharacters = (text: string): boolean => {
+ /* const validateForbiddenCharacters = (text: string): boolean => {
     const forbiddenChars = /[#@$%^&*]/;
     return forbiddenChars.test(text);
   };
-
+*/
   const isOnlyNumeric = (text: string): boolean => {
     const trimmedText = text.trim();
     return /^\d+$/.test(trimmedText) && trimmedText.length > 0;
@@ -319,7 +320,7 @@ const CalificarModal: React.FC<CalificarModalProps> = ({ isOpen, onClose, inquil
       const commentToSend = comentario.trim();
       
       setIsSubmitting(true);
-      setShowSubmitError(false);
+      //setShowSubmitError(false);
       
       setTimeout(() => {
         console.log('Comentario que se enviaría:', {
@@ -401,7 +402,7 @@ className="absolute top-4 right-4 text-gray-400 hover:text-red-600 text-2xl font
         <div className="flex items-start space-x-4 mb-4">
           <div className="w-20 h-20 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold text-xl flex-shrink-0">
             {inquilino.img ? (
-              <img 
+              <Image 
                 src={inquilino.img} 
                 alt={inquilino.nombre}
                 className="w-full h-full object-cover"
