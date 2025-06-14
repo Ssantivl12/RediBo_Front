@@ -125,7 +125,9 @@ export default function GestionarVehiculos() {
     setInputValue(String(paginaActual));
   }, []);
 
-
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [paginaActual]);
 
   const renderPromedioCalificacion = (vehiculo: Vehiculo) => {
     if (!vehiculo.promedioCalificacion || vehiculo.promedioCalificacion === 0) {
