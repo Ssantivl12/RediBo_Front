@@ -95,7 +95,12 @@ export default function ComprobanteDePago({
                   
                   <div class="info-row">
                     <span class="label">Método de Pago</span>
-                    <span class="value">${paymentDetails.metodoPago} •••• ${paymentDetails.ultimosDigitos}</span>
+                    <span class="value">
+                      ${paymentDetails.metodoPago === 'QR' 
+                        ? paymentDetails.metodoPago 
+                        : `${paymentDetails.metodoPago} •••• ${paymentDetails.ultimosDigitos}`
+                      }
+                    </span>
                   </div>
                   
                   <div class="info-row">
@@ -163,7 +168,7 @@ export default function ComprobanteDePago({
             <div className="space-y-3">
               <div className="flex justify-between py-2 border-b border-gray-200">
                 <span className="text-gray-600">Monto</span>
-                <span className="font-semibold text-gray-800">{paymentDetails.monto.toFixed(2)} {paymentDetails.moneda}</span>
+                <span className="font-semibold text-black">{paymentDetails.monto.toFixed(2)} {paymentDetails.moneda}</span>
               </div>
               
               <div className="flex justify-between py-2 border-b border-gray-200">
@@ -172,9 +177,14 @@ export default function ComprobanteDePago({
               </div>
               
               <div className="flex justify-between py-2 border-b border-gray-200">
-                <span className="text-gray-600">Método de Pago</span>
-                <span className="font-medium">{paymentDetails.metodoPago} •••• {paymentDetails.ultimosDigitos}</span>
-              </div>
+              <span className="text-gray-600">Método de Pago</span>
+              <span className="font-medium">
+                {paymentDetails.metodoPago === 'QR' 
+                  ? paymentDetails.metodoPago 
+                  : `${paymentDetails.metodoPago} •••• ${paymentDetails.ultimosDigitos}`
+                }
+              </span>
+            </div>
               
               <div className="flex justify-between py-2 border-b border-gray-200">
                 <span className="text-gray-600">Cliente</span>
