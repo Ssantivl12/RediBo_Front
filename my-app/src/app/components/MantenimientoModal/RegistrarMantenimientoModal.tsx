@@ -30,8 +30,8 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
 }) => {
   const [errors, setErrors] = useState<Record<string, boolean>>({});
   const [dateErrors, setDateErrors] = useState<{ fechaInicio?: string; fechaFin?: string }>({});
-  const [showConfirmation, setShowConfirmation] = useState(false); // State for confirmation modal
-  const [isProcessing, setIsProcessing] = useState(false); // State for processing
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const validateDate = (dateStr: string, fieldName: string) => {
     if (!dateStr) return true;
@@ -91,7 +91,7 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
     };
 
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // ✅ Eliminar la hora para comparación precisa
+    today.setHours(0, 0, 0, 0);
 
     if (!formData.fechaInicio || !validateDate(formData.fechaInicio, 'fechaInicio')) {
       newErrors.fechaInicio = true;
@@ -110,61 +110,58 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
         }));
         isValid = false;
       } else {
-        setDateErrors(prev => ({ ...prev, fechaInicio: '' })); // Limpia el error si está todo ok
+        setDateErrors(prev => ({ ...prev, fechaInicio: '' }));
       }
     }
 
-  if (formData.fechaFin && !validateDate(formData.fechaFin, 'fechaFin')) {
-    newErrors.fechaFin = true;
-    isValid = false;
-  }
-
-  // ✅ Validar que fechaFin no sea anterior a fechaInicio
-  if (
-    formData.fechaInicio &&
-    formData.fechaFin &&
-    validateDate(formData.fechaInicio, 'fechaInicio') &&
-    validateDate(formData.fechaFin, 'fechaFin')
-  ) {
-    const fechaInicioDate = parseDate(formData.fechaInicio);
-    const fechaFinDate = parseDate(formData.fechaFin);
-
-    if (fechaFinDate < fechaInicioDate) {
+    if (formData.fechaFin && !validateDate(formData.fechaFin, 'fechaFin')) {
       newErrors.fechaFin = true;
-      setDateErrors(prev => ({
-        ...prev,
-        fechaFin: 'La fecha de fin no puede ser anterior a la de inicio',
-      }));
       isValid = false;
     }
-  }
 
-  if (!formData.descripcion || formData.descripcion.length < 20) {
-    newErrors.descripcion = true;
-    isValid = false;
-  }
+    if (
+      formData.fechaInicio &&
+      formData.fechaFin &&
+      validateDate(formData.fechaInicio, 'fechaInicio') &&
+      validateDate(formData.fechaFin, 'fechaFin')
+    ) {
+      const fechaInicioDate = parseDate(formData.fechaInicio);
+      const fechaFinDate = parseDate(formData.fechaFin);
 
-  if (!formData.kilometraje || isNaN(Number(formData.kilometraje))) {
-    newErrors.kilometraje = true;
-    isValid = false;
-  }
+      if (fechaFinDate < fechaInicioDate) {
+        newErrors.fechaFin = true;
+        setDateErrors(prev => ({
+          ...prev,
+          fechaFin: 'La fecha de fin no puede ser anterior a la de inicio',
+        }));
+        isValid = false;
+      }
+    }
 
-  setErrors(newErrors);
-  return isValid;
-};
+    if (!formData.descripcion || formData.descripcion.length < 20) {
+      newErrors.descripcion = true;
+      isValid = false;
+    }
 
+    if (!formData.kilometraje || isNaN(Number(formData.kilometraje))) {
+      newErrors.kilometraje = true;
+      isValid = false;
+    }
 
+    setErrors(newErrors);
+    return isValid;
+  };
 
   const handleSubmit = () => {
     if (validateFields()) {
-      setShowConfirmation(true); // Show confirmation modal instead of submitting directly
+      setShowConfirmation(true);
     }
   };
 
   const handleConfirmSubmit = () => {
     setIsProcessing(true);
     setShowConfirmation(false);
-    onSubmit(formData); // Call the onSubmit function passed from the parent
+    onSubmit(formData);
     setIsProcessing(false);
   };
 
@@ -227,164 +224,172 @@ const RegistrarMantenimientoModal: React.FC<RegistrarMantenimientoModalProps> = 
   };
 
   return isOpen ? (
-    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
-        <div className="bg-[var(--hueso)] w-full p-4">
-          <h2 className="text-2xl font-semibold text-center text-[var(--azul-oscuro)]">
+    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50 p-4">
+      {/* Contenedor con scroll y altura máxima */}
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
+        {/* Header fijo */}
+        <div className="bg-[var(--hueso)] w-full p-4 flex-shrink-0">
+          <h2 className="text-xl sm:text-2xl font-semibold text-center text-[var(--azul-oscuro)]">
             Registrar Mantenimiento
           </h2>
         </div>
 
-        <div className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-[var(--azul-oscuro)] mb-1">
-              Fecha de inicio (dd/mm/yyyy) <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={formData.fechaInicio}
-              onChange={(e) => handleDateChange('fechaInicio', e.target.value)}
-              placeholder="dd/mm/yyyy"
-              className={getInputClass('fechaInicio')}
-              required
-            />
-            {errors.fechaInicio && (
-              <p className="mt-1 text-sm text-red-600">
-                {dateErrors.fechaInicio || "*La fecha de inicio no puede ser anterior a hoy"}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-[var(--azul-oscuro)] mb-1">
-              Fecha de Fin (dd/mm/yyyy)
-            </label>
-            <input
-              type="text"
-              value={formData.fechaFin}
-              onChange={(e) => handleDateChange('fechaFin', e.target.value)}
-              placeholder="dd/mm/yyyy"
-              className={getInputClass('fechaFin')}
-            />
-            {errors.fechaFin && (
-              <p className="mt-1 text-sm text-red-600">{dateErrors.fechaFin}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-[var(--azul-oscuro)] mb-1">
-              Descripción <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              value={formData.descripcion}
-              onChange={(e) => {
-                const textOnlyValue = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-                if (textOnlyValue.length <= 150) {
-                  handleChange('descripcion', textOnlyValue);
-                }
-              }}
-              className={getInputClass('descripcion')}
-              rows={3}
-              maxLength={150}
-              required
-            />
-            {errors.descripcion && (
-              <p className="mt-1 text-sm text-red-600">
-                {formData.descripcion.length < 20
-                  ? 'La descripción debe tener al menos 20 caracteres'
-                  : 'Este campo es obligatorio'}
-              </p>
-            )}
-            <p className="mt-1 text-sm text-gray-500">
-              {formData.descripcion.length}/150
-            </p>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-[var(--azul-oscuro)] mb-1">
-              Costo (Opcional)
-            </label>
-            <div className="relative">
+        {/* Contenido con scroll */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-[var(--azul-oscuro)] mb-1">
+                Fecha de inicio (dd/mm/yyyy) <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
-                value={formData.costo}
-                onChange={(e) => handleNumberChange('costo', e.target.value)}
-                className={`${getInputClass('costo')} pr-10`}
-                inputMode="numeric"
-              />
-              <span className="absolute inset-y-0 right-3 flex items-center text-gray-500">
-                $
-              </span>
-            </div>
-            {errors.costo && (
-              <p className="mt-1 text-sm text-red-600">Solo se permiten números</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-[var(--azul-oscuro)] mb-1">
-              Tipo de Mantenimiento
-            </label>
-            <div className="relative">
-              <select
-                value={formData.tipoMantenimiento}
-                onChange={(e) => handleChange('tipoMantenimiento', e.target.value)}
-                className="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] appearance-none bg-white text-gray-700"
-              >
-                <option value="PREVENTIVO">Preventivo</option>
-                <option value="CORRECTIVO">Correctivo</option>
-                <option value="REVISION">Revisión</option>
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-[var(--azul-oscuro)] mb-1">
-              Kilometraje <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                value={formData.kilometraje}
-                onChange={(e) => handleNumberChange('kilometraje', e.target.value)}
-                className={`${getInputClass('kilometraje')} pr-10`}
-                inputMode="numeric"
+                value={formData.fechaInicio}
+                onChange={(e) => handleDateChange('fechaInicio', e.target.value)}
+                placeholder="dd/mm/yyyy"
+                className={getInputClass('fechaInicio')}
                 required
               />
-              <span className="absolute inset-y-0 right-3 flex items-center text-gray-500">
-                km
-              </span>
+              {errors.fechaInicio && (
+                <p className="mt-1 text-sm text-red-600">
+                  {dateErrors.fechaInicio || "*La fecha de inicio no puede ser anterior a hoy"}
+                </p>
+              )}
             </div>
-            {errors.kilometraje && (
-              <p className="mt-1 text-sm text-red-600">
-                {isNaN(Number(formData.kilometraje))
-                  ? 'Solo se permiten números'
-                  : 'Este campo es obligatorio'}
-              </p>
-            )}
-          </div>
 
-          <div className="flex justify-between mt-6 space-x-3">
+            <div>
+              <label className="block text-sm font-medium text-[var(--azul-oscuro)] mb-1">
+                Fecha de Fin (dd/mm/yyyy)
+              </label>
+              <input
+                type="text"
+                value={formData.fechaFin}
+                onChange={(e) => handleDateChange('fechaFin', e.target.value)}
+                placeholder="dd/mm/yyyy"
+                className={getInputClass('fechaFin')}
+              />
+              {errors.fechaFin && (
+                <p className="mt-1 text-sm text-red-600">{dateErrors.fechaFin}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-[var(--azul-oscuro)] mb-1">
+                Descripción <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                value={formData.descripcion}
+                onChange={(e) => {
+                  const textOnlyValue = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                  if (textOnlyValue.length <= 150) {
+                    handleChange('descripcion', textOnlyValue);
+                  }
+                }}
+                className={getInputClass('descripcion')}
+                rows={3}
+                maxLength={150}
+                required
+              />
+              {errors.descripcion && (
+                <p className="mt-1 text-sm text-red-600">
+                  {formData.descripcion.length < 20
+                    ? 'La descripción debe tener al menos 20 caracteres'
+                    : 'Este campo es obligatorio'}
+                </p>
+              )}
+              <p className="mt-1 text-sm text-gray-500">
+                {formData.descripcion.length}/150
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-[var(--azul-oscuro)] mb-1">
+                Costo (Opcional)
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={formData.costo}
+                  onChange={(e) => handleNumberChange('costo', e.target.value)}
+                  className={`${getInputClass('costo')} pr-10`}
+                  inputMode="numeric"
+                />
+                <span className="absolute inset-y-0 right-3 flex items-center text-gray-500">
+                  $
+                </span>
+              </div>
+              {errors.costo && (
+                <p className="mt-1 text-sm text-red-600">Solo se permiten números</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-[var(--azul-oscuro)] mb-1">
+                Tipo de Mantenimiento
+              </label>
+              <div className="relative">
+                <select
+                  value={formData.tipoMantenimiento}
+                  onChange={(e) => handleChange('tipoMantenimiento', e.target.value)}
+                  className="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] appearance-none bg-white text-gray-700"
+                >
+                  <option value="PREVENTIVO">Preventivo</option>
+                  <option value="CORRECTIVO">Correctivo</option>
+                  <option value="REVISION">Revisión</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-[var(--azul-oscuro)] mb-1">
+                Kilometraje <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={formData.kilometraje}
+                  onChange={(e) => handleNumberChange('kilometraje', e.target.value)}
+                  className={`${getInputClass('kilometraje')} pr-10`}
+                  inputMode="numeric"
+                  required
+                />
+                <span className="absolute inset-y-0 right-3 flex items-center text-gray-500">
+                  km
+                </span>
+              </div>
+              {errors.kilometraje && (
+                <p className="mt-1 text-sm text-red-600">
+                  {isNaN(Number(formData.kilometraje))
+                    ? 'Solo se permiten números'
+                    : 'Este campo es obligatorio'}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer con botones fijo */}
+        <div className="flex-shrink-0 p-4 sm:p-6 pt-0 border-t border-gray-100">
+          <div className="flex flex-col sm:flex-row justify-between space-y-2 sm:space-y-0 sm:space-x-3">
             <button
               type="button"
               onClick={handleCancel}
-              className="flex-1 bg-[var(--azul-oscuro)] hover:bg-[#0a1f42] text-white py-2.5 px-4 rounded-md font-medium transition-colors"
+              className="w-full sm:flex-1 bg-[var(--azul-oscuro)] hover:bg-[#0a1f42] text-white py-2.5 px-4 rounded-md font-medium transition-colors"
             >
               Cancelar
             </button>
             <button
               type="button"
               onClick={handleSubmit}
-              className="flex-1 bg-[var(--naranja)] hover:bg-[#e69500] text-white py-2.5 px-4 rounded-md font-medium transition-colors"
+              className="w-full sm:flex-1 bg-[var(--naranja)] hover:bg-[#e69500] text-white py-2.5 px-4 rounded-md font-medium transition-colors"
             >
               Aceptar
             </button>
