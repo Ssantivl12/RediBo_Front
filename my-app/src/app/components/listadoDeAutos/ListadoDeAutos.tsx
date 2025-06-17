@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import styles from './ListadoDeAutos.module.css';
 import ModalDeConfirmacion from '@components/modal/ModalDeConfirmacion';
 import { API_URL } from '@config/api';
-
+import Image from 'next/image';
 // Interfaces para las solicitudes y autos
 interface SolicitudPendiente {
   idReserva: string;
@@ -238,13 +238,15 @@ const ListadoDeAutos: React.FC<ListadoDeAutosProps> = ({ activeFilter, autos = [
         ) : (
           autosFiltrados.map(auto => (
             <div key={auto.idAuto} className={styles.carContainer}>
-              <img 
+              <Image 
                 src={'https://cdn.motor1.com/images/mgl/6ZzvLZ/s1/2024-audi-rs7-performance-review.jpg'} 
                 alt={auto.nombre} 
+                width={400} 
+                height={250}
                 className={styles.carImage}
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = '/placeholder-car.jpg'; // Imagen de respaldo si la original falla
+                  target.src = '/placeholder-car.jpg';
                 }} 
               />
               <div className={styles.carInfo}>

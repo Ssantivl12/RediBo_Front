@@ -76,7 +76,7 @@ export default function ConfigConductores({ idReserva }: { idReserva: number | n
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const telefonoRegex = /^\d{7,15}$/;
 
-    let erroresTemp: typeof errores = {};
+    const erroresTemp: typeof errores = {};
 
     conductores.forEach((c, index) => {
       const err: typeof errores[0] = {};
@@ -385,7 +385,7 @@ export default function ConfigConductores({ idReserva }: { idReserva: number | n
       <div className="flex justify-end space-x-4">
         <button
           onClick={() => router.back()}
-          className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 font-bold rounded-md hover:bg-gray-50 transition-colors"
+          className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 font-bold hover:bg-gray-50 transition-colors"
         >
           Cancelar
         </button>
@@ -434,7 +434,7 @@ export default function ConfigConductores({ idReserva }: { idReserva: number | n
             <div className="flex justify-end space-x-4">
               <button
                 onClick={() => setMostrarModalConfirmacion(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 font-bold rounded-md hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 font-bold hover:bg-gray-50 transition-colors"
               >
                 Modificar
               </button>

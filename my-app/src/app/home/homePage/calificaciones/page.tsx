@@ -3,12 +3,14 @@
 import { useState, useEffect } from 'react';
 import CalificarInquilino from '@/app/components/modals/CalificarInquilino';
 import NavbarInicioSesion from '@/app/components/navbar/NavbarSecundario';
-import ComentariosRecibidos from '@/app/components/modals/ComentariosRecibidos';
+import ComentariosRecibidos from '@/app/components/modals/ComentariosInquilino';
+import { inquilinos, Inquilino } from '@/app/components/modals/data/inquilinos';
 
 const CalificacionesPage = () => {
   const [activeTab, setActiveTab] = useState('comentarios');
   const [activeBtn, setActiveBtn] = useState(4);
-
+  const [inquilinoSeleccionado, setInquilinoSeleccionado] = useState<Inquilino | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => {

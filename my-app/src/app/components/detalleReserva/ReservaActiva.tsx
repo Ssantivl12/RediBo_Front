@@ -4,17 +4,19 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import "../../globals.css";
-
+import Image from 'next/image';
+import { VehiculoReservaDetalle } from '@/app/types/vehiculoReservaDetalle';
 interface ReservaActivaProps {
   id: number | null;
 }
 
 export default function ReservaActiva({ id }: ReservaActivaProps) {
   const router = useRouter();
-  const [vehiculo, setVehiculo] = useState<any>(null);
+  const [vehiculo, setVehiculo] = useState<VehiculoReservaDetalle | null>(null);
   const [estadoTiempo, setEstadoTiempo] = useState<number>(0);
   const [idReserva, setIdReserva] = useState<number | null>(null);
-  const [idVehiculo, setIdVehiculo] = useState<number | null>(id);
+  //const [idVehiculo, setIdVehiculo] = useState<number | null>(id);
+  const idVehiculo = id;
 
   useEffect(() => {
     if (idVehiculo) {
@@ -66,7 +68,8 @@ export default function ReservaActiva({ id }: ReservaActivaProps) {
       .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const cancelarReserva = async (porTiempo = false) => {
+  //const cancelarReserva = async (porTiempo = false) => {
+  const cancelarReserva = async () => {
     if (idReserva) {
       try {
         await axios.post(`https://vercel-back-speed-code.vercel.app/reservas/cancelar/${idReserva}`);
@@ -98,9 +101,11 @@ export default function ReservaActiva({ id }: ReservaActivaProps) {
           <p className="text-gray-600">Fecha de fin: {new Date(vehiculo.reserva.fecha_fin).toLocaleString()}</p>
           <p className="mt-2 text-gray-600">Estado: {vehiculo.reserva.estado === 'confirmada' ? 'Confirmada' : 'Pendiente'}</p>
         </div>
-        <img
-          src={vehiculo.imagen} 
+        <Image
+          src={vehiculo.imagen}
           alt={vehiculo.marca}
+          width={300}
+          height={200}
           className="w-full md:w-48 h-auto rounded-lg shadow-md object-cover"
         />
       </div>
@@ -118,7 +123,8 @@ export default function ReservaActiva({ id }: ReservaActivaProps) {
           Confirmar Pago
         </button>
         <button
-          onClick={() => cancelarReserva(false)}
+          //onClick={() => cancelarReserva(false)}
+          onClick={() => cancelarReserva()}
           className="bg-[#FCA311] hover:bg-[#e2910f] text-white px-6 py-3 rounded-xl shadow-lg transition duration-200 transform hover:scale-105"
         >
           Cancelar Reserva

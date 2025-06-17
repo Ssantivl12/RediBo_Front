@@ -121,7 +121,7 @@ function ProfileMenu({
   onLogout,
   router,
   onBecomeHost,
-  onBecomeDriver,
+  //onBecomeDriver,
   user
 }: {
   onLogout: () => void;

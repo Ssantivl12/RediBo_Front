@@ -40,7 +40,7 @@ const PagoTarjeta: FC<PagoTarjetaProps> = ({
   setCvv,
   setDireccion,
   setCorreoElectronico,
-  onCancel,
+  //onCancel,
 }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -121,7 +121,7 @@ const PagoTarjeta: FC<PagoTarjetaProps> = ({
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
-          } catch (err) {
+          } catch {
             setMensajeErrorModal("Error al descargar comprobante.");
           }
         }, 2000);
@@ -129,9 +129,14 @@ const PagoTarjeta: FC<PagoTarjetaProps> = ({
         const msg = response.data?.mensaje || "Error desconocido";
         setMensajeErrorModal("Error en el pago: " + msg);
       }
-    } catch (error: any) {
-      const msg = error.response?.data?.error || "Hubo un error al realizar el pago.";
-      setMensajeErrorModal("Error: " + msg);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        const msg = error.response?.data?.error || "Hubo un error al realizar el pago.";
+        setMensajeErrorModal("Error: " + msg);
+      } else {
+        console.error("Error inesperado:", error);
+        setMensajeErrorModal("Ocurrió un error inesperado.");
+      }
     } finally {
       setLoading(false);
     }
@@ -219,7 +224,7 @@ const PagoTarjeta: FC<PagoTarjetaProps> = ({
               maxLength={2}
               value={anio}
               onChange={(e) => {
-                let val = e.target.value.replace(/\D/g, '');
+                const val = e.target.value.replace(/\D/g, '');
                 if (val.length <= 2) setAnio(val);
               }}
               onBlur={() => {
@@ -256,7 +261,7 @@ const PagoTarjeta: FC<PagoTarjetaProps> = ({
               maxLength={3}
               value={cvv}
               onChange={(e) => {
-                let val = e.target.value.replace(/\D/g, '');
+                const val = e.target.value.replace(/\D/g, '');
                 setCvv(val.slice(0, 3));
               }}
               className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-center"

@@ -6,14 +6,15 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { HiOutlineCalendar } from "react-icons/hi";
 import { FaUsers, FaCog, FaGasPump, FaShieldAlt, FaStar } from "react-icons/fa";
-
+import Image from 'next/image';
+import { VehiculoReservaFull } from '@/app/types/VehiculoReservaFull';
 interface ReservaVehiculoProps {
   id: number | null;
 }
 
 export default function ReservaVehiculo({ id }: ReservaVehiculoProps) {
   const router = useRouter();
-  const [vehiculo, setVehiculo] = useState<any>(null);
+  const [vehiculo, setVehiculo] = useState<VehiculoReservaFull | null>(null);
   const [estadoTiempo, setEstadoTiempo] = useState<number>(0);
   const [idReserva, setIdReserva] = useState<number | null>(null);
 
@@ -104,14 +105,28 @@ const formatoTiempo = (segundos: number) => {
         </div>
 
         <div className="w-full h-64 bg-gray-200 rounded-lg mb-4 overflow-hidden">
-          <img src={vehiculo.imagen} alt="imagen" className="w-full h-full object-cover" />
+          {/*<img src={vehiculo.imagen} alt="imagen" className="w-full h-full object-cover" />*/}
+          <Image
+            src={vehiculo.imagen}
+            alt="imagen"
+            width={500}  // Ajustá según el tamaño real que usa tu contenedor
+            height={300} // Ajustá también para mantener proporción
+            className="w-full h-full object-cover"
+          />
         </div>
 
         <div className="flex items-center mb-6 pb-6 border-b border-gray-200">
-          <img
+          {/*<img
             src={vehiculo.imagen}
             alt="Avatar vehículo"
             className="w-12 h-12 rounded-full object-cover mr-4 border"
+          />*/}
+          <Image
+            src={vehiculo.imagen}
+            alt="Avatar vehículo"
+            width={48}  // w-12 → 12 * 4px = 48px
+            height={48} // h-12 → 12 * 4px = 48px
+            className="rounded-full object-cover mr-4 border"
           />
           <div>
             <p className="font-semibold text-black">Auto ofrecido por {vehiculo.propietario}</p>

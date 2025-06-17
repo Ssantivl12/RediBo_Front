@@ -4,12 +4,12 @@ import { FC, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import Modal from "./Modal";
-
+import Image from 'next/image';
 interface PagoQRProps {
   loading: boolean;
   qrImage: string;
   idReserva: number | string;
-  monto: any;
+  monto: number | string;
   handleConfirmacionQR: () => void;
 }
 
@@ -168,10 +168,14 @@ const PagoQR: FC<PagoQRProps> = ({ loading, qrImage, idReserva, monto }) => {
       const msg = response.data?.error || "Error desconocido al pagar.";
       setMensajeModalQR(msg);
     }
-  } catch (error: any) {
-    console.error("Error:", error);
-    const msg = error.response?.data?.error || "Hubo un error al realizar el pago.";
-    setMensajeModalQR(msg);
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      const msg = error.response?.data?.error || "Hubo un error al realizar el pago.";
+      setMensajeModalQR(msg);
+    } else {
+      console.error("Error inesperado:", error);
+      setMensajeModalQR("Hubo un error inesperado.");
+    }
   }
 };
 
@@ -187,10 +191,12 @@ const PagoQR: FC<PagoQRProps> = ({ loading, qrImage, idReserva, monto }) => {
           {loading ? (
             <p className="text-lg text-gray-600">Generando código QR...</p>
           ) : qrURL ? (
-            <img
+            <Image
               src={qrURL}
               alt="Código QR"
-              className="w-[250px] h-[250px] object-contain rounded-lg shadow-lg border border-gray-300"
+              width={250}
+              height={250}
+              className="object-contain rounded-lg shadow-lg border border-gray-300"
             />
           ) : (
             <p className="text-red-500 text-lg">No se pudo generar el QR.</p>

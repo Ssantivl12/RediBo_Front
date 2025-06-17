@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-
+import Image from 'next/image';
 export default function ReservaExpirada() {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
@@ -26,10 +26,12 @@ export default function ReservaExpirada() {
       <h1 className="text-2xl font-bold text-[#212E5E]">Tiempo Para Reserva Expirada</h1>
 
       <div className="text-6xl">
-        <img
+        <Image
           src="https://cdn.pixabay.com/photo/2014/10/06/04/29/sad-476039_1280.png"
           alt="Reserva expirada"
-          className="w-40 h-35 mx-auto"
+          width={160}  // equivalente a w-40 (40 * 4px)
+          height={140} // aproximado al h-35 (35 * 4px)
+          className="mx-auto"
           loading="lazy"
         />
       </div>
