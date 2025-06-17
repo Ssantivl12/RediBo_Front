@@ -1,29 +1,28 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-
 import { useRouter } from 'next/navigation';
-
 import { useUser } from '@/hooks/useUser';
 import { NotificacionesCampana } from '@/app/home/NotificacionesCampana';
-//import { NotificacionesCampana } from '@/app/Notificaciones/componentes/notificacionCampana/NotificacionesCampana';
 import Link from 'next/link';
 import SegmentedButtonGroup from '@/app/components/filters/SegmentedButtonGroup';
 import Image from "next/image";
 
+interface NavbarInicioSesionProps {
+  onBecomeHost: () => void;
+  onBecomeDriver: () => void;
+  activeBtn: number;
+  setActiveBtn: (index: number) => void;
+  className?: string; // <-- AGREGA ESTA LÍNEA
+}
 
 export default function NavbarInicioSesion({ 
   onBecomeHost, 
   onBecomeDriver,
   activeBtn,
   setActiveBtn,
-}: 
-{ onBecomeHost: () => void; 
-  onBecomeDriver: () => void;
-  activeBtn: number;
-  setActiveBtn: (index: number) => void;
-}) {
-  //const [activeBtn, setActiveBtn] = useState(0);
+  className // <-- AGREGA ESTA LÍNEA
+}: NavbarInicioSesionProps) {
   const user = useUser();
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -53,7 +52,7 @@ export default function NavbarInicioSesion({
   };
 
   return (
-    <div className="px-6 md:px-20 lg:px-40 py-4 border-b border-[rgba(0,0,0,0.05)] font-[var(--fuente-principal)] bg-[var(--blanco)]">
+    <div className={`${className ? className : ""} px-6 md:px-20 lg:px-40 py-4 border-b border-[rgba(0,0,0,0.05)] font-[var(--fuente-principal)] bg-[var(--blanco)]`}>
       <nav className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 md:gap-0">
         <Link href="/home/homePage">
           <h1 className="text-3xl md:text-4xl text-[var(--naranja)] font-[var(--tamaño-black)] drop-shadow-[var(--sombra)]">
@@ -71,8 +70,7 @@ export default function NavbarInicioSesion({
         {/*Campana*/}
         <NotificacionesCampana/>
         
-
-        <div className="relative z-[1000] flex justify-center gap-0 bg-[var(--naranja)] rounded-[20px] shadow-[var(--sombra)] overflow-visible">
+        <div className="relative z-[100] flex justify-center gap-0 bg-[var(--naranja)] rounded-[20px] shadow-[var(--sombra)] overflow-visible">
           <button 
             onClick={() => setIsMenuOpen(!isMenuOpen)} 
             className="flex items-center md:flex-none pl-4 md:pl-4 py-2 font-[var(--tamaña-bold)] text-[var(--blanco)] text-sm md:text-base whitespace-nowrap">
@@ -83,7 +81,7 @@ export default function NavbarInicioSesion({
               <Image
                 src={profilePhotoUrl}
                 alt="Foto de perfil"
-                width={32} // w-8 = 32px
+                width={32}
                 height={32}
                 className="object-cover rounded-full border border-white"
               />
@@ -103,7 +101,7 @@ export default function NavbarInicioSesion({
             )}
           </div>
 
-            {/* Componente menú */}
+          {/* Componente menú */}
           {isMenuOpen && (
             <ProfileMenu 
               onLogout={handleLogout} 
@@ -123,7 +121,7 @@ function ProfileMenu({
   onLogout,
   router,
   onBecomeHost,
-  //onBecomeDriver,
+  onBecomeDriver,
   user
 }: {
   onLogout: () => void;
