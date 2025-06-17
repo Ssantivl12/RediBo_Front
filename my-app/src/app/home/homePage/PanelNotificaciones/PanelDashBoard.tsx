@@ -28,7 +28,7 @@ export default function PanelDashBoard({ usuarioId }: PanelDashBoardProps) {
 
   const transformarNotificaciones = (data: NotificationResponse[]): Notificacion[] => {
     return data.map((item) => ({
-      id: item.id,
+      idNotificacion: item.idNotificacion,
       titulo: item.titulo,
       descripcion: item.mensaje,
       mensaje: item.mensaje,
@@ -77,10 +77,10 @@ export default function PanelDashBoard({ usuarioId }: PanelDashBoardProps) {
       const notisTransformadas = transformarNotificaciones(sseNotifications);
       
       setNotificaciones((prev) => {
-        const notificacionesExistentes = new Map(prev.map(n => [n.id, n]));
+        const notificacionesExistentes = new Map(prev.map(n => [n.idNotificacion, n]));
         
         const nuevas = notisTransformadas.filter(nueva => {
-          const existente = notificacionesExistentes.get(nueva.id);
+          const existente = notificacionesExistentes.get(nueva.idNotificacion);
           return !existente || existente.leido !== nueva.leido;
         });
 
@@ -99,7 +99,7 @@ export default function PanelDashBoard({ usuarioId }: PanelDashBoardProps) {
 
         const todasLasNotificaciones = [...prev];
         nuevas.forEach(nueva => {
-          const index = todasLasNotificaciones.findIndex(n => n.id === nueva.id);
+          const index = todasLasNotificaciones.findIndex(n => n.idNotificacion === nueva.idNotificacion);
           if (index !== -1) {
             todasLasNotificaciones[index] = nueva;
           } else {
@@ -114,7 +114,7 @@ export default function PanelDashBoard({ usuarioId }: PanelDashBoardProps) {
 
   const handleNotificacionClick = async (notificacion: Notificacion) => {
     if (!notificacion.leido) {
-      await markAsRead(notificacion.id);
+      await markAsRead(notificacion.idNotificacion);
     }
     setSelectedNotificacion(notificacion);
   };
@@ -129,7 +129,7 @@ export default function PanelDashBoard({ usuarioId }: PanelDashBoardProps) {
       await api.delete(`/notificaciones/eliminar-notificacion/${id}`, {
         data: { usuarioId },
       });
-      setNotificaciones((prev) => prev.filter((n) => n.id !== id));
+      setNotificaciones((prev) => prev.filter((n) => n.idNotificacion !== id));
       setSelectedNotificacion(null);
       cargarNotificaciones();
       setMensajeExito("¡Se eliminó correctamente!");
@@ -183,7 +183,7 @@ export default function PanelDashBoard({ usuarioId }: PanelDashBoardProps) {
               <div className="flex flex-col space-y-4">
                 {notificaciones.map((notificacion) => (
                   <div
-                    key={notificacion.id}
+                    key={notificacion.idNotificacion}
                     className={`p-2 sm:p-4 border rounded-lg transition-shadow ${
                       notificacion.leido 
                       ?'bg-white'
@@ -295,7 +295,7 @@ export default function PanelDashBoard({ usuarioId }: PanelDashBoardProps) {
           isOpen={true}
           notification={selectedNotificacion}
           onClose={handleCloseModal}
-          onDelete={() => handleDelete(selectedNotificacion.id)}
+          onDelete={() => handleDelete(selectedNotificacion.idNotificacion)}
         />
         
         </motion.div>
