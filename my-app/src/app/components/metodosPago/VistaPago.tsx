@@ -8,7 +8,8 @@ import PagoTargeta from "./PagoTargeta";
 import PagoQR from "./PagoQR";
 import "../../globals.css";
 import { IoArrowBack } from "react-icons/io5";
-
+import Image from 'next/image';
+import { VehiculoReservaFull } from "@/app/types/VehiculoReservaFull";
 interface VistaPagoProps {
   id: string | null;
   monto: string | null;
@@ -17,10 +18,10 @@ interface VistaPagoProps {
 const VistaPago = ({ id, monto }: VistaPagoProps) => {
   const router = useRouter();
   const [modoPago, setModoPago] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [qrImage, setQrImage] = useState("");
-  const [vehiculo, setVehiculo] = useState<any>(null);
-  const [idReserva, setIdReserva] = useState<number | null>(null);
+  const [loading] = useState(false);
+  const [qrImage] = useState("");
+  const [vehiculo, setVehiculo] = useState<VehiculoReservaFull | null>(null);
+  const [, setIdReserva] = useState<number | null>(null);
 
   const [nombreTitular, setNombreTitular] = useState("");
   const [numeroTarjeta, setNumeroTarjeta] = useState("");
@@ -83,10 +84,17 @@ const VistaPago = ({ id, monto }: VistaPagoProps) => {
 
         <div className="space-y-4">
           <div className="relative flex justify-center">
-            <img
+            {/*<img
               src={vehiculo.imagen}
               alt={`${vehiculo.marca} ${vehiculo.modelo}`}
               className="w-[400px] h-[250px] object-cover rounded-lg shadow-lg"
+            />*/}
+            <Image
+              src={vehiculo.imagen}
+              alt={`${vehiculo.marca} ${vehiculo.modelo}`}
+              width={400}
+              height={250}
+              className="object-cover rounded-lg shadow-lg"
             />
             <button
               onClick={() => {

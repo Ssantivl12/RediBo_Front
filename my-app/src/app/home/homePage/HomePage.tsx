@@ -118,7 +118,7 @@ export default function MainHome() {
 
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background-principal)]">
-      <header className="border-t border-b border-[rgba(215, 30, 30, 0.1)] shadow-[0_2px_6px_rgba(0,0,0,0.1)]">
+      <header className="border-t border-[rgba(215, 30, 30, 0.1)] shadow-[0_2px_6px_rgba(0,0,0,0.1)]">
         <NavbarSecundario
           activeBtn={activeBtn}
           setActiveBtn={setActiveBtn}

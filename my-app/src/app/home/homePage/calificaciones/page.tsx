@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import CalificarInquilino from '@/app/components/modals/CalificarInquilino';
-import NavbarInicioSesion from '@/app/components/navbar/NavbarSecundario';
-import ComentariosRecibidos from '@/app/components/modals/ComentariosRecibidos';
+import NavbarInicioSesion2 from '@/app/components/navbar/NavbarNeutroSecundario';
+import ComentariosRecibidos from '@/app/components/modals/comentariosRecibidos'; /*Comentarios NO comentarios*/ 
 
 const CalificacionesPage = () => {
   const [activeTab, setActiveTab] = useState('comentarios');
@@ -18,7 +18,7 @@ const CalificacionesPage = () => {
 
   return (
     <>
-      <NavbarInicioSesion
+      <NavbarInicioSesion2
         activeBtn={activeBtn}
         setActiveBtn={setActiveBtn}
         onBecomeHost={() => console.log('Quiero ser host')}

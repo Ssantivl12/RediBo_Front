@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@/hooks/useUser';
 import { NotificacionesCampana } from '@/app/home/NotificacionesCampana';
 import Link from 'next/link';
-import SegmentedButtonGroup from '@/app/components/filters/SegmentedButtonGroup';
 import Image from "next/image";
 
 interface NavbarInicioSesionProps {
@@ -16,11 +15,9 @@ interface NavbarInicioSesionProps {
   className?: string; // <-- AGREGA ESTA LÍNEA
 }
 
-export default function NavbarInicioSesion({ 
+export default function NavbarInicioSesion2({ 
   onBecomeHost, 
   onBecomeDriver,
-  activeBtn,
-  setActiveBtn,
   className // <-- AGREGA ESTA LÍNEA
 }: NavbarInicioSesionProps) {
   const user = useUser();
@@ -41,15 +38,6 @@ export default function NavbarInicioSesion({
     router.push('/');
   };
 
-  const handleButtonClick = (index: number) => {
-    setActiveBtn(index);
-    if (index === 0) {
-      const carouselElement = document.getElementById('carousel');
-      if (carouselElement) {
-        carouselElement.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  };
 
   return (
     <div className={`${className ? className : ""} px-6 md:px-20 lg:px-40 py-4 border-b border-[rgba(0,0,0,0.16)] font-[var(--fuente-principal)] bg-[var(--blanco)]`}>
@@ -59,13 +47,6 @@ export default function NavbarInicioSesion({
             REDIBO
           </h1>
         </Link>
-
-        {/* ✅ Botones segmentados reutilizables */}
-        <SegmentedButtonGroup
-          buttons={['Home', 'Autos', 'Botón3', 'Botón4', 'Botón5']}
-          activeIndex={activeBtn}
-          onClick={handleButtonClick}
-        />
         
         {/*Campana*/}
         <NotificacionesCampana/>

@@ -38,9 +38,10 @@ const CalificarModal: React.FC<CalificarModalProps> = ({ isOpen, onClose, inquil
   const [showWarning, setShowWarning] = useState<boolean>(false);
   
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  //const [submitError, setSubmitError] = useState<string>('');
-//  const [showSubmitError, setShowSubmitError] = useState<boolean>(false);
-
+  const [, setSubmitError] = useState<string>('');
+  const [, setShowSubmitError] = useState<boolean>(false);
+// ...otros hooks...
+const [, setImgError] = useState(false); // <-- Mueve aquí y usa imgError en el render
   useEffect(() => {
     if (!isOpen) {
       setTimeout(() => {
@@ -53,8 +54,8 @@ const CalificarModal: React.FC<CalificarModalProps> = ({ isOpen, onClose, inquil
         setWarningMessage('');
         setShowWarning(false);
         setIsSubmitting(false);
-       // setSubmitError('');
-       // setShowSubmitError(false);
+        setSubmitError('');
+        setShowSubmitError(false);
       }, 300);
     }
   }, [isOpen]);
@@ -86,11 +87,11 @@ const CalificarModal: React.FC<CalificarModalProps> = ({ isOpen, onClose, inquil
     }, 2000);
   };
 
- /* const validateForbiddenCharacters = (text: string): boolean => {
+/*  const validateForbiddenCharacters = (text: string): boolean => {
     const forbiddenChars = /[#@$%^&*]/;
     return forbiddenChars.test(text);
-  };
-*/
+  };*/
+
   const isOnlyNumeric = (text: string): boolean => {
     const trimmedText = text.trim();
     return /^\d+$/.test(trimmedText) && trimmedText.length > 0;
@@ -320,7 +321,7 @@ const CalificarModal: React.FC<CalificarModalProps> = ({ isOpen, onClose, inquil
       const commentToSend = comentario.trim();
       
       setIsSubmitting(true);
-      //setShowSubmitError(false);
+      setShowSubmitError(false);
       
       setTimeout(() => {
         console.log('Comentario que se enviaría:', {
@@ -386,7 +387,6 @@ const guardarComentarioLocal = () => {
   localStorage.setItem(key, JSON.stringify(guardados));
 };
 
-
   return (
     <div className="fixed inset-0 flex items-center justify-center z-100 p-4 bg-opacity-80 backdrop-blur-sm">
       <div className="bg-white rounded-lg border-2 p-6 w-full max-w-md mx-auto relative min-h-fit" style={{ borderColor: '#FCA311' }}>
@@ -402,22 +402,18 @@ className="absolute top-4 right-4 text-gray-400 hover:text-red-600 text-2xl font
         <div className="flex items-start space-x-4 mb-4">
           <div className="w-20 h-20 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold text-xl flex-shrink-0">
             {inquilino.img ? (
-              <Image 
-                src={inquilino.img} 
-                alt={inquilino.nombre}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  const parent = target.parentElement;
-                  if (parent) {
-                    parent.innerHTML = inquilino.nombre.split(' ').map(n => n[0]).join('');
-                  }
-                }}  
-              />
-            ) : (
-              inquilino.nombre.split(' ').map(n => n[0]).join('')
-            )}
+             <Image
+      src={inquilino.img}
+      alt={inquilino.nombre}
+      width={80}
+      height={80}
+      className="w-full h-full object-cover"
+      onError={() => setImgError(true)}
+      unoptimized // si la imagen es externa y no está en next.config.js
+    />
+  ) : (
+    inquilino.nombre.split(' ').map(n => n[0]).join('')
+  )}
           </div>
           <div className="flex-1">
             <h3 className="font-semibold text-lg text-gray-800">
@@ -519,4 +515,3 @@ className="absolute top-4 right-4 text-gray-400 hover:text-red-600 text-2xl font
 };
 
 export default CalificarModal;
-

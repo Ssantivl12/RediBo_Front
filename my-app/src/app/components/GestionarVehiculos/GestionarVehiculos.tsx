@@ -9,7 +9,8 @@ import { API_URL } from '@config/api';
 import { VerKilometraje } from "../auto/VerKilometraje";
 import VehiculoFilter from "@components/filters/VehiculoFilter";
 import { VerComentarios } from "@components/ComentariosModal/ComentariosModal";
-
+import Image from 'next/image';
+import { useCallback } from 'react';
 interface Kilometraje {
   id: string;
   nombre: string;
@@ -117,11 +118,6 @@ export default function GestionarVehiculos() {
   const historialKilometraje: Kilometraje[] = [
     // ...
   ];
-
-  useEffect(() => {
-    cargarVehiculos();
-  }, []);
-
   const renderPromedioCalificacion = (vehiculo: Vehiculo) => {
     if (!vehiculo.promedioCalificacion || vehiculo.promedioCalificacion === 0) {
       return null;
@@ -149,7 +145,7 @@ export default function GestionarVehiculos() {
     );
   };
 
-  const cargarVehiculos = async () => {
+  const cargarVehiculos = useCallback(async () => {
     setCargando(true);
     setError("");
     const idArrendador = params.idArrendador;
@@ -189,7 +185,11 @@ export default function GestionarVehiculos() {
     } finally {
       setCargando(false);
     }
-  };
+  }, [params.idArrendador]);
+  useEffect(() => {
+    cargarVehiculos();
+  }, [cargarVehiculos]);
+
 
   const getFilteredVehiculos = () => {
     let filtered = vehiculos.filter((v) =>
@@ -701,9 +701,11 @@ export default function GestionarVehiculos() {
               <div className="flex flex-col md:flex-row">
                 <div className="w-full md:w-1/3 lg:w-2/5 h-[250px] md:h-[300px] lg:h-[350px] bg-gray-300 flex items-center justify-center text-gray-600 text-2xl overflow-hidden">
                   {vehiculo.imagen ? (
-                    <img
+                    <Image
                       src={vehiculo.imagen}
                       alt={`${vehiculo.marca} ${vehiculo.modelo}`}
+                      width={500}  // Ajustá el width según el tamaño real que quieras (por ahora 500 como ejemplo)
+                      height={300} // Ajustá el height también según tu diseño
                       className="w-full h-full object-cover"
                     />
                   ) : (

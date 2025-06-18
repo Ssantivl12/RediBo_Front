@@ -4,6 +4,7 @@ import { useState} from "react";
 import CalificarModal from "./CalificarModal";
 import ComentariosInquilino from "./ComentariosInquilino";
 
+
 interface Comentario {
   id: number;
   autor: string;
