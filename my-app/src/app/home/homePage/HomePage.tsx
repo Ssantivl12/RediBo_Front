@@ -114,9 +114,9 @@ export default function MainHome(){
          activeBtn={activeBtn}
          setActiveBtn={setActiveBtn}
          onBecomeHost={() => setActiveModal('vehicleData')} 
-         onBecomeDriver={function (): void {
+         /*onBecomeDriver={function (): void {
           throw new Error('Function not implemented.');
-        } } />
+        } }*/ />
       </header>
 
       <header className="/* headerFilters */">

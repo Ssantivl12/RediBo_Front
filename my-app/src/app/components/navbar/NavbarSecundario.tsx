@@ -10,7 +10,7 @@ import Image from "next/image";
 
 interface NavbarInicioSesionProps {
   onBecomeHost: () => void;
-  onBecomeDriver: () => void;
+ // onBecomeDriver: () => void;
   activeBtn: number;
   setActiveBtn: (index: number) => void;
   className?: string; // <-- AGREGA ESTA LÍNEA
@@ -18,7 +18,7 @@ interface NavbarInicioSesionProps {
 
 export default function NavbarInicioSesion({ 
   onBecomeHost, 
-  onBecomeDriver,
+ // onBecomeDriver,
   activeBtn,
   setActiveBtn,
   className // <-- AGREGA ESTA LÍNEA
@@ -106,8 +106,8 @@ export default function NavbarInicioSesion({
             <ProfileMenu 
               onLogout={handleLogout} 
               router={router} 
-              onBecomeHost={onBecomeHost} 
-              onBecomeDriver={onBecomeDriver} 
+              onBecomeHost={onBecomeHost}
+             // onBecomeDriver={onBecomeDriver} 
               user={user}
             />
           )}
@@ -121,13 +121,12 @@ function ProfileMenu({
   onLogout,
   router,
   onBecomeHost,
-  onBecomeDriver,
   user
 }: {
   onLogout: () => void;
   router: ReturnType<typeof useRouter>;
   onBecomeHost: () => void;
-  onBecomeDriver: () => void;
+ // onBecomeDriver: () => void;
   user: ReturnType<typeof useUser>;  
 }) {
   return (

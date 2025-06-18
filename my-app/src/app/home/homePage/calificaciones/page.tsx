@@ -22,7 +22,7 @@ const CalificacionesPage = () => {
         activeBtn={activeBtn}
         setActiveBtn={setActiveBtn}
         onBecomeHost={() => console.log('Quiero ser host')}
-        onBecomeDriver={() => console.log('Quiero ser conductor')}
+        //onBecomeDriver={() => console.log('Quiero ser conductor')}
         className="fixed top-0 left-0 right-0 z-50"
       />
 

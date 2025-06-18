@@ -165,7 +165,7 @@ const inquilinos: Inquilino[] = [
 ];
 
 export default function CalificarInquilino() {
-  const [renderFlag, setRenderFlag] = useState(false);
+  const [, setRenderFlag] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isComentariosModalOpen, setIsComentariosModalOpen] = useState(false);
   const [selectedInquilino, setSelectedInquilino] = useState<Inquilino | null>(null);

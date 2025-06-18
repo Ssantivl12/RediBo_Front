@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { FaStar } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 
 type CommentedCar = {
   id: string;
@@ -20,31 +21,39 @@ const variableDeDireccion = 'comentarios-direction';
 export default function ComentariosRecibidos() {
   // 1. Estados
   const [items, setItems] = useState<CommentedCar[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [respuestasVisibles, setRespuestasVisibles] = useState<{ [id: string]: boolean }>({});
   const [respuestasTexto, setRespuestasTexto] = useState<{ [id: string]: string }>({});
   const [respuestasEnviadas, setRespuestasEnviadas] = useState<{ [id: string]: string }>({});
   const [cargadoRespuestas, setCargadoRespuestas] = useState(false);
 
-  // 2. Estados persistentes
-  const [sortBy, setSortBy] = useState<'date' | 'rating'>(() => {
-    if (typeof window === 'undefined') return 'date';
-    return (localStorage.getItem(variableDeOrden) as 'date' | 'rating') || 'date';
-  });
-  const [direction, setDirection] = useState<'asc' | 'desc'>(() => {
-    if (typeof window === 'undefined') return 'desc';
-    return (localStorage.getItem(variableDeDireccion) as 'asc' | 'desc') || 'desc';
-  });
+  // 2. Estados persistentes (INICIALIZA CON VALORES FIJOS)
+  const [sortBy, setSortBy] = useState<'date' | 'rating'>('date');
+  const [direction, setDirection] = useState<'asc' | 'desc'>('desc');
+
+  // 2b. Actualiza con localStorage SOLO en cliente
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedSort = localStorage.getItem(variableDeOrden);
+      if (savedSort === 'date' || savedSort === 'rating') setSortBy(savedSort);
+      const savedDir = localStorage.getItem(variableDeDireccion);
+      if (savedDir === 'asc' || savedDir === 'desc') setDirection(savedDir);
+    }
+  }, []);
 
   const defaultImage =
     'https://images.unsplash.com/photo-1596165494776-c27e37f666fe?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3';
 
   // 3. Persistir sortBy y direction
   useEffect(() => {
-    localStorage.setItem(variableDeOrden, sortBy);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(variableDeOrden, sortBy);
+    }
   }, [sortBy]);
   useEffect(() => {
-    localStorage.setItem(variableDeDireccion, direction);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(variableDeDireccion, direction);
+    }
   }, [direction]);
 
   // 4. Cargar mock con IDs
@@ -198,10 +207,13 @@ export default function ComentariosRecibidos() {
               >
                 <div className="grid grid-cols-12 gap-4 items-start text-center">
                   <div className="col-span-12 sm:col-span-2 flex flex-col items-center justify-start">
-                    <img
+                    <Image
                       src={item.direccionImagen || defaultImage}
                       alt={`${item.marca} ${item.modelo}`}
+                      width={300}
+                      height={120}
                       className="w-full h-30 object-cover rounded"
+                      style={{ objectFit: 'cover', width: '100%', height: '120px' }}
                     />
                     <h2 className="text-lg font-semibold mt-2">
                       {item.marca} {item.modelo}
